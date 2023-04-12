@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+start
+:turn counter = 0;
+repeat
+repeat
+:Card is played;
+:robot does what card says;
+if(is there an obstacle in the way?) then (no)
+:Robot keeps doing what card says;
+    if(has robot fallen off board?) then (no)
+    :robot stops;
+    else(yes)
+    :robot is transferred to reboot station next round, and receive penalty;
+    endif
+else(yes)
+:robot stops infront of obstacle, and stops doing what card says;
+endif
+repeat while (have all robots played their cards for the round?) is (no) not (yes)
+:board now takes action;
+if(is robot standing on object with effect?) then (yes)
+:Robot is moved or recieves damage from laser hits;
+else(no)
+endif
+if(is robot standing infront another robot facing it?) then (yes)
+:robot is shot with laser and recieves damagecard;
+else (no)
+endif
+:turn counter += 1;
+repeat while(turn counter = 5) is (no) not (yes)
+stop
+
+@enduml

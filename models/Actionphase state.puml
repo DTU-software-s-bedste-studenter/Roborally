@@ -1,0 +1,15 @@
+@startuml
+
+[*] --> CardIsPlayed : player standing closest to \n antenna starts, turns = 1
+
+CardIsPlayed --> RobotMoves : does what card says
+
+RobotMoves --> CardIsPlayed : have all players had their turn?
+
+RobotMoves --> BoardAction : all players had there turn,\n board takes action, pushes,\n moves and shoots
+
+BoardAction --> CardIsPlayed : player standing closest to \n antenna starts, turns += 1
+
+BoardAction --> [*] : turns = 5
+
+@enduml

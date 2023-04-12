@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/state-diagram
+
+[*] --> UpgradePhase
+
+state UpgradePhase{
+}
+
+UpgradePhase --> ProgrammingPhase : Upgrades have been purchased
+
+state ProgrammingPhase {
+}
+
+ProgrammingPhase ---> ActionPhase : programming cards have been laid out
+
+state ActionPhase {
+}
+
+ActionPhase --> UpgradePhase: all 5 turns has been played
+
+}
+
+ActionPhase --> [*] : robot has picked up all checkpoint tokens
+@enduml

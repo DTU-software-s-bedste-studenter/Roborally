@@ -1,0 +1,91 @@
+@startuml
+class Player
+class Gameboard
+class ProgrammingCard{
+Move
+Turn
+}
+class ProgrammingPile{
+SpecialProgrammingCard
+ProgrammingCard
+DamageCard
+}
+class DisardPile{
+SpecialProgrammingCard
+ProgrammingCard
+DamageCard
+}
+class Startboard
+class EnergyCubes
+class Timer
+class UpgradeCard{
+Permanent
+Temporary
+}
+class Slots
+class InstalledUpgrade{
+Permanent UpgradeCard
+}
+class DamageCard{
+Virus
+SPAM
+WORM
+Trojan Horse
+}
+class Playermat
+class Card
+class Token
+class RebootToken
+class CheckpointToken
+class SpecialProgrammingCard
+class Antenna
+class RobotFigure{
+Lasers
+}
+class RoboRallyGame
+class Board
+class Register{
+ProgrammingCard
+DamageCard
+SpecialProgrammingCard
+}
+
+class BoardField {
+Normal
+Gear
+Blue belt
+Green belt
+Pit
+Laser
+Walls
+Energy
+Checkpoint
+Reboot
+Start
+}
+
+Card "240" ---- RoboRallyGame
+RoboRallyGame -- "1" Timer
+Player "2-6" -- RoboRallyGame
+RoboRallyGame -- "48" EnergyCubes
+RoboRallyGame  -- "6" Playermat
+RoboRallyGame - "42" Token
+RoboRallyGame -- "1" Antenna
+RoboRallyGame -- "6" RobotFigure
+Slots "5" <|-- "5" Register
+Board "7" - RoboRallyGame
+Card <|-- "120" ProgrammingCard
+SpecialProgrammingCard "6" -|> Card
+Card <|-- "74" DamageCard
+Card <|- "40" UpgradeCard
+Token <|-- "6" RebootToken
+Token <|- "36" CheckpointToken
+Gameboard "6" -|> Board
+Startboard "1" --|> Board
+BoardField - Gameboard
+BoardField --  Startboard
+Playermat "1" -- "10" Slots
+Slots "3" <|-- "3" InstalledUpgrade
+Slots "1" <|-- "1" ProgrammingPile
+Slots "1" <|-- "1" DisardPile
+@enduml

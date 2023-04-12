@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+start
+:draw 9 cards to hand from pile;
+if (Are you able to draw 9 cards from the program pile?) then (yes)
+else (no)
+:shuffle discardpile;
+:pull up until 9 cards on hand;
+endif
+:lay cards out on slots;
+  if (5 cards laid out?) then (no)
+    :choose a card for each slot;
+  else(yes)
+  endif
+  :enter actionPhase;
+stop
+
+@enduml
