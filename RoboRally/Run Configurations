@@ -1,0 +1,8 @@
+Matthias Run:
+--module-path /Users/matt/Documents/javafx-sdk-20/lib --add-modules=javafx.controls
+
+Anders Run:
+--module-path C:\Users\ansi1\JavaFX\javafx-sdk-19.0.2.1\lib --add-modules=javafx.controls
+
+Anthon Run:
+--module-path /Users/anthonhertzbie/Documents/javafx-sdk-20-2/lib --add-modules=javafx.controls
