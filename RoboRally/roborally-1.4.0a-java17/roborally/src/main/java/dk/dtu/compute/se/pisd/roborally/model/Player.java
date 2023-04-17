@@ -48,10 +48,15 @@ public class Player extends Subject {
     private CommandCardField[] program;
     private CommandCardField[] cards;
 
+    private int powerCubes;
+    public int getPowerCubes() {return this.powerCubes;}
+    public void setPowerCubes(int number) {this.powerCubes = number;}
+
     public Player(@NotNull Board board, String color, @NotNull String name) {
         this.board = board;
         this.name = name;
         this.color = color;
+        this.powerCubes = 0;
 
         this.space = null;
 

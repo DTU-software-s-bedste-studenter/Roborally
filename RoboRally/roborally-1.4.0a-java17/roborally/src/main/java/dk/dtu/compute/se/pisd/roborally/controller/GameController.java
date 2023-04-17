@@ -187,19 +187,32 @@ public class GameController {
 
             switch (command) {
                 case FORWARD_1:
-                    this.moveForward(player, 1);
+                    this.movePlayer(player, 1, false);
                     break;
                 case FORWARD_2:
-                    this.moveForward(player, 2);
+                    this.movePlayer(player, 2, false);
                     break;
                 case FORWARD_3:
-                    this.moveForward(player, 3);
+                    this.movePlayer(player, 3, false);
                     break;
                 case RIGHT:
                     this.turnRight(player);
                     break;
                 case LEFT:
                     this.turnLeft(player);
+                    break;
+                case U_TURN:
+                    this.makeUTurn(player);
+                    break;
+                case BACK_UP:
+                    this.movePlayer(player, 1, true);
+                    break;
+                case POWER_UP:
+                    Player currentPlayer = this.board.getCurrentPlayer();
+                    currentPlayer.setPowerCubes(currentPlayer.getPowerCubes() + 1);
+                    break;
+                case AGAIN:
+                    notImplemented();
                     break;
                 default:
                     // DO NOTHING (for now)
@@ -208,12 +221,17 @@ public class GameController {
     }
 
     // TODO: V2
-    public void moveForward(@NotNull Player player, int numberOfSpaces) {
+    public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
         while (numberOfSpaces > 0)
         {
             Space space = player.getSpace();
             if (player != null && player.board == board && space != null) {
                 Heading heading = player.getHeading();
+                if (isReversed)
+                {
+                    heading = heading.next();
+                    heading = heading.next();
+                }
                 Space target = board.getNeighbour(space, heading);
                 if (target != null) {
                     // XXX note that this removes an other player from the space, when there
@@ -236,6 +254,13 @@ public class GameController {
     // TODO: V2
     public void turnLeft(@NotNull Player player) {
         if (player != null && player.board == board) {
+            player.setHeading(player.getHeading().prev());
+        }
+    }
+
+    public void makeUTurn(@NotNull Player player) {
+        if (player != null && player.board == board) {
+            player.setHeading(player.getHeading().prev());
             player.setHeading(player.getHeading().prev());
         }
     }
