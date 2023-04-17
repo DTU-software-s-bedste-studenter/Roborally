@@ -19,11 +19,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package dk.dtu.compute.se.pisd.roborally.model;
+package dk.dtu.compute.se.pisd.roborally.view;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
+import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import javafx.application.Platform;
 
 /**
  * ...
@@ -31,34 +31,20 @@ import java.util.List;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public enum Command {
+public interface ViewObserver extends Observer {
 
-    // This is a very simplistic way of realizing different commands.
+    void updateView(Subject subject);
 
-    FORWARD_1("Fwd 1"),
-    FORWARD_2("Fwd 2"),
-    FORWARD_3("Fwd 3"),
-
-    RIGHT("Turn Right"),
-    LEFT("Turn Left"),
-
-    OPTION_LEFT_RIGHT("Left OR Right", LEFT, RIGHT);
-
-    final public String displayName;
-
-    final private List<Command> options;
-
-    Command(String displayName, Command... options) {
-        this.displayName = displayName;
-        this.options = Collections.unmodifiableList(Arrays.asList(options));
-    }
-
-    public boolean isInteractive() {
-        return !options.isEmpty();
-    }
-
-    public List<Command> getOptions() {
-        return options;
+    @Override
+    default void update(Subject subject) {
+        // This default implementation of the update method makes sure that ViewObserver implementations
+        // are doing the update only in the FX application thread. The update of the view is instead
+        // done in the updateView() method;
+        if (Platform.isFxApplicationThread()) {
+            updateView(subject);
+        } else {
+            Platform.runLater(() -> updateView(subject));
+        }
     }
 
 }
