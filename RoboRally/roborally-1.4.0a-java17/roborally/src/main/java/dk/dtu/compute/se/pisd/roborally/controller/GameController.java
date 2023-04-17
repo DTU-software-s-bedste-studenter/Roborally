@@ -221,6 +221,13 @@ public class GameController {
     }
 
     // TODO: V2
+
+    /**
+     * Moves a player relative to its heading
+     * @param player player to be moved
+     * @param numberOfSpaces number of spaces to move
+     * @param isReversed if true, player moves backwards
+     */
     public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
         while (numberOfSpaces > 0)
         {
@@ -233,14 +240,35 @@ public class GameController {
                     heading = heading.next();
                 }
                 Space target = board.getNeighbour(space, heading);
-                if (target != null) {
-                    // XXX note that this removes an other player from the space, when there
-                    //     is another player on the target. Eventually, this needs to be
-                    //     implemented in a way so that other players are pushed away!
+                if (target != null && target.getPlayer() == null) {
+                    target.setPlayer(player);
+                }
+                else {
+                    pushPlayer(target.getPlayer(), heading);
                     target.setPlayer(player);
                 }
             }
             numberOfSpaces--;
+        }
+    }
+
+    /**
+     * Pushes a player to a neighbouring space
+     * @param player player to be pushed
+     * @param heading direction of the push
+     */
+    public void pushPlayer(@NotNull Player player, Heading heading)
+    {
+        Space space = player.getSpace();
+        if (player != null && player.board == board && space != null) {
+            Space target = board.getNeighbour(space, heading);
+            if (target != null && target.getPlayer() == null) {
+                target.setPlayer(player);
+            }
+            else {
+                pushPlayer(target.getPlayer(), heading);
+                target.setPlayer(player);
+            }
         }
     }
 
