@@ -74,18 +74,6 @@ public class SpaceView extends StackPane implements ViewObserver {
         } else {
             this.setStyle("-fx-background-color: black;");
         }
-
-        Pane pane = new Pane();
-        Rectangle rectangle = new Rectangle(0.0, 0.0, SPACE_WIDTH, SPACE_HEIGHT);
-        rectangle.setFill(Color.TRANSPARENT);
-        pane.getChildren().add(rectangle);
-        // SOUTH
-        Line line = new Line(2, SPACE_HEIGHT-2, SPACE_WIDTH-2, SPACE_HEIGHT-2);
-        line.setStroke(Color.RED);
-        line.setStrokeWidth(5);
-        pane.getChildren().add(line);
-        this.getChildren().add(pane);
-
         // this.drawWalls();
 
         // updatePlayer();
@@ -102,20 +90,17 @@ public class SpaceView extends StackPane implements ViewObserver {
         // should repeat based on number of walls in the space
         Canvas canvas = new Canvas(SPACE_WIDTH, SPACE_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setStroke(Color.RED);
-        gc.setLineWidth(WALL_WIDTH);
-        gc.setLineCap(StrokeLineCap.SQUARE);
-        gc.strokeLine(2, SPACE_HEIGHT - 2, SPACE_WIDTH - 2, SPACE_HEIGHT - 2);
-        // Heading heading = Heading.values()[(int) (Math.random() * 4)];
-        // switch (heading) {
-        //     case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
-        //     case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
-        //     case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
-        //     case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
-        //     default -> {
-        //         assert false;
-        //     }
-        // }
+        gc.setFill(Color.RED);
+        Heading heading = Heading.values()[(int) (Math.random() * 4)];
+        switch (heading) {
+            case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
+            case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
+            case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
+            case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
+            default -> {
+                assert false;
+            }
+        }
         this.getChildren().add(canvas);
     }
 
@@ -142,6 +127,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == this.space) {
             updatePlayer();
+            drawWalls();
         }
     }
 
