@@ -260,4 +260,15 @@ public class GameController {
         assert false;
     }
 
+    /**
+     * Runs the execution process of the chosen option
+     * @param player current player
+     * @param command command to be executed
+     */
+    public void runChosenOption(@NotNull Player player, Command command){
+        executeCommand(player, command);
+        board.setPhase(Phase.ACTIVATION);
+        setNextPlayer(player, board.getStep());
+        continuePrograms();
+    }
 }

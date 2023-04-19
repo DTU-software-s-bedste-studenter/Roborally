@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -57,14 +58,17 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
+    private ArrayList<ArrayList<ArrayList<Heading>>> walls;
+
     public Board(int width, int height, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
         this.height = height;
+        this.walls = populateWalls();
         spaces = new Space[width][height];
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y);
+                Space space = new Space(this, x, y, walls.get(x).get(y));
                 spaces[x][y] = space;
             }
         }
@@ -212,5 +216,55 @@ public class Board extends Subject {
                 ", Step: " + getStep();
     }
 
+    private ArrayList<ArrayList<ArrayList<Heading>>> populateWalls()
+    {
+        // hardcoded walls for now
+        ArrayList<ArrayList<ArrayList<Heading>>> walls = new ArrayList<>();
+        for (int i = 0; i < 8; i++)
+        {
+            walls.add(new ArrayList<>());
+            for (int j = 0; j < 8; j++)
+            {
+                walls.get(i).add(new ArrayList<>());
+                if (j == 0)
+                {
+                    walls.get(i).get(j).add(NORTH);
+                }
+                if (i == 0)
+                {
+                    walls.get(i).get(j).add(WEST);
+                }
+                if (i == 7)
+                {
+                    walls.get(i).get(j).add(EAST);
+                }
+                if (j == 7)
+                {
+                    walls.get(i).get(j).add(SOUTH);
+                }
+                if (i == 3 && j == 3)
+                {
+                    walls.get(i).get(j).add(NORTH);
+                    walls.get(i).get(j).add(WEST);
+                }
+                if (i == 4 && j == 3)
+                {
+                    walls.get(i).get(j).add(NORTH);
+                    walls.get(i).get(j).add(EAST);
+                }
+                if (i == 3 && j == 4)
+                {
+                    walls.get(i).get(j).add(WEST);
+                    walls.get(i).get(j).add(SOUTH);
+                }
+                if (i == 4 && j == 4)
+                {
+                    walls.get(i).get(j).add(EAST);
+                    walls.get(i).get(j).add(SOUTH);
+                }
+            }
+        }
+        return walls;
+    }
 
 }

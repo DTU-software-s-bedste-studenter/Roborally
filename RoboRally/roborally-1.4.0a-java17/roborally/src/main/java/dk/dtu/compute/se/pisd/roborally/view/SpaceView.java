@@ -56,7 +56,6 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     public final Space space;
 
-
     public SpaceView(@NotNull Space space) {
         this.space = space;
 
@@ -91,21 +90,22 @@ public class SpaceView extends StackPane implements ViewObserver {
         Canvas canvas = new Canvas(SPACE_WIDTH, SPACE_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.RED);
-        Heading heading = Heading.values()[(int) (Math.random() * 4)];
-        switch (heading) {
-            case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
-            case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
-            case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
-            case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
-            default -> {
-                assert false;
+        for (Heading wall : space.getWalls())
+        {
+            switch (wall) {
+                case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
+                case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
+                case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
+                case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
+                default -> {
+                    assert false;
+                }
             }
         }
         this.getChildren().add(canvas);
     }
 
     private void updatePlayer() {
-        this.getChildren().clear();
 
         Player player = space.getPlayer();
         if (player != null) {
@@ -126,8 +126,9 @@ public class SpaceView extends StackPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
-            updatePlayer();
+            this.getChildren().clear();
             drawWalls();
+            updatePlayer();
         }
     }
 

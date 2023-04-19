@@ -32,6 +32,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * ...
  *
@@ -62,6 +64,11 @@ public class PlayerView extends Tab implements ViewObserver {
 
     private GameController gameController;
 
+    /**
+     * The Constuctor for the player view.
+     * @param gameController The controller currently in use.
+     * @param player the player associated with the view.
+     */
     public PlayerView(@NotNull GameController gameController, @NotNull Player player) {
         super(player.getName());
         this.setStyle("-fx-text-base-color: " + player.getColor() + ";");
@@ -203,15 +210,17 @@ public class PlayerView extends Tab implements ViewObserver {
                     //      an interactive command card, and the buttons should represent
                     //      the player's choices of the interactive command card. The
                     //      following is just a mockup showing two options
-                    Button optionButton = new Button("Option1");
-                    optionButton.setOnAction( e -> gameController.notImplemented());
-                    optionButton.setDisable(false);
-                    playerInteractionPanel.getChildren().add(optionButton);
 
-                    optionButton = new Button("Option 2");
-                    optionButton.setOnAction( e -> gameController.notImplemented());
-                    optionButton.setDisable(false);
-                    playerInteractionPanel.getChildren().add(optionButton);
+                    List<Command> options = player.board.getCurrentPlayer().getProgramField(gameController.board.getStep()).getCard().command.getOptions();
+
+                    for (Command command:options) {
+                        Button optionButton = new Button(command.displayName);
+                        optionButton.setOnAction(e -> gameController.runChosenOption(player, command));
+                        optionButton.setDisable(false);
+                        playerInteractionPanel.getChildren().add(optionButton);
+                    }
+
+
                 }
             }
         }
