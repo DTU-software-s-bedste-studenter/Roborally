@@ -231,6 +231,10 @@ public class GameController {
                     heading = heading.next();
                 }
                 Space target = board.getNeighbour(space, heading);
+                if (willCollideWithWall(space, target, heading))
+                {
+                    return;
+                }
                 if (target != null && target.getPlayer() == null) {
                     target.setPlayer(player);
                 }
@@ -329,5 +333,14 @@ public class GameController {
                 startProgrammingPhase();
             }
         }
+    }
+
+    /**
+     * Checks if moving from a space to one next to it, will result in a wall collision.
+     * @return True if a wall collision is detected.
+     */
+    private boolean willCollideWithWall(Space spaceFrom, Space spaceTo, Heading direction)
+    {
+        return (spaceFrom.getWalls().contains(direction) || spaceTo.getWalls().contains(direction.next().next()));
     }
 }
