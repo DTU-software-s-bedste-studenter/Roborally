@@ -151,23 +151,14 @@ public class GameController {
             int step = board.getStep();
             if (step >= 0 && step < Player.NO_REGISTERS) {
                 CommandCard card = currentPlayer.getProgramField(step).getCard();
-                if (card != null) {
+                if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
+                } else if (card != null) {
+                    board.setPhase(Phase.PLAYER_INTERACTION);
+                    return;
                 }
-                int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-                if (nextPlayerNumber < board.getNumberOfPlayers()) {
-                    board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-                } else {
-                    step++;
-                    if (step < Player.NO_REGISTERS) {
-                        makeProgramFieldsVisible(step);
-                        board.setStep(step);
-                        board.setCurrentPlayer(board.getPlayer(0));
-                    } else {
-                        startProgrammingPhase();
-                    }
-                }
+                setNextPlayer(currentPlayer, step);
             } else {
                 // this should not happen
                 assert false;
@@ -313,5 +304,30 @@ public class GameController {
         // XXX just for now to indicate that the actual method is not yet implemented
         assert false;
     }
-
+    /**
+     * Runs the execution process of the chosen option
+     * @param player current player
+     * @param command command to be executed
+     */
+    public void runChosenOption(@NotNull Player player, Command command){
+        executeCommand(player, command);
+        board.setPhase(Phase.ACTIVATION);
+        setNextPlayer(player, board.getStep());
+        continuePrograms();
+    }
+    private void setNextPlayer(Player player, int step) {
+        int nextPlayerNumber = board.getPlayerNumber(player) + 1;
+        if (nextPlayerNumber < board.getNumberOfPlayers()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            step++;
+            if (step < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(step);
+                board.setStep(step);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                startProgrammingPhase();
+            }
+        }
+    }
 }
