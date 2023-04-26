@@ -154,7 +154,7 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                } else if (card != null) {
+                }else if (card != null) {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     return;
                 }
@@ -203,7 +203,7 @@ public class GameController {
                     currentPlayer.setPowerCubes(currentPlayer.getPowerCubes() + 1);
                     break;
                 case AGAIN:
-                    notImplemented();
+                    this.playPrevCardAgain(player, board.getStep());
                     break;
                 default:
                     // DO NOTHING (for now)
@@ -298,6 +298,20 @@ public class GameController {
         } else {
             return false;
         }
+    }
+
+    public Command playPrevCardAgain(Player player, int step){
+        int prevStep = step-1;
+        if(prevStep >= 0) {
+            Command command = board.getCurrentPlayer().getProgramField(prevStep).getCard().command;
+            if (command == Command.AGAIN && prevStep >= 1) {
+                playPrevCardAgain(player, prevStep);
+            } else if (command != Command.AGAIN && !command.isInteractive()) {
+                executeCommand(player, command);
+            }
+            return command;
+        }
+        return null;
     }
 
     /**
