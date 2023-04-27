@@ -24,6 +24,8 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * ...
  *
@@ -33,8 +35,6 @@ import org.jetbrains.annotations.NotNull;
 public class GameController {
 
     final public Board board;
-
-    ConveyorBelt conveyorBelt = new ConveyorBelt();
     public GameController(@NotNull Board board) {
         this.board = board;
     }
@@ -332,6 +332,23 @@ public class GameController {
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
+            }
+        }
+    }
+
+    /**
+     * Runs all activations on the spaces which players stand on
+     * not in the running code yet, don't know which class to implement.
+     * Would've thought it was in setNextPlayer because step changes there.
+     * new Gamecontroller is a temporary solution.
+     */
+    private void activateActions() {
+        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+            List<FieldAction> actions = board.getPlayer(i).getSpace().getActions();
+            if (!actions.isEmpty()) {
+                for (int j = 0; j < actions.size(); j++) {
+                    actions.get(j).doAction(new GameController(board), board.getPlayer(i).getSpace());
+                }
             }
         }
     }
