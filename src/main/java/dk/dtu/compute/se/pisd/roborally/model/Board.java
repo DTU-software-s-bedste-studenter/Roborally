@@ -64,11 +64,10 @@ public class Board extends Subject {
         this.boardName = boardName;
         this.width = width;
         this.height = height;
-        this.walls = populateWalls();
         spaces = new Space[width][height];
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y, walls.get(x).get(y));
+                Space space = new Space(this, x, y);
                 spaces[x][y] = space;
             }
         }

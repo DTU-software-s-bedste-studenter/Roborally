@@ -34,6 +34,7 @@ public class GameController {
 
     final public Board board;
 
+    ConveyorBelt conveyorBelt = new ConveyorBelt();
     public GameController(@NotNull Board board) {
         this.board = board;
     }
