@@ -83,25 +83,25 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     private void drawWalls()
     {
-        final int WALL_WIDTH = 5;
-        // List<Heading> wallHeadings = this.space.getWalls();
-        // should repeat based on number of walls in the space
-        Canvas canvas = new Canvas(SPACE_WIDTH, SPACE_HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.RED);
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_wall.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         for (Heading wall : space.getWalls())
         {
+            ImageView imageView = new ImageView(image);
             switch (wall) {
-                case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
-                case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
-                case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
-                case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
-                default -> {
-                    assert false;
-                }
+                case EAST -> imageView.setRotate(90);
+                case SOUTH -> imageView.setRotate(180);
+                case WEST -> imageView.setRotate(-90);
             }
+            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+            this.getChildren().add(imageView);
         }
-        this.getChildren().add(canvas);
     }
 
     private void updatePlayer() {
@@ -134,13 +134,12 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     public void drawBackground()
     {
-        Image image = null;
+        ImageView imageView = new ImageView();
         try {
-            image = new Image(new FileInputStream(System.getProperty("user.dir") + File.separator + "src/main/resources/test_tiles.png"));
+                imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/concrete_floor.png")));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        ImageView imageView = new ImageView(image);
         imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
         imageView.fitWidthProperty().setValue(SPACE_WIDTH);
         this.getChildren().add(imageView);
