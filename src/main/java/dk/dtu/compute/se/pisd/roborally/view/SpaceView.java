@@ -22,6 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
@@ -81,29 +82,6 @@ public class SpaceView extends StackPane implements ViewObserver {
         update(space);
     }
 
-    private void drawWalls()
-    {
-        Image image = null;
-        try {
-            image = new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_wall.png"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        for (Heading wall : space.getWalls())
-        {
-            ImageView imageView = new ImageView(image);
-            switch (wall) {
-                case EAST -> imageView.setRotate(90);
-                case SOUTH -> imageView.setRotate(180);
-                case WEST -> imageView.setRotate(-90);
-            }
-            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
-            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
-            this.getChildren().add(imageView);
-        }
-    }
-
     private void updatePlayer() {
 
         Player player = space.getPlayer();
@@ -127,16 +105,41 @@ public class SpaceView extends StackPane implements ViewObserver {
         if (subject == this.space) {
             this.getChildren().clear();
             drawBackground();
+            if (space.getActions().size() > 0) {
+                drawFieldActions();
+            }
             drawWalls();
             updatePlayer();
         }
     }
 
+    private void drawWalls()
+    {
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_wall.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        for (Heading wall : space.getWalls())
+        {
+            ImageView imageView = new ImageView(image);
+            switch (wall) {
+                case EAST -> imageView.setRotate(90);
+                case SOUTH -> imageView.setRotate(180);
+                case WEST -> imageView.setRotate(270);
+            }
+            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+            this.getChildren().add(imageView);
+        }
+    }
     public void drawBackground()
     {
         ImageView imageView = new ImageView();
         try {
-                imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/concrete_floor.png")));
+            imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/concrete_floor.png")));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -145,4 +148,26 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.getChildren().add(imageView);
     }
 
+    public void drawFieldActions()
+    {
+        ImageView imageView = new ImageView();
+        switch (space.getActions().get(0).getClass().getName())
+        {
+            case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
+                ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
+                try {
+                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (conveyorBelt.getHeading()){
+                    case EAST -> imageView.setRotate(90);
+                    case SOUTH -> imageView.setRotate(180);
+                    case WEST -> imageView.setRotate(270);
+                }
+        }
+        imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+        imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+        this.getChildren().add(imageView);
+    }
 }
