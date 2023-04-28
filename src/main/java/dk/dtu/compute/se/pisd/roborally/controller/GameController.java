@@ -154,7 +154,7 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                }else if (card != null) {
+                } else if (card != null) {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     return;
                 }
@@ -300,7 +300,7 @@ public class GameController {
         }
     }
 
-    public Command playPrevCardAgain(Player player, int step){
+    public void playPrevCardAgain(@NotNull Player player, int step){
         int prevStep = step-1;
         if(prevStep >= 0) {
             Command command = board.getCurrentPlayer().getProgramField(prevStep).getCard().command;
@@ -308,10 +308,10 @@ public class GameController {
                 playPrevCardAgain(player, prevStep);
             } else if (command != Command.AGAIN && !command.isInteractive()) {
                 executeCommand(player, command);
+            } else {
+                board.setPhase(Phase.PLAYER_INTERACTION);
             }
-            return command;
         }
-        return null;
     }
 
     /**

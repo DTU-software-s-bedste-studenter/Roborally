@@ -39,7 +39,7 @@ public class CommandCardField extends Subject {
 
     public CommandCardField(Player player) {
         this.player = player;
-        this. card = null;
+        this.card = null;
         this.visible = true;
     }
 

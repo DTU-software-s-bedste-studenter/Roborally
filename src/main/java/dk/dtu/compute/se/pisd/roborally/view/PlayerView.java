@@ -199,26 +199,30 @@ public class PlayerView extends Tab implements ViewObserver {
 
 
             } else {
-                if (!programPane.getChildren().contains(playerInteractionPanel)) {
-                    programPane.getChildren().remove(buttonPanel);
-                    programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
-                }
-                playerInteractionPanel.getChildren().clear();
-
-                if (player.board.getCurrentPlayer() == player) {
-                    List<Command> options = player.board.getCurrentPlayer().getProgramField(gameController.board.getStep()).getCard().command.getOptions();
-
-                    for (Command command:options) {
-                        Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(e -> gameController.runChosenOption(player, command));
-                        optionButton.setDisable(false);
-                        playerInteractionPanel.getChildren().add(optionButton);
-                    }
-
-
-                }
+                displayInteractionButtons();
             }
         }
     }
 
+    private void displayInteractionButtons()
+    {
+        if (!programPane.getChildren().contains(playerInteractionPanel))
+        {
+            programPane.getChildren().remove(buttonPanel);
+            programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
+        }
+        playerInteractionPanel.getChildren().clear();
+
+        if (player.board.getCurrentPlayer() == player) {
+            int stepCheckedForAgainCommand = gameController.board.getStep();
+            List<Command> options = player.getProgramField(stepCheckedForAgainCommand).getCard().command.getOptions();
+
+            for (Command command : options) {
+                Button optionButton = new Button(command.displayName);
+                optionButton.setOnAction(e -> gameController.runChosenOption(player, command));
+                optionButton.setDisable(false);
+                playerInteractionPanel.getChildren().add(optionButton);
+            }
+        }
+    }
 }
