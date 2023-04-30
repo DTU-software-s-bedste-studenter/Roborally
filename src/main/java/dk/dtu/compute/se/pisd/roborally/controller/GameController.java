@@ -326,6 +326,7 @@ public class GameController {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
             step++;
+            activateActions();
             if (step < Player.NO_REGISTERS) {
                 makeProgramFieldsVisible(step);
                 board.setStep(step);
@@ -337,19 +338,13 @@ public class GameController {
     }
 
     /**
-     * Runs all activations on all spaces
-     * not in the running code yet, don't know which class to implement.
-     * Would've thought it was in setNextPlayer because step changes there.
-     * new Gamecontroller is a temporary solution.
+     * Runs all activations on spaces where a player is standing
      */
     public void activateActions() {
-        for (int i = 0; i < board.width; i++) {
-            for (int j = 0; j < board.height; j++){
-                Space space = board.getSpace(i,j);
-                List<FieldAction> actions = space.getActions();
-                if (!actions.isEmpty()) {
-                    actions.forEach(fieldAction-> fieldAction.doAction(new GameController(board), space));
-                }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            Space space = board.getPlayer(i).getSpace();
+            for (FieldAction fieldaction: board.getPlayer(i).getSpace().getActions()) {
+                fieldaction.doAction(this, space);
             }
         }
     }
