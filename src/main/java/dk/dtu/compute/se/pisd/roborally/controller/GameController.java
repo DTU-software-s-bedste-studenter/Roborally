@@ -337,17 +337,18 @@ public class GameController {
     }
 
     /**
-     * Runs all activations on the spaces which players stand on
+     * Runs all activations on all spaces
      * not in the running code yet, don't know which class to implement.
      * Would've thought it was in setNextPlayer because step changes there.
      * new Gamecontroller is a temporary solution.
      */
-    private void activateActions() {
-        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-            List<FieldAction> actions = board.getPlayer(i).getSpace().getActions();
-            if (!actions.isEmpty()) {
-                for (int j = 0; j < actions.size(); j++) {
-                    actions.get(j).doAction(new GameController(board), board.getPlayer(i).getSpace());
+    public void activateActions() {
+        for (int i = 0; i < board.width; i++) {
+            for (int j = 0; j < board.height; j++){
+                Space space = board.getSpace(i,j);
+                List<FieldAction> actions = space.getActions();
+                if (!actions.isEmpty()) {
+                    actions.forEach(fieldAction-> fieldAction.doAction(new GameController(board), space));
                 }
             }
         }
