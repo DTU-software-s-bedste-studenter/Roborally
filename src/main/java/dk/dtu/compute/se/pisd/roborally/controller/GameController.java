@@ -342,7 +342,9 @@ public class GameController {
     }
 
     /**
-     * Runs all activations on spaces where a player is standing
+     * Runs all activations on spaces where a player is standing,
+     * afterwards check if a player's position is on a checkpoint,
+     * then checks if a winner has been found
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
@@ -375,6 +377,11 @@ public class GameController {
         return (spaceFrom.getWalls().contains(direction) || spaceTo.getWalls().contains(direction.next().next()));
     }
 
+    /**
+     * Checks if a winner has been found by looking at players chekpointtokens
+     * and total checkpoints in game.
+     * @param player
+     */
     private void checkForWinner(Player player) {
         if(player.getCheckpointTokens() == board.checkpoints){
             winnerFound = true;

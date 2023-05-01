@@ -126,6 +126,13 @@ public class AppController implements Observer {
         }
         return false;
     }
+
+    /**
+     * Works the same as stop game without saving the game,
+     * also prints congratulations to winner.
+     * @param player
+     * @return true if gamecontroller =! null
+     */
     public boolean resetGame(Player player) {
         if (gameController != null) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
