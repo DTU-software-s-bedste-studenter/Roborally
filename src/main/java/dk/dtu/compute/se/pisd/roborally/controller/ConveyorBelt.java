@@ -21,14 +21,10 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * ...
@@ -58,15 +54,23 @@ public class ConveyorBelt extends FieldAction {
                 gameController.pushPlayer(space.getPlayer(), getHeading());
                 return true;
             } else {
-                if(gameController.board.getPlayerNumber(currentPlayer) < gameController.board.getPlayerNumber(nextPlayer)){
-                    gameController.pushPlayer(currentPlayer, getHeading());
+                if(gameController.board.getPlayerNumber(currentPlayer) < gameController.board.getPlayerNumber(nextPlayer)) {
+                    if (nextSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                        ConveyorBelt conveyorBelt = (ConveyorBelt) nextSpace.getActions().get(0);
+                        nextPlayer.setConveySpaceCheck(nextSpace);
+                        gameController.pushPlayer(nextPlayer, conveyorBelt.getHeading());
+                        gameController.pushPlayer(currentPlayer,getHeading());
+                    } else {
+                        gameController.pushPlayer(currentPlayer, getHeading());
+                    }
                     return true;
                 }
                 else{
                     if(nextPlayer.getSpace() == nextPlayer.getPrevSpace()){
-                        gameController.pushPlayer(currentPlayer, getHeading());
-                        return true;
-                    } else{
+                            gameController.pushPlayer(currentPlayer, getHeading());
+                            return true;
+                        }
+                    else{
                         nextPlayer.setSpace(nextPlayer.getPrevSpace());
                         return false;
                     }

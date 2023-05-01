@@ -43,8 +43,8 @@ public class Player extends Subject {
     private String color;
 
     private Space space;
-
     private Space prevSpace;
+    private Space conveySpaceCheck;
     private Heading heading = SOUTH;
 
     private CommandCardField[] program;
@@ -125,6 +125,10 @@ public class Player extends Subject {
     }
 
     public Space getPrevSpace(){return prevSpace;}
+
+    public void setConveySpaceCheck(Space space){this.conveySpaceCheck = space;}
+
+    public Space getConveySpaceCheck(){return conveySpaceCheck;}
     public Heading getHeading() {
         return heading;
     }
