@@ -15,7 +15,7 @@ public class Gears extends FieldAction{
         if(space.rotation?){
             gameController.turnLeft(space.getPlayer());
         }
-        
+
         return false;
     }
 }
