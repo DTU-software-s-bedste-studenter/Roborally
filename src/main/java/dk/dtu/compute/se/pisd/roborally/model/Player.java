@@ -51,6 +51,7 @@ public class Player extends Subject {
     private CommandCardField[] cards;
 
     private int powerCubes;
+    private int checkpointTokens;
     public int getPowerCubes() {return this.powerCubes;}
     public void setPowerCubes(int number) {this.powerCubes = number;}
 
@@ -59,6 +60,7 @@ public class Player extends Subject {
         this.name = name;
         this.color = color;
         this.powerCubes = 0;
+        this.checkpointTokens = 0;
         this.prevSpace = null;
         this.space = null;
 
@@ -143,5 +145,11 @@ public class Player extends Subject {
 
     public CommandCardField getCardField(int i) {
         return cards[i];
+    }
+
+    public int getCheckpointTokens(){return checkpointTokens;}
+
+    public void setCheckpointTokens(int token){
+        this.checkpointTokens = token;
     }
 }
