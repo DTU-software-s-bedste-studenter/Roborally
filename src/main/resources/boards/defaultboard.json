@@ -201,6 +201,35 @@
       ],
       "x": 7,
       "y": 7
+    },
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.PushPanel",
+          "INSTANCE": {
+            "heading": "SOUTH",
+            "reg1": 1,
+            "reg2": 3
+          }
+        }
+      ],
+      "x": 4,
+      "y": 1
+    },
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.Gears",
+          "INSTANCE": {
+            "rotation": "COUNTERCLOCKWISE"
+          }
+        }
+      ],
+      "x": 0,
+      "y": 6
     }
+
   ]
 }
