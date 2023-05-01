@@ -5,22 +5,24 @@ import dk.dtu.compute.se.pisd.roborally.model.Space;
 
 public class Gears extends FieldAction{
 
-    private Rotation rot;
+    private Rotation rotation;
 
-    public Gears(Rotation rotation){
-        this.rot = rotation;
+    private Rotation getRotation(){
+        return this.rotation;
     }
 
 
     @Override
     public boolean doAction(GameController gameController, Space space) {
-        if(this.rot == Rotation.CLOCKWISE){
+        if(getRotation() == Rotation.CLOCKWISE){
             gameController.turnRight(space.getPlayer());
+            return true;
         }
 
 
-        if(this.rot == Rotation.COUNTERCLOCKWISE){
+        if(getRotation() == Rotation.COUNTERCLOCKWISE){
             gameController.turnLeft(space.getPlayer());
+            return true;
         }
 
         return false;
