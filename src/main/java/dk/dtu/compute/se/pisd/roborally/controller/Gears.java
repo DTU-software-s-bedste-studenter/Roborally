@@ -7,7 +7,7 @@ public class Gears extends FieldAction{
 
     private Rotation rotation;
 
-    private Rotation getRotation(){
+    public Rotation getRotation(){
         return this.rotation;
     }
 
