@@ -50,6 +50,8 @@ public class Space extends Subject {
         this.x = x;
         this.y = y;
         player = null;
+        actions = getActions();
+        walls = getWalls();
     }
 
     public Player getPlayer() {
