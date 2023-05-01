@@ -22,6 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.Checkpoint;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.controller.Gears;
 import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
@@ -195,6 +196,21 @@ public class SpaceView extends StackPane implements ViewObserver {
                     case SOUTH-> imageView.setRotate(90);
                     case WEST -> imageView.setRotate(180);
                     case NORTH -> imageView.setRotate(270);
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Checkpoint":
+                Checkpoint checkpoint = (Checkpoint) space.getActions().get(0);
+                try {
+                    switch (checkpoint.getCheckpointNr()){
+                        case 1 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check1.png")));
+                        case 2 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check2.png")));
+                        case 3 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check3.png")));
+                        case 4 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check4.png")));
+                        case 5 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check5.png")));
+                        case 6 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check6.png")));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
                 break;
         }

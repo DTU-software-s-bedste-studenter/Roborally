@@ -34,9 +34,13 @@ import java.util.List;
  */
 public class GameController {
 
+    private boolean winnerFound = false;
+    private AppController appController;
+
     final public Board board;
-    public GameController(@NotNull Board board) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
     }
 
     /**
@@ -348,6 +352,18 @@ public class GameController {
                 fieldaction.doAction(this, space);
             }
         }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
+            Space space = board.getPlayer(i).getSpace();
+            for (FieldAction fieldaction: space.getActions()) {
+                if (fieldaction.getClass() == Checkpoint.class) {
+                    fieldaction.doAction(this, space);
+                }
+            }
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            checkForWinner(board.getPlayer(i));
+        }
     }
 
     /**
@@ -358,4 +374,14 @@ public class GameController {
     {
         return (spaceFrom.getWalls().contains(direction) || spaceTo.getWalls().contains(direction.next().next()));
     }
+
+    private void checkForWinner(Player player) {
+        if(player.getCheckpointTokens() == board.checkpoints){
+            winnerFound = true;
+        }
+        if (winnerFound) {
+            appController.resetGame(player);
+        }
+    }
+
 }
