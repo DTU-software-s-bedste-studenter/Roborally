@@ -43,6 +43,8 @@ public class Player extends Subject {
     private String color;
 
     private Space space;
+
+    private Space prevSpace;
     private Heading heading = SOUTH;
 
     private CommandCardField[] program;
@@ -57,7 +59,7 @@ public class Player extends Subject {
         this.name = name;
         this.color = color;
         this.powerCubes = 0;
-
+        this.prevSpace = null;
         this.space = null;
 
         program = new CommandCardField[NO_REGISTERS];
@@ -116,6 +118,11 @@ public class Player extends Subject {
         }
     }
 
+    public void setPrevSpace(Space space){
+        this.prevSpace = space;
+    }
+
+    public Space getPrevSpace(){return prevSpace;}
     public Heading getHeading() {
         return heading;
     }

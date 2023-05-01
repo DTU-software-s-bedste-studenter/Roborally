@@ -24,6 +24,8 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * ...
  *
@@ -33,7 +35,6 @@ import org.jetbrains.annotations.NotNull;
 public class GameController {
 
     final public Board board;
-
     public GameController(@NotNull Board board) {
         this.board = board;
     }
@@ -334,12 +335,26 @@ public class GameController {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
             step++;
+            activateActions();
             if (step < Player.NO_REGISTERS) {
                 makeProgramFieldsVisible(step);
                 board.setStep(step);
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
+            }
+        }
+    }
+
+    /**
+     * Runs all activations on spaces where a player is standing
+     */
+    public void activateActions() {
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
+            Space space = board.getPlayer(i).getSpace();
+            for (FieldAction fieldaction: space.getActions()) {
+                fieldaction.doAction(this, space);
             }
         }
     }

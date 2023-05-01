@@ -22,11 +22,14 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -38,6 +41,10 @@ import javafx.scene.shape.StrokeLineCap;
 import jdk.jshell.spi.ExecutionControl;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,41 +75,11 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.setMinHeight(SPACE_HEIGHT);
         this.setMaxHeight(SPACE_HEIGHT);
 
-        if ((space.x + space.y) % 2 == 0) {
-            this.setStyle("-fx-background-color: white;");
-        } else {
-            this.setStyle("-fx-background-color: black;");
-        }
-        // this.drawWalls();
-
         // updatePlayer();
 
         // This space view should listen to changes of the space
         space.attach(this);
         update(space);
-    }
-
-    private void drawWalls()
-    {
-        final int WALL_WIDTH = 5;
-        // List<Heading> wallHeadings = this.space.getWalls();
-        // should repeat based on number of walls in the space
-        Canvas canvas = new Canvas(SPACE_WIDTH, SPACE_HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.RED);
-        for (Heading wall : space.getWalls())
-        {
-            switch (wall) {
-                case NORTH -> canvas.getGraphicsContext2D().fillRect(0, 0, SPACE_WIDTH, WALL_WIDTH);
-                case EAST -> canvas.getGraphicsContext2D().fillRect(SPACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SPACE_HEIGHT);
-                case SOUTH -> canvas.getGraphicsContext2D().fillRect(0, SPACE_HEIGHT - WALL_WIDTH, SPACE_WIDTH, SPACE_HEIGHT);
-                case WEST -> canvas.getGraphicsContext2D().fillRect(0, 0, WALL_WIDTH, SPACE_HEIGHT);
-                default -> {
-                    assert false;
-                }
-            }
-        }
-        this.getChildren().add(canvas);
     }
 
     private void updatePlayer() {
@@ -127,9 +104,70 @@ public class SpaceView extends StackPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == this.space) {
             this.getChildren().clear();
+            drawBackground();
+            if (space.getActions().size() > 0) {
+                drawFieldActions();
+            }
             drawWalls();
             updatePlayer();
         }
     }
 
+    private void drawWalls()
+    {
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_wall.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        for (Heading wall : space.getWalls())
+        {
+            ImageView imageView = new ImageView(image);
+            switch (wall) {
+                case EAST -> imageView.setRotate(90);
+                case SOUTH -> imageView.setRotate(180);
+                case WEST -> imageView.setRotate(270);
+            }
+            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+            this.getChildren().add(imageView);
+        }
+    }
+    public void drawBackground()
+    {
+        ImageView imageView = new ImageView();
+        try {
+            imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/concrete_floor.png")));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+        imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+        this.getChildren().add(imageView);
+    }
+
+    public void drawFieldActions()
+    {
+        ImageView imageView = new ImageView();
+        switch (space.getActions().get(0).getClass().getName())
+        {
+            case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
+                ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
+                try {
+                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (conveyorBelt.getHeading()){
+                    case EAST -> imageView.setRotate(90);
+                    case SOUTH -> imageView.setRotate(180);
+                    case WEST -> imageView.setRotate(270);
+                }
+        }
+        imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+        imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+        this.getChildren().add(imageView);
+    }
 }

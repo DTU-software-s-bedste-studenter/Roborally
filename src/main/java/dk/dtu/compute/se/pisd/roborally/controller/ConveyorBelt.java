@@ -27,6 +27,9 @@ import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
 /**
  * ...
  *
@@ -47,8 +50,29 @@ public class ConveyorBelt extends FieldAction {
 
     @Override
     public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
-
+        Player currentPlayer = space.getPlayer();
+        if (currentPlayer != null) {
+            Space nextSpace = gameController.board.getNeighbour(space, getHeading());
+            Player nextPlayer = nextSpace.getPlayer();
+            if (nextPlayer == null) {
+                gameController.pushPlayer(space.getPlayer(), getHeading());
+                return true;
+            } else {
+                if(gameController.board.getPlayerNumber(currentPlayer) < gameController.board.getPlayerNumber(nextPlayer)){
+                    gameController.pushPlayer(currentPlayer, getHeading());
+                    return true;
+                }
+                else{
+                    if(nextPlayer.getSpace() == nextPlayer.getPrevSpace()){
+                        gameController.pushPlayer(currentPlayer, getHeading());
+                        return true;
+                    } else{
+                        nextPlayer.setSpace(nextPlayer.getPrevSpace());
+                        return false;
+                    }
+                }
+            }
+        }
         return false;
     }
-
 }

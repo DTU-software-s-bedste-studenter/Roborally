@@ -37,7 +37,7 @@ public class Space extends Subject {
 
     private Player player;
 
-    private List<Heading> walls;
+    private List<Heading> walls = new ArrayList<>();
     private List<FieldAction> actions = new ArrayList<>();
 
     public final Board board;
@@ -45,12 +45,13 @@ public class Space extends Subject {
     public final int x;
     public final int y;
 
-    public Space(Board board, int x, int y, List<Heading> walls) {
+    public Space(Board board, int x, int y) {
         this.board = board;
         this.x = x;
         this.y = y;
         player = null;
-        this.walls = walls;
+        actions = getActions();
+        walls = getWalls();
     }
 
     public Player getPlayer() {
