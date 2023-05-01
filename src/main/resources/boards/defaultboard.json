@@ -210,7 +210,8 @@
           "INSTANCE": {
             "heading": "SOUTH",
             "reg1": 1,
-            "reg2": 3
+            "reg2": 3,
+            "reg3": 6
           }
         }
       ],
