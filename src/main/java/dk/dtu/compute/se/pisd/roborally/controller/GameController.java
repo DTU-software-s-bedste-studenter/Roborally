@@ -342,8 +342,9 @@ public class GameController {
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
             Space space = board.getPlayer(i).getSpace();
-            for (FieldAction fieldaction: board.getPlayer(i).getSpace().getActions()) {
+            for (FieldAction fieldaction: space.getActions()) {
                 fieldaction.doAction(this, space);
             }
         }
