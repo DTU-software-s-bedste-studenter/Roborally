@@ -37,7 +37,7 @@ public class Space extends Subject {
 
     private Player player;
 
-    private List<Heading> walls = new ArrayList<>();
+    private List<Heading> walls;
     private List<FieldAction> actions = new ArrayList<>();
 
     public final Board board;

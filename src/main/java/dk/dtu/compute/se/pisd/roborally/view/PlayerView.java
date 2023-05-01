@@ -214,8 +214,12 @@ public class PlayerView extends Tab implements ViewObserver {
         playerInteractionPanel.getChildren().clear();
 
         if (player.board.getCurrentPlayer() == player) {
-            int stepCheckedForAgainCommand = gameController.board.getStep();
-            List<Command> options = player.getProgramField(stepCheckedForAgainCommand).getCard().command.getOptions();
+            int mostRecentCommandNotAgain = gameController.board.getStep();
+            while (mostRecentCommandNotAgain >= 0 && player.getProgramField(mostRecentCommandNotAgain).getCard().command == Command.AGAIN)
+            {
+                mostRecentCommandNotAgain--;
+            }
+            List<Command> options = player.getProgramField(mostRecentCommandNotAgain).getCard().command.getOptions();
 
             for (Command command : options) {
                 Button optionButton = new Button(command.displayName);

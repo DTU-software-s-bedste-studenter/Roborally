@@ -154,7 +154,23 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                } else if (card != null) {
+                    if (card.command == Command.AGAIN)
+                    {
+                        int i = board.getStep();
+                        while (i >= 0)
+                        {
+                            if (currentPlayer.getProgramField(i).getCard().command != Command.AGAIN)
+                            {
+                                if (currentPlayer.getProgramField(i).getCard().command.isInteractive()){
+                                    return;
+                                }
+                                break;
+                            }
+                            i--;
+                        }
+                    }
+                }
+                else if (card != null) {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     return;
                 }
@@ -171,42 +187,21 @@ public class GameController {
 
     // XXX: V2
     private void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+        if (player.board == board && command != null) {
 
             switch (command) {
-                case FORWARD_1:
-                    this.movePlayer(player, 1, false);
-                    break;
-                case FORWARD_2:
-                    this.movePlayer(player, 2, false);
-                    break;
-                case FORWARD_3:
-                    this.movePlayer(player, 3, false);
-                    break;
-                case RIGHT:
-                    this.turnRight(player);
-                    break;
-                case LEFT:
-                    this.turnLeft(player);
-                    break;
-                case U_TURN:
-                    this.makeUTurn(player);
-                    break;
-                case BACK_UP:
-                    this.movePlayer(player, 1, true);
-                    break;
-                case POWER_UP:
+                case FORWARD_1 -> this.movePlayer(player, 1, false);
+                case FORWARD_2 -> this.movePlayer(player, 2, false);
+                case FORWARD_3 -> this.movePlayer(player, 3, false);
+                case RIGHT -> this.turnRight(player);
+                case LEFT -> this.turnLeft(player);
+                case U_TURN -> this.makeUTurn(player);
+                case BACK_UP -> this.movePlayer(player, 1, true);
+                case POWER_UP -> {
                     Player currentPlayer = this.board.getCurrentPlayer();
                     currentPlayer.setPowerCubes(currentPlayer.getPowerCubes() + 1);
-                    break;
-                case AGAIN:
-                    this.playPrevCardAgain(player, board.getStep());
-                    break;
-                default:
-                    // DO NOTHING (for now)
+                }
+                case AGAIN -> this.playPrevCardAgain(player, board.getStep());
             }
         }
     }
