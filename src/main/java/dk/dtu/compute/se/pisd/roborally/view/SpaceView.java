@@ -217,6 +217,13 @@ public class SpaceView extends StackPane implements ViewObserver {
                     e.printStackTrace();
                 }
                 break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Pit":
+                try {
+                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/pit.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
         imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
         imageView.fitWidthProperty().setValue(SPACE_WIDTH);

@@ -409,19 +409,18 @@ public class GameController {
     private boolean isPrevNonAgainCardInteractive()
     {
         CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
-        if (card.command == Command.AGAIN)
-        {
-            int i = board.getStep();
-            while (i >= 0)
-            {
-                if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN)
-                {
-                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()){
-                        return true;
+        if(card != null) {
+            if (card.command == Command.AGAIN) {
+                int i = board.getStep();
+                while (i >= 0) {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN) {
+                        if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()) {
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
+                    i--;
                 }
-                i--;
             }
         }
         return false;
@@ -445,36 +444,42 @@ public class GameController {
         if(!space.getActions().isEmpty()){
             if(space.getActions().get(0).getClass() == Pit.class){
                 space.getActions().get(0).doAction(this, space);
-                clearPlayersCards(space.getPlayer());
                 return true;
             } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
                 clearPlayersCards(space.getPlayer());
+                spaceOccupied(space.getPlayer().getStartSpace());
                 space.getPlayer().setSpace(space.getPlayer().getStartSpace());
                 return true;
             }
         } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
             clearPlayersCards(space.getPlayer());
+            spaceOccupied(space.getPlayer().getStartSpace());
             space.getPlayer().setSpace(space.getPlayer().getStartSpace());
             return true;
         }
         return false;
     }
     private boolean OutOfMap(Space prevSpace, Space currentSpace){
-        if(prevSpace.y+1 != currentSpace.y){
-            if(prevSpace.y-1 != currentSpace.y){
-                return true;
-            }
+        if(prevSpace.y == currentSpace.y && (prevSpace.x == currentSpace.x+1 || prevSpace.x == currentSpace.x-1)){
+            return false;
         }
-        if(prevSpace.x+1 != currentSpace.x){
-            if(prevSpace.x-1 != currentSpace.x){
-                return true;
-            }
+        else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
+            return false;
+        } else{
+            return true;
         }
-        return false;
     }
     public void clearPlayersCards(Player player) {
-        for (int i = board.getStep(); i < 5; i++) {
-            player.getCardField(i).setCard(null);
+        for (int i = board.getStep()+1; i < 5; i++) {
+            player.getProgramField(i).setCard(null);
+        }
+    }
+
+    public void spaceOccupied(Space space) {
+        if (space.getPlayer() != null) {
+            Space nextSpace = board.getNeighbour(space, Heading.EAST);
+            spaceOccupied(nextSpace);
+            space.getPlayer().setSpace(nextSpace);
         }
     }
 }
