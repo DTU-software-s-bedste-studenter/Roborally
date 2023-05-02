@@ -206,9 +206,11 @@ public class GameController {
      * @param isReversed if true, player moves backwards
      */
     public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
-        while (numberOfSpaces > 0)
+        boolean again = false;
+        do
         {
             Space space = player.getSpace();
+            player.setPrevSpace(player.getSpace());
             if (player != null && player.board == board && space != null) {
                 Heading heading = player.getHeading();
                 if (isReversed)
@@ -228,9 +230,10 @@ public class GameController {
                     pushPlayer(target.getPlayer(), heading);
                     target.setPlayer(player);
                 }
+                again = checkPit(target);
             }
             numberOfSpaces--;
-        }
+        }while(numberOfSpaces > 0 && !again);
     }
 
     /**
@@ -250,6 +253,7 @@ public class GameController {
                 pushPlayer(target.getPlayer(), heading);
                 target.setPlayer(player);
             }
+            checkPit(target);
         }
     }
 
@@ -378,7 +382,7 @@ public class GameController {
             currentPlayer.setPrevSpace(currentPlayer.getSpace());
             Space space = currentPlayer.getSpace();
             for (FieldAction fieldaction: space.getActions()) {
-                if (fieldaction.getClass() == Checkpoint.class) {
+                if (fieldaction.getClass() == Checkpoint.class || fieldaction.getClass() == Pit.class) {
                     fieldaction.doAction(this, space);
                 }
             }
@@ -434,6 +438,43 @@ public class GameController {
         }
         if (winnerFound) {
             appController.resetGame(player);
+        }
+    }
+
+    private boolean checkPit(Space space){
+        if(!space.getActions().isEmpty()){
+            if(space.getActions().get(0).getClass() == Pit.class){
+                space.getActions().get(0).doAction(this, space);
+                clearPlayersCards(space.getPlayer());
+                return true;
+            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+                clearPlayersCards(space.getPlayer());
+                space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+                return true;
+            }
+        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+            clearPlayersCards(space.getPlayer());
+            space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+            return true;
+        }
+        return false;
+    }
+    private boolean OutOfMap(Space prevSpace, Space currentSpace){
+        if(prevSpace.y+1 != currentSpace.y){
+            if(prevSpace.y-1 != currentSpace.y){
+                return true;
+            }
+        }
+        if(prevSpace.x+1 != currentSpace.x){
+            if(prevSpace.x-1 != currentSpace.x){
+                return true;
+            }
+        }
+        return false;
+    }
+    public void clearPlayersCards(Player player) {
+        for (int i = board.getStep(); i < 5; i++) {
+            player.getCardField(i).setCard(null);
         }
     }
 }
