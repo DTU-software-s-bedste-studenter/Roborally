@@ -22,9 +22,13 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.Checkpoint;
 import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
+import dk.dtu.compute.se.pisd.roborally.controller.Gears;
+import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.Rotation;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -151,8 +155,7 @@ public class SpaceView extends StackPane implements ViewObserver {
     public void drawFieldActions()
     {
         ImageView imageView = new ImageView();
-        switch (space.getActions().get(0).getClass().getName())
-        {
+        switch (space.getActions().get(0).getClass().getName()) {
             case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
                 ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
                 try {
@@ -160,11 +163,56 @@ public class SpaceView extends StackPane implements ViewObserver {
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-                switch (conveyorBelt.getHeading()){
+                switch (conveyorBelt.getHeading()) {
                     case EAST -> imageView.setRotate(90);
                     case SOUTH -> imageView.setRotate(180);
                     case WEST -> imageView.setRotate(270);
                 }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Gears":
+                Gears gears = (Gears) space.getActions().get(0);
+                try {
+                    if(gears.getRotation() == Rotation.CLOCKWISE) {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/gears_Clockwise.png")));
+                    }else{
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/gears_counterclockwise.png")));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.PushPanel":
+                PushPanel pushPanel = (PushPanel) space.getActions().get(0);
+                try {
+                    if(pushPanel.getReg1() == 1){
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/push24.png")));
+                    } else {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/push135.png")));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (pushPanel.getHeading()) {
+                    case SOUTH-> imageView.setRotate(90);
+                    case WEST -> imageView.setRotate(180);
+                    case NORTH -> imageView.setRotate(270);
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Checkpoint":
+                Checkpoint checkpoint = (Checkpoint) space.getActions().get(0);
+                try {
+                    switch (checkpoint.getCheckpointNr()){
+                        case 1 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check1.png")));
+                        case 2 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check2.png")));
+                        case 3 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check3.png")));
+                        case 4 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check4.png")));
+                        case 5 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check5.png")));
+                        case 6 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check6.png")));
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
         imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
         imageView.fitWidthProperty().setValue(SPACE_WIDTH);

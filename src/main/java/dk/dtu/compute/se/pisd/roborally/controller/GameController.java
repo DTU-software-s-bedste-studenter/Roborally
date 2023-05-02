@@ -32,9 +32,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GameController {
 
+    private boolean winnerFound = false;
+    private AppController appController;
+
     final public Board board;
-    public GameController(@NotNull Board board) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
     }
 
     /**
@@ -351,7 +355,9 @@ public class GameController {
     }
 
     /**
-     * Runs all activations on spaces where a player is standing
+     * Runs all activations on spaces where a player is standing,
+     * afterwards check if a player's position is on a checkpoint,
+     * then checks if a winner has been found
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
@@ -360,6 +366,18 @@ public class GameController {
             for (FieldAction fieldaction: space.getActions()) {
                 fieldaction.doAction(this, space);
             }
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
+            Space space = board.getPlayer(i).getSpace();
+            for (FieldAction fieldaction: space.getActions()) {
+                if (fieldaction.getClass() == Checkpoint.class) {
+                    fieldaction.doAction(this, space);
+                }
+            }
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            checkForWinner(board.getPlayer(i));
         }
     }
 
@@ -396,5 +414,19 @@ public class GameController {
             }
         }
         return false;
+    }
+    
+    /**
+     * Checks if a winner has been found by looking at players chekpointtokens
+     * and total checkpoints in game.
+     * @param player
+     */
+    private void checkForWinner(Player player) {
+        if(player.getCheckpointTokens() == board.checkpoints){
+            winnerFound = true;
+        }
+        if (winnerFound) {
+            appController.resetGame(player);
+        }
     }
 }
