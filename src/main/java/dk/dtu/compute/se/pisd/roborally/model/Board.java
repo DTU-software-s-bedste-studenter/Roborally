@@ -42,6 +42,7 @@ public class Board extends Subject {
 
     public final int height;
 
+    public final int checkpoints;
     public final String boardName;
 
     private Integer gameId;
@@ -58,10 +59,11 @@ public class Board extends Subject {
 
     private boolean stepMode;
 
-    public Board(int width, int height, @NotNull String boardName) {
+    public Board(int width, int height, int checkpoints, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
         this.height = height;
+        this.checkpoints = checkpoints;
         spaces = new Space[width][height];
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
@@ -72,8 +74,8 @@ public class Board extends Subject {
         this.stepMode = false;
     }
 
-    public Board(int width, int height) {
-        this(width, height, "defaultboard");
+    public Board(int width, int height, int checkpoints) {
+        this(width, height, checkpoints, "defaultboard");
     }
 
     public Integer getGameId() {
@@ -210,6 +212,7 @@ public class Board extends Subject {
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
                 ", Power Cubes = " + getCurrentPlayer().getPowerCubes() +
+                ", CheckpointTokens: " + getCurrentPlayer().getCheckpointTokens() +
                 ", Step: " + getStep();
     }
 }

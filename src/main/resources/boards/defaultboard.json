@@ -1,6 +1,7 @@
 {
   "width": 8,
   "height": 8,
+  "checkpoints": 2,
   "spaces": [
     {
       "walls": [
@@ -188,19 +189,59 @@
       "y": 6
     },
     {
-      "walls": [
-        "EAST"
-      ],
+      "walls": [],
       "actions": [
         {
-          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt",
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.Checkpoint",
           "INSTANCE": {
-            "heading": "SOUTH"
+            "checkpointNr": 1
           }
         }
       ],
       "x": 7,
       "y": 7
+    },
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.PushPanel",
+          "INSTANCE": {
+            "heading": "SOUTH",
+            "reg1": 1,
+            "reg2": 3,
+            "reg3": 6
+          }
+        }
+      ],
+      "x": 4,
+      "y": 1
+    },
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.Gears",
+          "INSTANCE": {
+            "rotation": "COUNTERCLOCKWISE"
+          }
+        }
+      ],
+      "x": 0,
+      "y": 6
+    },
+    {
+      "walls": [],
+      "actions": [
+        {
+          "CLASSNAME": "dk.dtu.compute.se.pisd.roborally.controller.Checkpoint",
+          "INSTANCE": {
+            "checkpointNr": 2
+          }
+        }
+      ],
+      "x": 7,
+      "y": 6
     }
   ]
 }
