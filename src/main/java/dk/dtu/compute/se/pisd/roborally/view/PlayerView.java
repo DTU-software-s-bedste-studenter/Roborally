@@ -196,34 +196,35 @@ public class PlayerView extends Tab implements ViewObserver {
                         executeButton.setDisable(true);
                         stepButton.setDisable(true);
                 }
-
-
             } else {
-                if (!programPane.getChildren().contains(playerInteractionPanel)) {
-                    programPane.getChildren().remove(buttonPanel);
-                    programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
-                }
-                playerInteractionPanel.getChildren().clear();
-
-                if (player.board.getCurrentPlayer() == player) {
-                    // TODO Assignment P3: these buttons should be shown only when there is
-                    //      an interactive command card, and the buttons should represent
-                    //      the player's choices of the interactive command card. The
-                    //      following is just a mockup showing two options
-
-                    List<Command> options = player.board.getCurrentPlayer().getProgramField(gameController.board.getStep()).getCard().command.getOptions();
-
-                    for (Command command:options) {
-                        Button optionButton = new Button(command.displayName);
-                        optionButton.setOnAction(e -> gameController.runChosenOption(player, command));
-                        optionButton.setDisable(false);
-                        playerInteractionPanel.getChildren().add(optionButton);
-                    }
-
-
-                }
+                displayInteractionButtons();
             }
         }
     }
 
+    private void displayInteractionButtons()
+    {
+        if (!programPane.getChildren().contains(playerInteractionPanel))
+        {
+            programPane.getChildren().remove(buttonPanel);
+            programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
+        }
+        playerInteractionPanel.getChildren().clear();
+
+        if (player.board.getCurrentPlayer() == player) {
+            int mostRecentCommandNotAgain = gameController.board.getStep();
+            while (mostRecentCommandNotAgain >= 0 && player.getProgramField(mostRecentCommandNotAgain).getCard().command == Command.AGAIN)
+            {
+                mostRecentCommandNotAgain--;
+            }
+            List<Command> options = player.getProgramField(mostRecentCommandNotAgain).getCard().command.getOptions();
+
+            for (Command command : options) {
+                Button optionButton = new Button(command.displayName);
+                optionButton.setOnAction(e -> gameController.runChosenOption(player, command));
+                optionButton.setDisable(false);
+                playerInteractionPanel.getChildren().add(optionButton);
+            }
+        }
+    }
 }

@@ -24,8 +24,6 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * ...
  *
@@ -159,7 +157,11 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                } else if (card != null) {
+                    if (isPrevNonAgainCardInteractive()) {
+                        return;
+                    }
+                }
+                else if (card != null) {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     return;
                 }
@@ -176,42 +178,21 @@ public class GameController {
 
     // XXX: V2
     private void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+        if (player.board == board && command != null) {
 
             switch (command) {
-                case FORWARD_1:
-                    this.movePlayer(player, 1, false);
-                    break;
-                case FORWARD_2:
-                    this.movePlayer(player, 2, false);
-                    break;
-                case FORWARD_3:
-                    this.movePlayer(player, 3, false);
-                    break;
-                case RIGHT:
-                    this.turnRight(player);
-                    break;
-                case LEFT:
-                    this.turnLeft(player);
-                    break;
-                case U_TURN:
-                    this.makeUTurn(player);
-                    break;
-                case BACK_UP:
-                    this.movePlayer(player, 1, true);
-                    break;
-                case POWER_UP:
+                case FORWARD_1 -> this.movePlayer(player, 1, false);
+                case FORWARD_2 -> this.movePlayer(player, 2, false);
+                case FORWARD_3 -> this.movePlayer(player, 3, false);
+                case RIGHT -> this.turnRight(player);
+                case LEFT -> this.turnLeft(player);
+                case U_TURN -> this.makeUTurn(player);
+                case BACK_UP -> this.movePlayer(player, 1, true);
+                case POWER_UP -> {
                     Player currentPlayer = this.board.getCurrentPlayer();
                     currentPlayer.setPowerCubes(currentPlayer.getPowerCubes() + 1);
-                    break;
-                case AGAIN:
-                    notImplemented();
-                    break;
-                default:
-                    // DO NOTHING (for now)
+                }
+                case AGAIN -> this.playPrevCardAgain(player, board.getStep());
             }
         }
     }
@@ -286,8 +267,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Turns the player around
+     * @param player subject to be turned
+     */
     public void makeUTurn(@NotNull Player player) {
-        if (player != null && player.board == board) {
+        if (player.board == board) {
             player.setHeading(player.getHeading().prev());
             player.setHeading(player.getHeading().prev());
         }
@@ -306,6 +291,25 @@ public class GameController {
     }
 
     /**
+     * Execution logic for again card. Looks backward in registers until a non-again card is found, then executes it.
+     * @param currentPlayer Current currentPlayer
+     * @param currentStep Current currentStep
+     */
+    public void playPrevCardAgain(@NotNull Player currentPlayer, int currentStep){
+        int prevStep = currentStep -1;
+        if(prevStep >= 0) {
+            Command command = board.getCurrentPlayer().getProgramField(prevStep).getCard().command;
+            if (command == Command.AGAIN && prevStep >= 1) {
+                playPrevCardAgain(currentPlayer, prevStep);
+            } else if (command != Command.AGAIN && !command.isInteractive()) {
+                executeCommand(currentPlayer, command);
+            } else {
+                board.setPhase(Phase.PLAYER_INTERACTION);
+            }
+        }
+    }
+
+    /**
      * A method called when no corresponding controller operation is implemented yet. This
      * should eventually be removed.
      */
@@ -314,7 +318,7 @@ public class GameController {
         assert false;
     }
     /**
-     * Runs the execution process of the chosen option
+     * Runs the execution of the interactive cards chosen option
      * @param player current player
      * @param command command to be executed
      */
@@ -322,18 +326,27 @@ public class GameController {
         executeCommand(player, command);
         board.setPhase(Phase.ACTIVATION);
         setNextPlayer(player, board.getStep());
-        continuePrograms();
+        if (!board.isStepMode())
+        {
+            continuePrograms();
+        }
     }
-    private void setNextPlayer(Player player, int step) {
-        int nextPlayerNumber = board.getPlayerNumber(player) + 1;
+
+    /**
+     * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
+     * @param currentPlayer Current player
+     * @param currentStep Current step
+     */
+    private void setNextPlayer(Player currentPlayer, int currentStep) {
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
         if (nextPlayerNumber < board.getNumberOfPlayers()) {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
-            step++;
+            currentStep++;
             activateActions();
-            if (step < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(step);
-                board.setStep(step);
+            if (currentStep < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(currentStep);
+                board.setStep(currentStep);
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
@@ -378,6 +391,32 @@ public class GameController {
     }
 
     /**
+     * Checks the current players registers starting from the current step, checking if the most recent card
+     * before any number of again cards is interactive.
+     * @return Returns true if an interactive card is found, and false if another type of card is found.
+     */
+    private boolean isPrevNonAgainCardInteractive()
+    {
+        CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
+        if (card.command == Command.AGAIN)
+        {
+            int i = board.getStep();
+            while (i >= 0)
+            {
+                if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN)
+                {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()){
+                        return true;
+                    }
+                    return false;
+                }
+                i--;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Checks if a winner has been found by looking at players chekpointtokens
      * and total checkpoints in game.
      * @param player
@@ -390,5 +429,4 @@ public class GameController {
             appController.resetGame(player);
         }
     }
-
 }
