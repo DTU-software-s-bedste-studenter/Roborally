@@ -44,7 +44,7 @@ public class Player extends Subject {
 
     private Space space;
     private Space prevSpace;
-    private Space conveySpaceCheck;
+    private boolean activated = false;
     private Heading heading = SOUTH;
 
     private CommandCardField[] program;
@@ -126,9 +126,9 @@ public class Player extends Subject {
 
     public Space getPrevSpace(){return prevSpace;}
 
-    public void setConveySpaceCheck(Space space){this.conveySpaceCheck = space;}
+    public void setActivated(Boolean activated){ this.activated = activated;}
 
-    public Space getConveySpaceCheck(){return conveySpaceCheck;}
+    public boolean getActivated(){return activated;}
     public Heading getHeading() {
         return heading;
     }

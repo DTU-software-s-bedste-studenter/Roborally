@@ -47,27 +47,32 @@ public class ConveyorBelt extends FieldAction {
     @Override
     public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
         Player currentPlayer = space.getPlayer();
+        ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
+        Heading currentHeading = conveyorBelt.getHeading();
         if (currentPlayer != null) {
-            Space nextSpace = gameController.board.getNeighbour(space, getHeading());
+            Space nextSpace = gameController.board.getNeighbour(space, currentHeading);
             Player nextPlayer = nextSpace.getPlayer();
             if (nextPlayer == null) {
-                gameController.pushPlayer(space.getPlayer(), getHeading());
+                gameController.pushPlayer(currentPlayer, currentHeading);
                 return true;
             } else {
                 if(gameController.board.getPlayerNumber(currentPlayer) < gameController.board.getPlayerNumber(nextPlayer)) {
-                    if (nextSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
-                        ConveyorBelt conveyorBelt = (ConveyorBelt) nextSpace.getActions().get(0);
-                        nextPlayer.setConveySpaceCheck(nextSpace);
-                        gameController.pushPlayer(nextPlayer, conveyorBelt.getHeading());
-                        gameController.pushPlayer(currentPlayer,getHeading());
-                    } else {
-                        gameController.pushPlayer(currentPlayer, getHeading());
+                    if(!nextSpace.getActions().isEmpty()) {
+                        if (nextSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                            nextPlayer.setActivated(true);
+                            doAction(gameController, nextSpace);
+                            gameController.pushPlayer(currentPlayer, currentHeading);
+                        } else {
+                            gameController.pushPlayer(currentPlayer, currentHeading);
+                        }
+                    } else{
+                        gameController.pushPlayer(currentPlayer, currentHeading);
                     }
                     return true;
                 }
                 else{
                     if(nextPlayer.getSpace() == nextPlayer.getPrevSpace()){
-                            gameController.pushPlayer(currentPlayer, getHeading());
+                            gameController.pushPlayer(currentPlayer, currentHeading);
                             return true;
                         }
                     else{

@@ -346,13 +346,13 @@ public class GameController {
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
-            board.getPlayer(i).setConveySpaceCheck(board.getPlayer(i).getSpace());
+            board.getPlayer(i).setActivated(false);
         }
         for (int i = 0; i < board.getNumberOfPlayers(); i++) {
             Player currentPlayer = board.getPlayer(i);
             currentPlayer.setPrevSpace(currentPlayer.getSpace());
             Space space = currentPlayer.getSpace();
-            if (currentPlayer.getSpace() == currentPlayer.getConveySpaceCheck()) {
+            if (!currentPlayer.getActivated()) {
                 for (FieldAction fieldaction : space.getActions()) {
                     fieldaction.doAction(this, space);
                 }
