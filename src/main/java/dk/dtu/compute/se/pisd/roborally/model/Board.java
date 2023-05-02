@@ -75,7 +75,6 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
-        System.out.print("test");
     }
 
     public Board(int width, int height, int checkpoints) {
