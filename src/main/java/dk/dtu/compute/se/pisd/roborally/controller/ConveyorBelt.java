@@ -36,6 +36,14 @@ public class ConveyorBelt extends FieldAction {
 
     private Heading heading;
 
+    private boolean express;
+
+    public boolean getExpress(){return express;}
+
+    public void setExpress(boolean express) {
+        this.express = express;
+    }
+
     public Heading getHeading() {
         return heading;
     }
@@ -44,6 +52,16 @@ public class ConveyorBelt extends FieldAction {
         this.heading = heading;
     }
 
+
+    /**
+     * The following code takes the currentplayer and move it one space in the direction of
+     * the current conveyorbelt it is standing on. If a player is standing on the next space
+     * that player is push, unless the next space is a conveyorbelt, then the function is called recursively,
+     * and a boolean is updated, so the other robots won't do their fieldaction twice.
+     * @param gameController the gameController of the respective game
+     * @param space the space this action should be executed for
+     * @return
+     */
     @Override
     public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
         Player currentPlayer = space.getPlayer();
