@@ -361,15 +361,22 @@ public class GameController {
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
-            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
-            Space space = board.getPlayer(i).getSpace();
-            for (FieldAction fieldaction: space.getActions()) {
-                fieldaction.doAction(this, space);
+            board.getPlayer(i).setActivated(false);
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
+            if (!currentPlayer.getActivated()) {
+                for (FieldAction fieldaction : space.getActions()) {
+                    fieldaction.doAction(this, space);
+                }
             }
         }
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
-            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
-            Space space = board.getPlayer(i).getSpace();
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
             for (FieldAction fieldaction: space.getActions()) {
                 if (fieldaction.getClass() == Checkpoint.class) {
                     fieldaction.doAction(this, space);
