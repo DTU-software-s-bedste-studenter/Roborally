@@ -225,8 +225,9 @@ public class GameController {
                     target.setPlayer(player);
                 }
                 else {
-                    pushPlayer(target.getPlayer(), heading);
-                    target.setPlayer(player);
+                    if (pushPlayer(target.getPlayer(), heading)){
+                        target.setPlayer(player);
+                    }
                 }
             }
             numberOfSpaces--;
@@ -234,23 +235,31 @@ public class GameController {
     }
 
     /**
-     * Pushes a player to a neighbouring space
+     * Pushes a player to a neighbouring space recursively while checking if a wall obstructs the movement.
      * @param player player to be pushed
      * @param heading direction of the push
+     * @return Returns true if move got completed and false if it was obstructed by a wall.
      */
-    public void pushPlayer(@NotNull Player player, Heading heading)
+    public boolean pushPlayer(@NotNull Player player, Heading heading)
     {
         Space space = player.getSpace();
-        if (player != null && player.board == board && space != null) {
+        if (player.board == board && space != null) {
             Space target = board.getNeighbour(space, heading);
+            if (willCollideWithWall(space, target, heading)) {
+                return false;
+            }
             if (target != null && target.getPlayer() == null) {
                 target.setPlayer(player);
+                return true;
             }
             else {
-                pushPlayer(target.getPlayer(), heading);
-                target.setPlayer(player);
+                if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    target.setPlayer(player);
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     // TODO: V2
