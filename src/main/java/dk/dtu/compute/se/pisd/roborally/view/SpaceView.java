@@ -22,10 +22,7 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.controller.Checkpoint;
-import dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt;
-import dk.dtu.compute.se.pisd.roborally.controller.Gears;
-import dk.dtu.compute.se.pisd.roborally.controller.PushPanel;
+import dk.dtu.compute.se.pisd.roborally.controller.*;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Rotation;
@@ -209,6 +206,13 @@ public class SpaceView extends StackPane implements ViewObserver {
                         case 5 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check5.png")));
                         case 6 -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/check6.png")));
                     }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.StartSpace":
+                try {
+                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/StartSpace.png")));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
