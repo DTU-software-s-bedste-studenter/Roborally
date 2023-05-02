@@ -155,20 +155,8 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                    if (card.command == Command.AGAIN)
-                    {
-                        int i = board.getStep();
-                        while (i >= 0)
-                        {
-                            if (currentPlayer.getProgramField(i).getCard().command != Command.AGAIN)
-                            {
-                                if (currentPlayer.getProgramField(i).getCard().command.isInteractive()){
-                                    return;
-                                }
-                                break;
-                            }
-                            i--;
-                        }
+                    if (isPrevNonAgainCardInteractive()) {
+                        return;
                     }
                 }
                 else if (card != null) {
@@ -327,7 +315,10 @@ public class GameController {
         executeCommand(player, command);
         board.setPhase(Phase.ACTIVATION);
         setNextPlayer(player, board.getStep());
-        continuePrograms();
+        if (!board.isStepMode())
+        {
+            continuePrograms();
+        }
     }
     private void setNextPlayer(Player player, int step) {
         int nextPlayerNumber = board.getPlayerNumber(player) + 1;
@@ -366,5 +357,31 @@ public class GameController {
     private boolean willCollideWithWall(Space spaceFrom, Space spaceTo, Heading direction)
     {
         return (spaceFrom.getWalls().contains(direction) || spaceTo.getWalls().contains(direction.next().next()));
+    }
+
+    /**
+     * Checks the current players registers starting from the current step, checking if the most recent card
+     * before any number of again cards is interactive.
+     * @return Returns true if an interactive card is found, and false if another type of card is found.
+     */
+    private boolean isPrevNonAgainCardInteractive()
+    {
+        CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
+        if (card.command == Command.AGAIN)
+        {
+            int i = board.getStep();
+            while (i >= 0)
+            {
+                if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN)
+                {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()){
+                        return true;
+                    }
+                    return false;
+                }
+                i--;
+            }
+        }
+        return false;
     }
 }
