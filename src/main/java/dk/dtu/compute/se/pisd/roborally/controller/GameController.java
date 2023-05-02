@@ -24,8 +24,6 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * ...
  *
@@ -265,8 +263,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Turns the player around
+     * @param player subject to be turned
+     */
     public void makeUTurn(@NotNull Player player) {
-        if (player != null && player.board == board) {
+        if (player.board == board) {
             player.setHeading(player.getHeading().prev());
             player.setHeading(player.getHeading().prev());
         }
@@ -284,14 +286,19 @@ public class GameController {
         }
     }
 
-    public void playPrevCardAgain(@NotNull Player player, int step){
-        int prevStep = step-1;
+    /**
+     * Execution logic for again card. Looks backward in registers until a non-again card is found, then executes it.
+     * @param currentPlayer Current currentPlayer
+     * @param currentStep Current currentStep
+     */
+    public void playPrevCardAgain(@NotNull Player currentPlayer, int currentStep){
+        int prevStep = currentStep -1;
         if(prevStep >= 0) {
             Command command = board.getCurrentPlayer().getProgramField(prevStep).getCard().command;
             if (command == Command.AGAIN && prevStep >= 1) {
-                playPrevCardAgain(player, prevStep);
+                playPrevCardAgain(currentPlayer, prevStep);
             } else if (command != Command.AGAIN && !command.isInteractive()) {
-                executeCommand(player, command);
+                executeCommand(currentPlayer, command);
             } else {
                 board.setPhase(Phase.PLAYER_INTERACTION);
             }
@@ -307,7 +314,7 @@ public class GameController {
         assert false;
     }
     /**
-     * Runs the execution process of the chosen option
+     * Runs the execution of the interactive cards chosen option
      * @param player current player
      * @param command command to be executed
      */
@@ -320,16 +327,22 @@ public class GameController {
             continuePrograms();
         }
     }
-    private void setNextPlayer(Player player, int step) {
-        int nextPlayerNumber = board.getPlayerNumber(player) + 1;
+
+    /**
+     * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
+     * @param currentPlayer Current player
+     * @param currentStep Current step
+     */
+    private void setNextPlayer(Player currentPlayer, int currentStep) {
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
         if (nextPlayerNumber < board.getNumberOfPlayers()) {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
-            step++;
+            currentStep++;
             activateActions();
-            if (step < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(step);
-                board.setStep(step);
+            if (currentStep < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(currentStep);
+                board.setStep(currentStep);
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
