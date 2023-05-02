@@ -101,6 +101,30 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
+    private void drawPlayer(){
+        Player player = space.getPlayer();
+        if (player != null){
+            ImageView imageView = new ImageView();
+            try {
+                switch (player.getColor()){
+                    case "red" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotRed.png")));
+                    case "green" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotGreen.png")));
+                    case "blue" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotBlue.png")));
+                    case "orange" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotOrange.png")));
+                    case "grey" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotGrey.png")));
+                    case "magenta" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotMagenta.png")));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+            this.getChildren().add(imageView);
+        }
+
+
+    }
+
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
@@ -110,7 +134,8 @@ public class SpaceView extends StackPane implements ViewObserver {
                 drawFieldActions();
             }
             drawWalls();
-            updatePlayer();
+            //updatePlayer();
+            drawPlayer();
         }
     }
 
