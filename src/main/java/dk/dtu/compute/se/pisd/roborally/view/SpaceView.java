@@ -101,6 +101,30 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
     }
 
+    private void drawPlayer(){
+        Player player = space.getPlayer();
+        if (player != null){
+            ImageView imageView = new ImageView();
+            try {
+                switch (player.getColor()){
+                    case "red" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotRed.png")));
+                    case "green" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotGreen.png")));
+                    case "blue" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotBlue.png")));
+                    case "orange" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotOrange.png")));
+                    case "grey" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotGrey.png")));
+                    case "magenta" -> imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/RobotMagenta.png")));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
+            imageView.fitWidthProperty().setValue(SPACE_WIDTH);
+            this.getChildren().add(imageView);
+        }
+
+
+    }
+
     @Override
     public void updateView(Subject subject) {
         if (subject == this.space) {
@@ -110,7 +134,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 drawFieldActions();
             }
             drawWalls();
-            updatePlayer();
+            drawPlayer();
         }
     }
 
@@ -136,6 +160,10 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(imageView);
         }
     }
+
+    /**
+     * The method responsible for drawing the default tile on the board.
+     */
     public void drawBackground()
     {
         ImageView imageView = new ImageView();
@@ -149,6 +177,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.getChildren().add(imageView);
     }
 
+    /**
+     * Method responsible for drawing the various action fields depending on the specific field.
+     */
     public void drawFieldActions()
     {
         ImageView imageView = new ImageView();
@@ -156,7 +187,11 @@ public class SpaceView extends StackPane implements ViewObserver {
             case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
                 ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
                 try {
-                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    if(conveyorBelt.getExpress()){
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_express.png")));
+                    }else {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -222,6 +257,19 @@ public class SpaceView extends StackPane implements ViewObserver {
                     imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/pit.png")));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Reboot":
+                Reboot reboot = (Reboot) space.getActions().get(0);
+                try {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_reboot.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (reboot.getHeading()) {
+                    case EAST -> imageView.setRotate(90);
+                    case SOUTH -> imageView.setRotate(180);
+                    case WEST -> imageView.setRotate(270);
                 }
                 break;
         }

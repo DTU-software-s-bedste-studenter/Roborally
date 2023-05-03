@@ -128,26 +128,34 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * starts round with stepmode set to false
+     */
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Starts round with stepmode set to true
+     */
     public void executeStep() {
         board.setStepMode(true);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Continually executes the next steps only if step mode is activated.
+     */
     private void continuePrograms() {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
-    // XXX: V2
+    /**
+     * Only executes the next step, and nothing else.
+     */
     private void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
@@ -176,7 +184,11 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * executes the current command card for the current player.
+     * @param player
+     * @param command
+     */
     private void executeCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
 
@@ -321,15 +333,6 @@ public class GameController {
             }
         }
     }
-
-    /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
-     */
-    public void notImplemented() {
-        // XXX just for now to indicate that the actual method is not yet implemented
-        assert false;
-    }
     /**
      * Runs the execution of the interactive cards chosen option
      * @param player current player
@@ -344,7 +347,6 @@ public class GameController {
             continuePrograms();
         }
     }
-
     /**
      * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
      * @param currentPlayer Current player
@@ -383,9 +385,12 @@ public class GameController {
             if (!currentPlayer.getActivated()) {
                 for (FieldAction fieldaction : space.getActions()) {
                     fieldaction.doAction(this, space);
+                    if(fieldaction.getClass() == ConveyorBelt.class){
+                        expressConveyorBelt(fieldaction, space);
+                    }
+                        }
+                    }
                 }
-            }
-        }
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
             Player currentPlayer = board.getPlayer(i);
             currentPlayer.setPrevSpace(currentPlayer.getSpace());
@@ -449,6 +454,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Checks if space is a pit, and...
+     * @param space the space to be checked.
+     * @return true if we are out of bounds or if we in fact are in a pit, false otherwise.
+     */
     private boolean checkPit(Space space){
         if(!space.getActions().isEmpty()){
             if(space.getActions().get(0).getClass() == Pit.class){
@@ -456,18 +466,25 @@ public class GameController {
                 return true;
             } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
                 clearPlayersCards(space.getPlayer());
-                spaceOccupied(space.getPlayer().getStartSpace());
-                space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+                spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+                space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
                 return true;
             }
         } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
             clearPlayersCards(space.getPlayer());
-            spaceOccupied(space.getPlayer().getStartSpace());
-            space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+            spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+            space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
             return true;
         }
         return false;
     }
+
+    /**
+     * Checks if the player has fallen out of the map
+     * @param prevSpace
+     * @param currentSpace
+     * @return false if player is still on map, true if not.
+     */
     private boolean OutOfMap(Space prevSpace, Space currentSpace){
         if(prevSpace.y == currentSpace.y && (prevSpace.x == currentSpace.x+1 || prevSpace.x == currentSpace.x-1)){
             return false;
@@ -478,17 +495,95 @@ public class GameController {
             return true;
         }
     }
+
+    /**
+     * Clears the players next progammingcards.
+     * @param player
+     */
     public void clearPlayersCards(Player player) {
         for (int i = board.getStep()+1; i < 5; i++) {
             player.getProgramField(i).setCard(null);
         }
     }
 
-    public void spaceOccupied(Space space) {
-        if (space.getPlayer() != null) {
-            Space nextSpace = board.getNeighbour(space, Heading.EAST);
-            spaceOccupied(nextSpace);
-            space.getPlayer().setSpace(nextSpace);
+    /**
+     * Checks if the space the player is about to be rebooted at is already occupied
+     * if it is then that robot will be pushed away to make room for the next.
+     * @param space
+     */
+    public void spaceOccupied(Space space, Heading heading) {
+        Space nextSpace;
+        if (space != null) {
+            if (space.getPlayer() != null) {
+                if (!space.getActions().isEmpty()) {
+                    if (space.getActions().get(0).getClass() == Reboot.class) {
+                        Reboot reboot = (Reboot) space.getActions().get(0);
+                        nextSpace = board.getNeighbour(space, reboot.getHeading());
+                        heading = reboot.getHeading();
+                    } else {
+                        nextSpace = board.getNeighbour(space, heading);
+                    }
+                } else {
+                    nextSpace = board.getNeighbour(space, heading);
+                }
+                spaceOccupied(nextSpace, heading);
+                if(space.getPlayer().getStartSpace() != space) {
+                    space.getPlayer().setSpace(nextSpace);
+                }
+            }
         }
+    }
+
+    /**
+     * Determines if the player should be rebooted at a rebootstation or startfield.
+     * @param space the space which it stood before falling over the edge or in a pit.
+     * @param player the player which fell in a pit or out of map.
+     * @return the players startspace, or a rebootstation
+     */
+    public Space rebootOrStart(Space space, Player player){
+        if(space.x < 3){
+            return player.getStartSpace();
+        }
+        else{
+            return getRebootSpace();
+        }
+    }
+
+    /**
+     * Checks if space is an expressConveyorbelt, and checks if next space is also
+     * if it is, it will move one more, if not, it will stay.
+     * @param fieldaction
+     * @param space
+     */
+    private void expressConveyorBelt(FieldAction fieldaction, Space space) {
+        ConveyorBelt conveyorBelt = (ConveyorBelt) fieldaction;
+        if (conveyorBelt.getExpress()) {
+            Space newSpace = board.getNeighbour(space, conveyorBelt.getHeading());
+            if (!newSpace.getActions().isEmpty()) {
+                if (newSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                    ConveyorBelt secondConveyor = (ConveyorBelt) newSpace.getActions().get(0);
+                    if (secondConveyor.getExpress()) {
+                        conveyorBelt.doAction(this, newSpace);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Finds rebootstation on the board.
+     * @return rebootstation
+     */
+    private Space getRebootSpace() {
+        for (int i = 0; i < board.width; i++) {
+            for (int j = 0; j < board.height; j++) {
+                if (!board.getSpace(i, j).getActions().isEmpty()) {
+                    if (board.getSpace(i, j).getActions().get(0).getClass() == Reboot.class) {
+                        return board.getSpace(i, j);
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

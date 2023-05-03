@@ -25,6 +25,11 @@ import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * ...
@@ -54,23 +59,47 @@ public class RoboRallyMenuBar extends MenuBar {
         controlMenu = new Menu("File");
         this.getMenus().add(controlMenu);
 
-        newGame = new MenuItem("New Game");
+        ImageView plusIcon = new ImageView();
+        ImageView stopIcon = new ImageView();
+        ImageView exitIcon = new ImageView();
+        ImageView loadIcon = new ImageView();
+        ImageView saveIcon = new ImageView();
+        try {
+            plusIcon.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/menuIcons/plus_icon.png")));
+            stopIcon.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/menuIcons/redX.png")));
+            exitIcon.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/menuIcons/exit_icon.png")));
+            loadIcon.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/menuIcons/load.png")));
+            saveIcon.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/menuIcons/save.png")));
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        plusIcon.setFitHeight(20);
+        plusIcon.setFitWidth(20);
+        newGame = new MenuItem("New Game", plusIcon);
         newGame.setOnAction( e -> this.appController.newGame());
         controlMenu.getItems().add(newGame);
 
-        stopGame = new MenuItem("Stop Game");
+        stopIcon.setFitHeight(20);
+        stopIcon.setFitWidth(20);
+        stopGame = new MenuItem("Stop Game", stopIcon);
         stopGame.setOnAction( e -> this.appController.stopGame());
         controlMenu.getItems().add(stopGame);
 
-        saveGame = new MenuItem("Save Game");
+        saveIcon.setFitHeight(20);
+        saveIcon.setFitWidth(20);
+        saveGame = new MenuItem("Save Game", saveIcon);
         saveGame.setOnAction( e -> this.appController.saveGame());
         controlMenu.getItems().add(saveGame);
 
-        loadGame = new MenuItem("Load Game");
+        loadIcon.setFitHeight(20);
+        loadIcon.setFitWidth(20);
+        loadGame = new MenuItem("Load Game", loadIcon);
         loadGame.setOnAction( e -> this.appController.loadGame());
         controlMenu.getItems().add(loadGame);
 
-        exitApp = new MenuItem("Exit");
+        exitIcon.setFitHeight(20);
+        exitIcon.setFitWidth(20);
+        exitApp = new MenuItem("Exit", exitIcon);
         exitApp.setOnAction( e -> this.appController.exit());
         controlMenu.getItems().add(exitApp);
 

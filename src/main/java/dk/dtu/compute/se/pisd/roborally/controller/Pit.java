@@ -1,5 +1,6 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 
@@ -10,8 +11,8 @@ public class Pit extends FieldAction{
         Player currentPlayer = space.getPlayer();
         if (currentPlayer != null) {
             gameController.clearPlayersCards(currentPlayer);
-            gameController.spaceOccupied(currentPlayer.getStartSpace());
-            currentPlayer.setSpace(currentPlayer.getStartSpace());
+            gameController.spaceOccupied(gameController.rebootOrStart(currentPlayer.getPrevSpace(), currentPlayer), Heading.EAST);
+            currentPlayer.setSpace(gameController.rebootOrStart(space, currentPlayer));
             return true;
         }
         return false;
