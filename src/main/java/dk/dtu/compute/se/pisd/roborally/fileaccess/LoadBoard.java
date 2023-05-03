@@ -69,7 +69,7 @@ public class LoadBoard {
 			reader = gson.newJsonReader(new InputStreamReader(inputStream));
 			BoardTemplate template = gson.fromJson(reader, BoardTemplate.class);
 
-			result = new Board(template.width, template.height, template.checkpoints);
+			result = new Board(template.width, template.height, template.checkpoints, boardname);
 			for (SpaceTemplate spaceTemplate: template.spaces) {
 			    Space space = result.getSpace(spaceTemplate.x, spaceTemplate.y);
 			    if (space != null) {
@@ -78,6 +78,7 @@ public class LoadBoard {
                 }
             }
 			reader.close();
+            result.addStartSpaces();
 			return result;
 		} catch (IOException e1) {
             if (reader != null) {
