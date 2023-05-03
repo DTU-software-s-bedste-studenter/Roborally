@@ -68,8 +68,8 @@ public class AppController implements Observer {
         Optional<Integer> result = dialog.showAndWait();
 
         ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-        dialog.setTitle("Map");
-        dialog.setHeaderText("Select the map you want to play:");
+        dialog2.setTitle("Map");
+        dialog2.setHeaderText("Select the map you want to play:");
         Optional<String> result2 = dialog2.showAndWait();
         String map = result2.get();
 
