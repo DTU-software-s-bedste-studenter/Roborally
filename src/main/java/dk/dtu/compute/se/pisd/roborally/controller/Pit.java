@@ -12,7 +12,7 @@ public class Pit extends FieldAction{
         if (currentPlayer != null) {
             gameController.clearPlayersCards(currentPlayer);
             gameController.spaceOccupied(gameController.rebootOrStart(currentPlayer.getPrevSpace(), currentPlayer), Heading.EAST);
-            currentPlayer.setSpace(currentPlayer.getStartSpace());
+            currentPlayer.setSpace(gameController.rebootOrStart(space, currentPlayer));
             return true;
         }
         return false;
