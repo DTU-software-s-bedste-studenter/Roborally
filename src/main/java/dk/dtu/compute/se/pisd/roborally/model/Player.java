@@ -41,10 +41,11 @@ public class Player extends Subject {
 
     private String name;
     private String color;
+    private Space startSpace;
 
     private Space space;
-
     private Space prevSpace;
+    private boolean activated = false;
     private Heading heading = SOUTH;
 
     private CommandCardField[] program;
@@ -125,6 +126,15 @@ public class Player extends Subject {
     }
 
     public Space getPrevSpace(){return prevSpace;}
+
+    public void setStartSpace(Space startSpace) {
+        this.startSpace = startSpace;
+    }
+    public Space getStartSpace(){return startSpace;}
+
+    public void setActivated(Boolean activated){ this.activated = activated;}
+
+    public boolean getActivated(){return activated;}
     public Heading getHeading() {
         return heading;
     }

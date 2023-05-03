@@ -206,9 +206,11 @@ public class GameController {
      * @param isReversed if true, player moves backwards
      */
     public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
-        while (numberOfSpaces > 0)
+        boolean again = false;
+        do
         {
             Space space = player.getSpace();
+            player.setPrevSpace(player.getSpace());
             if (player != null && player.board == board && space != null) {
                 Heading heading = player.getHeading();
                 if (isReversed)
@@ -225,32 +227,43 @@ public class GameController {
                     target.setPlayer(player);
                 }
                 else {
-                    pushPlayer(target.getPlayer(), heading);
-                    target.setPlayer(player);
+                    if (pushPlayer(target.getPlayer(), heading)){
+                        target.setPlayer(player);
+                    }
                 }
+                again = checkPit(target);
             }
             numberOfSpaces--;
-        }
+        }while(numberOfSpaces > 0 && !again);
     }
 
     /**
-     * Pushes a player to a neighbouring space
+     * Pushes a player to a neighbouring space recursively while checking if a wall obstructs the movement.
      * @param player player to be pushed
      * @param heading direction of the push
+     * @return Returns true if move got completed and false if it was obstructed by a wall.
      */
-    public void pushPlayer(@NotNull Player player, Heading heading)
+    public boolean pushPlayer(@NotNull Player player, Heading heading)
     {
         Space space = player.getSpace();
-        if (player != null && player.board == board && space != null) {
+        if (player.board == board && space != null) {
             Space target = board.getNeighbour(space, heading);
+            if (willCollideWithWall(space, target, heading)) {
+                return false;
+            }
             if (target != null && target.getPlayer() == null) {
                 target.setPlayer(player);
+                return true;
             }
             else {
-                pushPlayer(target.getPlayer(), heading);
-                target.setPlayer(player);
+                if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    target.setPlayer(player);
+                    return true;
+                }
             }
+            checkPit(target);
         }
+        return false;
     }
 
     // TODO: V2
@@ -361,17 +374,24 @@ public class GameController {
      */
     public void activateActions() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
-            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
-            Space space = board.getPlayer(i).getSpace();
-            for (FieldAction fieldaction: space.getActions()) {
-                fieldaction.doAction(this, space);
+            board.getPlayer(i).setActivated(false);
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
+            if (!currentPlayer.getActivated()) {
+                for (FieldAction fieldaction : space.getActions()) {
+                    fieldaction.doAction(this, space);
+                }
             }
         }
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
-            board.getPlayer(i).setPrevSpace(board.getPlayer(i).getSpace());
-            Space space = board.getPlayer(i).getSpace();
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
             for (FieldAction fieldaction: space.getActions()) {
-                if (fieldaction.getClass() == Checkpoint.class) {
+                if (fieldaction.getClass() == Checkpoint.class || fieldaction.getClass() == Pit.class) {
                     fieldaction.doAction(this, space);
                 }
             }
@@ -398,19 +418,18 @@ public class GameController {
     private boolean isPrevNonAgainCardInteractive()
     {
         CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
-        if (card.command == Command.AGAIN)
-        {
-            int i = board.getStep();
-            while (i >= 0)
-            {
-                if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN)
-                {
-                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()){
-                        return true;
+        if(card != null) {
+            if (card.command == Command.AGAIN) {
+                int i = board.getStep();
+                while (i >= 0) {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN) {
+                        if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()) {
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
+                    i--;
                 }
-                i--;
             }
         }
         return false;
@@ -427,6 +446,49 @@ public class GameController {
         }
         if (winnerFound) {
             appController.resetGame(player);
+        }
+    }
+
+    private boolean checkPit(Space space){
+        if(!space.getActions().isEmpty()){
+            if(space.getActions().get(0).getClass() == Pit.class){
+                space.getActions().get(0).doAction(this, space);
+                return true;
+            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+                clearPlayersCards(space.getPlayer());
+                spaceOccupied(space.getPlayer().getStartSpace());
+                space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+                return true;
+            }
+        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+            clearPlayersCards(space.getPlayer());
+            spaceOccupied(space.getPlayer().getStartSpace());
+            space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+            return true;
+        }
+        return false;
+    }
+    private boolean OutOfMap(Space prevSpace, Space currentSpace){
+        if(prevSpace.y == currentSpace.y && (prevSpace.x == currentSpace.x+1 || prevSpace.x == currentSpace.x-1)){
+            return false;
+        }
+        else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
+            return false;
+        } else{
+            return true;
+        }
+    }
+    public void clearPlayersCards(Player player) {
+        for (int i = board.getStep()+1; i < 5; i++) {
+            player.getProgramField(i).setCard(null);
+        }
+    }
+
+    public void spaceOccupied(Space space) {
+        if (space.getPlayer() != null) {
+            Space nextSpace = board.getNeighbour(space, Heading.EAST);
+            spaceOccupied(nextSpace);
+            space.getPlayer().setSpace(nextSpace);
         }
     }
 }
