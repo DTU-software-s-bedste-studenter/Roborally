@@ -37,5 +37,4 @@ public class BoardTemplate {
     public int height;
     public int checkpoints;
     public List<SpaceTemplate> spaces = new ArrayList<>();
-
 }
