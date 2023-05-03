@@ -180,7 +180,11 @@ public class SpaceView extends StackPane implements ViewObserver {
             case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
                 ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
                 try {
-                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    if(conveyorBelt.getExpress()){
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_express.png")));
+                    }else {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -246,6 +250,19 @@ public class SpaceView extends StackPane implements ViewObserver {
                     imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/pit.png")));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
+                }
+                break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Reboot":
+                Reboot reboot = (Reboot) space.getActions().get(0);
+                try {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_reboot.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (reboot.getHeading()) {
+                    case EAST -> imageView.setRotate(90);
+                    case SOUTH -> imageView.setRotate(180);
+                    case WEST -> imageView.setRotate(270);
                 }
                 break;
         }
