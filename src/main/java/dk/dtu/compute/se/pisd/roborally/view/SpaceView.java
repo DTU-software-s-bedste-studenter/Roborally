@@ -134,7 +134,6 @@ public class SpaceView extends StackPane implements ViewObserver {
                 drawFieldActions();
             }
             drawWalls();
-            //updatePlayer();
             drawPlayer();
         }
     }
