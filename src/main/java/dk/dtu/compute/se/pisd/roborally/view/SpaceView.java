@@ -228,6 +228,19 @@ public class SpaceView extends StackPane implements ViewObserver {
                     e.printStackTrace();
                 }
                 break;
+            case "dk.dtu.compute.se.pisd.roborally.controller.Reboot":
+                Reboot reboot = (Reboot) space.getActions().get(0);
+                try {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_reboot.png")));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                switch (reboot.getHeading()) {
+                    case EAST -> imageView.setRotate(90);
+                    case SOUTH -> imageView.setRotate(180);
+                    case WEST -> imageView.setRotate(270);
+                }
+                break;
         }
         imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
         imageView.fitWidthProperty().setValue(SPACE_WIDTH);
