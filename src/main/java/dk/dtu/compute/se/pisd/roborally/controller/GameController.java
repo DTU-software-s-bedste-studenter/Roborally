@@ -451,7 +451,7 @@ public class GameController {
             appController.resetGame(player);
         }
     }
-
+    
     private boolean checkPit(Space space){
         if(!space.getActions().isEmpty()){
             if(space.getActions().get(0).getClass() == Pit.class){
