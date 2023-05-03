@@ -32,12 +32,19 @@ import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import javafx.application.Platform;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.DialogEvent;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -110,10 +117,14 @@ public class AppController implements Observer {
     }
 
     public void loadGame() {
-        // XXX needs to be implememted eventually
-        // for now, we just create a new game
         if (gameController == null) {
-            newGame();
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Save file not found!");
+            alert.setContentText("Save file not found!\n\nA new game will be started!");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == (ButtonType.OK)) {
+                newGame();
+            }
         }
     }
 
