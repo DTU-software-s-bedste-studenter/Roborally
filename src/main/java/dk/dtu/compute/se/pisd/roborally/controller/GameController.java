@@ -383,9 +383,12 @@ public class GameController {
             if (!currentPlayer.getActivated()) {
                 for (FieldAction fieldaction : space.getActions()) {
                     fieldaction.doAction(this, space);
+                    if(fieldaction.getClass() == ConveyorBelt.class){
+                        expressConveyorBelt(fieldaction, space);
+                    }
+                        }
+                    }
                 }
-            }
-        }
         for (int i = 0; i < board.getNumberOfPlayers(); i++){
             Player currentPlayer = board.getPlayer(i);
             currentPlayer.setPrevSpace(currentPlayer.getSpace());
@@ -489,6 +492,20 @@ public class GameController {
             Space nextSpace = board.getNeighbour(space, Heading.EAST);
             spaceOccupied(nextSpace);
             space.getPlayer().setSpace(nextSpace);
+        }
+    }
+    public void expressConveyorBelt(FieldAction fieldaction, Space space) {
+        ConveyorBelt conveyorBelt = (ConveyorBelt) fieldaction;
+        if (conveyorBelt.getExpress()) {
+            Space newSpace = board.getNeighbour(space, conveyorBelt.getHeading());
+            if (!newSpace.getActions().isEmpty()) {
+                if (newSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                    ConveyorBelt secondConveyor = (ConveyorBelt) newSpace.getActions().get(0);
+                    if (secondConveyor.getExpress()) {
+                        conveyorBelt.doAction(this, newSpace);
+                    }
+                }
+            }
         }
     }
 }

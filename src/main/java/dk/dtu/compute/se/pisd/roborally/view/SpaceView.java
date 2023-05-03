@@ -156,7 +156,11 @@ public class SpaceView extends StackPane implements ViewObserver {
             case "dk.dtu.compute.se.pisd.roborally.controller.ConveyorBelt":
                 ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
                 try {
-                    imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    if(conveyorBelt.getExpress()){
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_express.png")));
+                    }else {
+                        imageView.setImage(new Image(new FileInputStream(System.getProperty("user.dir") + "/src/main/resources/north_conveyor.png")));
+                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
