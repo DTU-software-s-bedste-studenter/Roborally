@@ -62,6 +62,13 @@ public class Board extends Subject {
     private boolean stepMode;
     private List<Space> startSpaces = new ArrayList<>();
 
+    /**
+     * Constructor for the Board.
+     * @param width expressed in amount of spaces.
+     * @param height also expressed in amount of spaces.
+     * @param checkpoints
+     * @param boardName
+     */
     public Board(int width, int height, int checkpoints, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
@@ -77,6 +84,9 @@ public class Board extends Subject {
         this.stepMode = false;
     }
 
+    /**
+     * The default constructor for the Board class for if no boardname has been selected
+     */
     public Board(int width, int height, int checkpoints) {
         this(width, height, checkpoints, "defaultboard");
     }
@@ -108,6 +118,10 @@ public class Board extends Subject {
         return players.size();
     }
 
+    /**
+     * Adds player to the gameboard and notifies the view.
+     * @param player
+     */
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);

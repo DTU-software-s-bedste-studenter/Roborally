@@ -55,6 +55,10 @@ public enum Command {
         this.options = Collections.unmodifiableList(Arrays.asList(options));
     }
 
+    /**
+     * Check for the interactivity of the command
+     * @return true if multiple options
+     */
     public boolean isInteractive() {
         return !options.isEmpty();
     }
