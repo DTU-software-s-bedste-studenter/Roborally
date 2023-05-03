@@ -160,6 +160,10 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(imageView);
         }
     }
+
+    /**
+     * The method responsible for drawing the default tile on the board.
+     */
     public void drawBackground()
     {
         ImageView imageView = new ImageView();
@@ -173,6 +177,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.getChildren().add(imageView);
     }
 
+    /**
+     * Method responsible for drawing the various action fields depending on the specific field.
+     */
     public void drawFieldActions()
     {
         ImageView imageView = new ImageView();

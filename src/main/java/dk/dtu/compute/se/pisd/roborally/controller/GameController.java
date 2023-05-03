@@ -128,26 +128,34 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * starts round with stepmode set to false
+     */
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Starts round with stepmode set to true
+     */
     public void executeStep() {
         board.setStepMode(true);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Continually executes the next steps only if step mode is activated.
+     */
     private void continuePrograms() {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
-    // XXX: V2
+    /**
+     * Only executes the next step, and nothing else.
+     */
     private void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
@@ -176,7 +184,11 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * executes the current command card for the current player.
+     * @param player
+     * @param command
+     */
     private void executeCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
 
@@ -321,15 +333,6 @@ public class GameController {
             }
         }
     }
-
-    /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
-     */
-    public void notImplemented() {
-        // XXX just for now to indicate that the actual method is not yet implemented
-        assert false;
-    }
     /**
      * Runs the execution of the interactive cards chosen option
      * @param player current player
@@ -344,7 +347,6 @@ public class GameController {
             continuePrograms();
         }
     }
-
     /**
      * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
      * @param currentPlayer Current player
@@ -451,7 +453,12 @@ public class GameController {
             appController.resetGame(player);
         }
     }
-    
+
+    /**
+     * Checks if space is a pit, and...
+     * @param space the space to be checked.
+     * @return true if we are out of bounds or if we in fact are in a pit, false otherwise.
+     */
     private boolean checkPit(Space space){
         if(!space.getActions().isEmpty()){
             if(space.getActions().get(0).getClass() == Pit.class){
