@@ -83,6 +83,7 @@ public class AppController implements Observer {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
                 board.addPlayer(player);
                 player.setSpace(board.getSpace(i % board.width, i));
+                player.setStartSpace(player.getSpace());
             }
 
             // XXX: V2

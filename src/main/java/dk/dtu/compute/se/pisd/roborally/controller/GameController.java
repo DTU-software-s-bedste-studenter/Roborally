@@ -206,9 +206,11 @@ public class GameController {
      * @param isReversed if true, player moves backwards
      */
     public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
-        while (numberOfSpaces > 0)
+        boolean again = false;
+        do
         {
             Space space = player.getSpace();
+            player.setPrevSpace(player.getSpace());
             if (player != null && player.board == board && space != null) {
                 Heading heading = player.getHeading();
                 if (isReversed)
@@ -229,9 +231,10 @@ public class GameController {
                         target.setPlayer(player);
                     }
                 }
+                again = checkPit(target);
             }
             numberOfSpaces--;
-        }
+        }while(numberOfSpaces > 0 && !again);
     }
 
     /**
@@ -258,6 +261,7 @@ public class GameController {
                     return true;
                 }
             }
+            checkPit(target);
         }
         return false;
     }
@@ -387,7 +391,7 @@ public class GameController {
             currentPlayer.setPrevSpace(currentPlayer.getSpace());
             Space space = currentPlayer.getSpace();
             for (FieldAction fieldaction: space.getActions()) {
-                if (fieldaction.getClass() == Checkpoint.class) {
+                if (fieldaction.getClass() == Checkpoint.class || fieldaction.getClass() == Pit.class) {
                     fieldaction.doAction(this, space);
                 }
             }
@@ -414,19 +418,18 @@ public class GameController {
     private boolean isPrevNonAgainCardInteractive()
     {
         CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
-        if (card.command == Command.AGAIN)
-        {
-            int i = board.getStep();
-            while (i >= 0)
-            {
-                if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN)
-                {
-                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()){
-                        return true;
+        if(card != null) {
+            if (card.command == Command.AGAIN) {
+                int i = board.getStep();
+                while (i >= 0) {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN) {
+                        if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()) {
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
+                    i--;
                 }
-                i--;
             }
         }
         return false;
@@ -443,6 +446,49 @@ public class GameController {
         }
         if (winnerFound) {
             appController.resetGame(player);
+        }
+    }
+
+    private boolean checkPit(Space space){
+        if(!space.getActions().isEmpty()){
+            if(space.getActions().get(0).getClass() == Pit.class){
+                space.getActions().get(0).doAction(this, space);
+                return true;
+            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+                clearPlayersCards(space.getPlayer());
+                spaceOccupied(space.getPlayer().getStartSpace());
+                space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+                return true;
+            }
+        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+            clearPlayersCards(space.getPlayer());
+            spaceOccupied(space.getPlayer().getStartSpace());
+            space.getPlayer().setSpace(space.getPlayer().getStartSpace());
+            return true;
+        }
+        return false;
+    }
+    private boolean OutOfMap(Space prevSpace, Space currentSpace){
+        if(prevSpace.y == currentSpace.y && (prevSpace.x == currentSpace.x+1 || prevSpace.x == currentSpace.x-1)){
+            return false;
+        }
+        else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
+            return false;
+        } else{
+            return true;
+        }
+    }
+    public void clearPlayersCards(Player player) {
+        for (int i = board.getStep()+1; i < 5; i++) {
+            player.getProgramField(i).setCard(null);
+        }
+    }
+
+    public void spaceOccupied(Space space) {
+        if (space.getPlayer() != null) {
+            Space nextSpace = board.getNeighbour(space, Heading.EAST);
+            spaceOccupied(nextSpace);
+            space.getPlayer().setSpace(nextSpace);
         }
     }
 }
