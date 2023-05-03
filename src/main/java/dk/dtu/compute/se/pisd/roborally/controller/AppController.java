@@ -52,7 +52,7 @@ public class AppController implements Observer {
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
-    final private List<String> BOARD_NAMES = Arrays.asList("defaultboard", "RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
+    final private List<String> BOARD_NAMES = Arrays.asList("RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
 
     final private RoboRally roboRally;
     private GameController gameController;
@@ -67,13 +67,16 @@ public class AppController implements Observer {
         dialog.setHeaderText("Select number of players");
         Optional<Integer> result = dialog.showAndWait();
 
+        if (!result.isPresent()) {
+            return;
+        }
+
         ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
         dialog2.setTitle("Map");
         dialog2.setHeaderText("Select the map you want to play:");
         Optional<String> result2 = dialog2.showAndWait();
-        String map = result2.get();
 
-        if (result.isPresent()) {
+        if (result2.isPresent()) {
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
                 // give the user the option to save the game or abort this operation!
@@ -82,8 +85,7 @@ public class AppController implements Observer {
                 }
             }
 
-            // XXX the board should eventually be created programmatically or loaded from a file
-            //     here we just create an empty board with the required number of players.
+            String map = result2.get();
             Board board = LoadBoard.loadBoard(map);
             gameController = new GameController(board, this);
             int no = result.get();
@@ -94,8 +96,6 @@ public class AppController implements Observer {
                 player.setStartSpace(player.getSpace());
             }
 
-            // XXX: V2
-            // board.setCurrentPlayer(board.getPlayer(0));
             gameController.startProgrammingPhase();
 
             roboRally.createBoardView(gameController);
