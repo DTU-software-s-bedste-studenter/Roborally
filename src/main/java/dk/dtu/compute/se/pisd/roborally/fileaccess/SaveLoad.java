@@ -2,6 +2,7 @@ package dk.dtu.compute.se.pisd.roborally.fileaccess;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
@@ -9,7 +10,6 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCardField;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 
@@ -18,15 +18,19 @@ import java.util.ArrayList;
 
 public class SaveLoad {
 
-    private static final String SAVEFILEPATH = System.getProperty("user.dir") + "/src/main/resources/save/roborally_save.json";
+    private static final String SAVEFILEPATH = System.getProperty("user.dir") + "/src/main/resources/save/";
+    private static final String SAVEFILENAME = "roborally_save.json";
     public static void save(Board board)
     {
         FileWriter fileWriter = null;
         JsonWriter writer = null;
 
         try {
-            new File(SAVEFILEPATH).createNewFile();
-            fileWriter = new FileWriter(SAVEFILEPATH);
+            File filefolder = new File(SAVEFILEPATH);
+            filefolder.mkdir();
+            File jsonFile = new File(SAVEFILEPATH + SAVEFILENAME);
+            jsonFile.createNewFile();
+            fileWriter = new FileWriter(SAVEFILEPATH + SAVEFILENAME);
             GsonBuilder builder = new GsonBuilder().registerTypeAdapter(FieldAction.class, new Adapter<FieldAction>()).setPrettyPrinting();
 
             Gson gson = builder.create();
@@ -47,14 +51,72 @@ public class SaveLoad {
         }
     }
 
-    public static void load()
+    public static Board load()
     {
         // most of the objects have the board as a member variable, which needs to be set during loading of a save
+
+        GsonBuilder simpleBuilder = new GsonBuilder().
+                registerTypeAdapter(FieldAction.class, new Adapter<FieldAction>());
+        Gson gson = simpleBuilder.create();
+
+        JsonReader reader = null;
+        try {
+            FileReader fileReader = new FileReader(SAVEFILEPATH + SAVEFILENAME);
+            reader = gson.newJsonReader(fileReader);
+            FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
+
+            Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
+
+            for (SpaceTemplate spaceTemplate : template.spaces) {
+                Space space = resultBoard.getSpace(spaceTemplate.x, spaceTemplate.y);
+                if (space != null) {
+                    space.getActions().addAll(spaceTemplate.actions);
+                    space.getWalls().addAll(spaceTemplate.walls);
+                }
+            }
+
+            for (int i = 0; i < template.players.size(); i++)
+            {
+                PlayerTemplate playerTemplate = template.players.get(i);
+                Player player = new Player(resultBoard, playerTemplate.color, playerTemplate.name);
+                player.setStartSpace(resultBoard.getSpace(playerTemplate.startSpace.x, playerTemplate.startSpace.y));
+                player.setSpace(resultBoard.getSpace(playerTemplate.space.x, playerTemplate.space.y));
+                player.setPrevSpace(resultBoard.getSpace(playerTemplate.prevSpace.x, playerTemplate.prevSpace.y));
+                player.setActivated(playerTemplate.activated);
+                player.setHeading(playerTemplate.heading);
+
+                for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                    player.getProgramField(j).setCard(playerTemplate.program[j].card);
+                    player.getProgramField(j).setVisible(playerTemplate.program[j].visible);
+                }
+
+                for (int k = 0; k < Player.NO_CARDS; k++) {
+                    player.getCardField(k).setCard(playerTemplate.cards[k].card);
+                    player.getCardField(k).setVisible(playerTemplate.cards[k].visible);
+                }
+
+                player.setPowerCubes(playerTemplate.powerCubes);
+                player.setCheckpointTokens(playerTemplate.checkpointTokens);
+                resultBoard.addPlayer(player);
+            }
+            reader.close();
+            return resultBoard;
+        } catch (IOException e1) {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 
     private static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
     {
         FullBoardTemplate boardTemplate = new FullBoardTemplate();
+        boardTemplate.boardName = board.boardName;
         boardTemplate.width = board.width;
         boardTemplate.height = board.height;
         boardTemplate.checkpoints = board.checkpoints;
@@ -100,10 +162,10 @@ public class SaveLoad {
             playerTemplate.startSpace.y = player.getStartSpace().y;
 
             playerTemplate.space = new SpaceTemplate();
-            playerTemplate.startSpace.walls = player.getSpace().getWalls();
-            playerTemplate.startSpace.actions = player.getSpace().getActions();
-            playerTemplate.startSpace.x = player.getSpace().x;
-            playerTemplate.startSpace.y = player.getSpace().y;
+            playerTemplate.space.walls = player.getSpace().getWalls();
+            playerTemplate.space.actions = player.getSpace().getActions();
+            playerTemplate.space.x = player.getSpace().x;
+            playerTemplate.space.y = player.getSpace().y;
 
             playerTemplate.prevSpace = new SpaceTemplate();
             if (player.getPrevSpace() != null) {

@@ -38,6 +38,7 @@ public class FullBoardTemplate {
     public int width;
     public int height;
     public int checkpoints;
+    public String boardName;
     public List<SpaceTemplate> spaces = new ArrayList<>();
     public List<PlayerTemplate> players = new ArrayList<>();
 }

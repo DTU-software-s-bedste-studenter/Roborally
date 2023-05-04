@@ -32,19 +32,15 @@ import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import javafx.application.Platform;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.DialogEvent;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -117,8 +113,9 @@ public class AppController implements Observer {
     }
 
     public void loadGame() {
-        if (gameController != null) {
-            SaveLoad.load();
+        Path pathToSaveFile = Paths.get(System.getProperty("user.dir") + "/src/main/resources/save/roborally_save.json");
+        if (Files.exists(pathToSaveFile)) {
+            startLoadedGame(SaveLoad.load());
         }
         else {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -129,6 +126,12 @@ public class AppController implements Observer {
                 newGame();
             }
         }
+    }
+
+    private void startLoadedGame(Board board) {
+        gameController = new GameController(board, this);
+        gameController.startProgrammingPhase();
+        roboRally.createBoardView(gameController);
     }
 
     /**
