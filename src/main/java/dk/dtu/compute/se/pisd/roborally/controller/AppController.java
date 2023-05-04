@@ -29,6 +29,7 @@ import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
+import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import javafx.application.Platform;
@@ -98,6 +99,7 @@ public class AppController implements Observer {
                 board.addPlayer(player);
                 player.setSpace(board.getRandomStartSpace());
                 player.setStartSpace(player.getSpace());
+                player.setHeading(Heading.EAST);
             }
 
             gameController.startProgrammingPhase();
