@@ -244,8 +244,13 @@ public class Board extends Subject {
         }
     }
 
-    public Space getRandomStartSpace(){
-        return startSpaces.get((int) (Math.random()*startSpaces.size()));
+    public Space getRandomStartSpace() {
+        while (true) {
+            Space space = startSpaces.get((int) (Math.random() * startSpaces.size()));
+            if (space.getPlayer() == null) {
+                return space;
+            }
+        }
     }
 
 }
