@@ -11,6 +11,9 @@ public class Gears extends FieldAction{
         return this.rotation;
     }
 
+    public void setRotation(Rotation rotation){
+        this.rotation = rotation;
+    }
 
     @Override
     public boolean doAction(GameController gameController, Space space) {
