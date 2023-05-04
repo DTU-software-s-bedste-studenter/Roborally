@@ -117,7 +117,10 @@ public class AppController implements Observer {
     }
 
     public void loadGame() {
-        if (gameController == null) {
+        if (gameController != null) {
+            SaveLoad.load();
+        }
+        else {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Save file not found!");
             alert.setContentText("Save file not found!\n\nA new game will be started!");
