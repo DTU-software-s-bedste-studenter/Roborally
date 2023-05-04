@@ -39,9 +39,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +60,7 @@ public class AppController implements Observer {
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
     final private List<String> BOARD_NAMES = Arrays.asList("RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
+    private  List<String> SAVE_FILES = new ArrayList<>();
 
     final private RoboRally roboRally;
     private GameController gameController;
@@ -108,16 +111,33 @@ public class AppController implements Observer {
         }
     }
 
-    public void saveGame() {
+    public void saveGame(boolean stop) {
         if (this.gameController != null) {
-            SaveLoad.save(this.gameController.board);
+            SaveLoad.save(this.gameController.board, stop);
         }
     }
 
     public void loadGame() {
-        Path pathToSaveFile = Paths.get(System.getProperty("user.dir") + "/src/main/resources/save/roborally_save.json");
+        String filename;
+        File folder = new File(System.getProperty("user.dir") + "/src/main/resources/save");
+        File[] listOfFiles = folder.listFiles();
+        if(listOfFiles != null) {
+            for (File listOfFile : listOfFiles) {
+                SAVE_FILES.add(listOfFile.getName());
+            }
+        }
+        if(!SAVE_FILES.isEmpty()) {
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(SAVE_FILES.get(0), SAVE_FILES);
+            dialog.setTitle("Saved games");
+            dialog.setHeaderText("Select the saved game you want to play:");
+            Optional<String> result2 = dialog.showAndWait();
+            filename = result2.get();
+        }else {
+            filename = "notFound";
+        }
+        Path pathToSaveFile = Paths.get(System.getProperty("user.dir") + "/src/main/resources/save/" + filename);
         if (Files.exists(pathToSaveFile)) {
-            startLoadedGame(SaveLoad.load());
+            startLoadedGame(SaveLoad.load(filename));
         }
         else {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -147,10 +167,7 @@ public class AppController implements Observer {
      */
     public boolean stopGame() {
         if (gameController != null) {
-
-            // here we save the game (without asking the user).
-            saveGame();
-
+            saveGame(true);
             gameController = null;
             roboRally.createBoardView(null);
             return true;

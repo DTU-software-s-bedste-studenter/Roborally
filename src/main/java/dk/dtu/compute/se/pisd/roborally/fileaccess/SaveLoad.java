@@ -12,25 +12,41 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
+import javafx.scene.control.ChoiceDialog;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class SaveLoad {
 
     private static final String SAVEFILEPATH = System.getProperty("user.dir") + "/src/main/resources/save/";
-    private static final String SAVEFILENAME = "roborally_save.json";
-    public static void save(Board board)
+    private static final List<String> SAVEFILENAMES = Arrays.asList("SaveSlot 1", "SaveSlot 2", "SaveSlot 3", "SaveSlot 4", "SaveSlot 5", "SaveSlot 6");
+    private static final String LAST_GAME = "LastGame";
+    public static void save(Board board, boolean stop)
     {
+        String filename;
+        if(stop){
+            filename = LAST_GAME;
+        }else {
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(SAVEFILENAMES.get(0), SAVEFILENAMES);
+        dialog.setTitle("Save game");
+        dialog.setHeaderText("Select the slot you want to save your game in:");
+        Optional<String> result2 = dialog.showAndWait();
+        filename = result2.get();
+        }
+
         FileWriter fileWriter = null;
         JsonWriter writer = null;
 
         try {
             File filefolder = new File(SAVEFILEPATH);
             filefolder.mkdir();
-            File jsonFile = new File(SAVEFILEPATH + SAVEFILENAME);
+            File jsonFile = new File(SAVEFILEPATH + filename);
             jsonFile.createNewFile();
-            fileWriter = new FileWriter(SAVEFILEPATH + SAVEFILENAME);
+            fileWriter = new FileWriter(SAVEFILEPATH + filename);
             GsonBuilder builder = new GsonBuilder().registerTypeAdapter(FieldAction.class, new Adapter<FieldAction>()).setPrettyPrinting();
 
             Gson gson = builder.create();
@@ -51,7 +67,7 @@ public class SaveLoad {
         }
     }
 
-    public static Board load()
+    public static Board load(String filename)
     {
         // most of the objects have the board as a member variable, which needs to be set during loading of a save
 
@@ -61,7 +77,7 @@ public class SaveLoad {
 
         JsonReader reader = null;
         try {
-            FileReader fileReader = new FileReader(SAVEFILEPATH + SAVEFILENAME);
+            FileReader fileReader = new FileReader(SAVEFILEPATH + filename);
             reader = gson.newJsonReader(fileReader);
             FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
 

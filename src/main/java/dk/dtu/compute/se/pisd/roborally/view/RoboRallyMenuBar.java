@@ -88,7 +88,7 @@ public class RoboRallyMenuBar extends MenuBar {
         saveIcon.setFitHeight(20);
         saveIcon.setFitWidth(20);
         saveGame = new MenuItem("Save Game", saveIcon);
-        saveGame.setOnAction( e -> this.appController.saveGame());
+        saveGame.setOnAction( e -> this.appController.saveGame(false));
         controlMenu.getItems().add(saveGame);
 
         loadIcon.setFitHeight(20);
