@@ -41,14 +41,18 @@ public class Player extends Subject {
 
     private String name;
     private String color;
+    private Space startSpace;
 
     private Space space;
+    private Space prevSpace;
+    private boolean activated = false;
     private Heading heading = SOUTH;
 
     private CommandCardField[] program;
     private CommandCardField[] cards;
 
     private int powerCubes;
+    private int checkpointTokens;
     public int getPowerCubes() {return this.powerCubes;}
     public void setPowerCubes(int number) {this.powerCubes = number;}
 
@@ -57,7 +61,8 @@ public class Player extends Subject {
         this.name = name;
         this.color = color;
         this.powerCubes = 0;
-
+        this.checkpointTokens = 0;
+        this.prevSpace = null;
         this.space = null;
 
         program = new CommandCardField[NO_REGISTERS];
@@ -116,6 +121,20 @@ public class Player extends Subject {
         }
     }
 
+    public void setPrevSpace(Space space){
+        this.prevSpace = space;
+    }
+
+    public Space getPrevSpace(){return prevSpace;}
+
+    public void setStartSpace(Space startSpace) {
+        this.startSpace = startSpace;
+    }
+    public Space getStartSpace(){return startSpace;}
+
+    public void setActivated(Boolean activated){ this.activated = activated;}
+
+    public boolean getActivated(){return activated;}
     public Heading getHeading() {
         return heading;
     }
@@ -136,5 +155,11 @@ public class Player extends Subject {
 
     public CommandCardField getCardField(int i) {
         return cards[i];
+    }
+
+    public int getCheckpointTokens(){return checkpointTokens;}
+
+    public void setCheckpointTokens(int token){
+        this.checkpointTokens = token;
     }
 }

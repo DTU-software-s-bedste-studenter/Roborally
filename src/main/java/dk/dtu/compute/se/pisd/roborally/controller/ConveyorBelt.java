@@ -21,7 +21,6 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
@@ -37,6 +36,14 @@ public class ConveyorBelt extends FieldAction {
 
     private Heading heading;
 
+    private boolean express;
+
+    public boolean getExpress(){return express;}
+
+    public void setExpress(boolean express) {
+        this.express = express;
+    }
+
     public Heading getHeading() {
         return heading;
     }
@@ -45,10 +52,54 @@ public class ConveyorBelt extends FieldAction {
         this.heading = heading;
     }
 
+
+    /**
+     * The following code takes the currentplayer and move it one space in the direction of
+     * the current conveyorbelt it is standing on. If a player is standing on the next space
+     * that player is push, unless the next space is a conveyorbelt, then the function is called recursively,
+     * and a boolean is updated, so the other robots won't do their fieldaction twice.
+     * @param gameController the gameController of the respective game
+     * @param space the space this action should be executed for
+     * @return
+     */
     @Override
     public boolean doAction(@NotNull GameController gameController, @NotNull Space space) {
-        // TODO needs to be implemented
+        Player currentPlayer = space.getPlayer();
+        ConveyorBelt conveyorBelt = (ConveyorBelt) space.getActions().get(0);
+        Heading currentHeading = conveyorBelt.getHeading();
+        if (currentPlayer != null) {
+            Space nextSpace = gameController.board.getNeighbour(space, currentHeading);
+            Player nextPlayer = nextSpace.getPlayer();
+            if (nextPlayer == null) {
+                gameController.pushPlayer(currentPlayer, currentHeading);
+                return true;
+            } else {
+                if(gameController.board.getPlayerNumber(currentPlayer) < gameController.board.getPlayerNumber(nextPlayer)) {
+                    if(!nextSpace.getActions().isEmpty()) {
+                        if (nextSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                            nextPlayer.setActivated(true);
+                            doAction(gameController, nextSpace);
+                            gameController.pushPlayer(currentPlayer, currentHeading);
+                        } else {
+                            gameController.pushPlayer(currentPlayer, currentHeading);
+                        }
+                    } else{
+                        gameController.pushPlayer(currentPlayer, currentHeading);
+                    }
+                    return true;
+                }
+                else{
+                    if(nextPlayer.getSpace() == nextPlayer.getPrevSpace()){
+                            gameController.pushPlayer(currentPlayer, currentHeading);
+                            return true;
+                        }
+                    else{
+                        nextPlayer.setSpace(nextPlayer.getPrevSpace());
+                        return false;
+                    }
+                }
+            }
+        }
         return false;
     }
-
 }

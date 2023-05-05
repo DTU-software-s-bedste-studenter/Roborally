@@ -32,10 +32,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GameController {
 
-    final public Board board;
+    private boolean winnerFound = false;
+    private AppController appController;
 
-    public GameController(@NotNull Board board) {
+    final public Board board;
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
     }
 
     /**
@@ -125,26 +128,34 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * starts round with stepmode set to false
+     */
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Starts round with stepmode set to true
+     */
     public void executeStep() {
         board.setStepMode(true);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Continually executes the next steps only if step mode is activated.
+     */
     private void continuePrograms() {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
-    // XXX: V2
+    /**
+     * Only executes the next step, and nothing else.
+     */
     private void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
@@ -154,7 +165,11 @@ public class GameController {
                 if (card != null && !card.command.isInteractive()) {
                     Command command = card.command;
                     executeCommand(currentPlayer, command);
-                } else if (card != null) {
+                    if (isPrevNonAgainCardInteractive()) {
+                        return;
+                    }
+                }
+                else if (card != null) {
                     board.setPhase(Phase.PLAYER_INTERACTION);
                     return;
                 }
@@ -169,44 +184,27 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * executes the current command card for the current player.
+     * @param player
+     * @param command
+     */
     private void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
+        if (player.board == board && command != null) {
 
             switch (command) {
-                case FORWARD_1:
-                    this.movePlayer(player, 1, false);
-                    break;
-                case FORWARD_2:
-                    this.movePlayer(player, 2, false);
-                    break;
-                case FORWARD_3:
-                    this.movePlayer(player, 3, false);
-                    break;
-                case RIGHT:
-                    this.turnRight(player);
-                    break;
-                case LEFT:
-                    this.turnLeft(player);
-                    break;
-                case U_TURN:
-                    this.makeUTurn(player);
-                    break;
-                case BACK_UP:
-                    this.movePlayer(player, 1, true);
-                    break;
-                case POWER_UP:
+                case FORWARD_1 -> this.movePlayer(player, 1, false);
+                case FORWARD_2 -> this.movePlayer(player, 2, false);
+                case FORWARD_3 -> this.movePlayer(player, 3, false);
+                case RIGHT -> this.turnRight(player);
+                case LEFT -> this.turnLeft(player);
+                case U_TURN -> this.makeUTurn(player);
+                case BACK_UP -> this.movePlayer(player, 1, true);
+                case POWER_UP -> {
                     Player currentPlayer = this.board.getCurrentPlayer();
                     currentPlayer.setPowerCubes(currentPlayer.getPowerCubes() + 1);
-                    break;
-                case AGAIN:
-                    notImplemented();
-                    break;
-                default:
-                    // DO NOTHING (for now)
+                }
+                case AGAIN -> this.playPrevCardAgain(player, board.getStep());
             }
         }
     }
@@ -220,9 +218,11 @@ public class GameController {
      * @param isReversed if true, player moves backwards
      */
     public void movePlayer(@NotNull Player player, int numberOfSpaces, boolean isReversed) {
-        while (numberOfSpaces > 0)
+        boolean again = false;
+        do
         {
             Space space = player.getSpace();
+            player.setPrevSpace(player.getSpace());
             if (player != null && player.board == board && space != null) {
                 Heading heading = player.getHeading();
                 if (isReversed)
@@ -239,32 +239,43 @@ public class GameController {
                     target.setPlayer(player);
                 }
                 else {
-                    pushPlayer(target.getPlayer(), heading);
-                    target.setPlayer(player);
+                    if (pushPlayer(target.getPlayer(), heading)){
+                        target.setPlayer(player);
+                    }
                 }
+                again = checkPit(target);
             }
             numberOfSpaces--;
-        }
+        }while(numberOfSpaces > 0 && !again);
     }
 
     /**
-     * Pushes a player to a neighbouring space
+     * Pushes a player to a neighbouring space recursively while checking if a wall obstructs the movement.
      * @param player player to be pushed
      * @param heading direction of the push
+     * @return Returns true if move got completed and false if it was obstructed by a wall.
      */
-    public void pushPlayer(@NotNull Player player, Heading heading)
+    public boolean pushPlayer(@NotNull Player player, Heading heading)
     {
         Space space = player.getSpace();
-        if (player != null && player.board == board && space != null) {
+        if (player.board == board && space != null) {
             Space target = board.getNeighbour(space, heading);
+            if (willCollideWithWall(space, target, heading)) {
+                return false;
+            }
             if (target != null && target.getPlayer() == null) {
                 target.setPlayer(player);
+                return true;
             }
             else {
-                pushPlayer(target.getPlayer(), heading);
-                target.setPlayer(player);
+                if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    target.setPlayer(player);
+                    return true;
+                }
             }
+            checkPit(target);
         }
+        return false;
     }
 
     // TODO: V2
@@ -281,8 +292,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Turns the player around
+     * @param player subject to be turned
+     */
     public void makeUTurn(@NotNull Player player) {
-        if (player != null && player.board == board) {
+        if (player.board == board) {
             player.setHeading(player.getHeading().prev());
             player.setHeading(player.getHeading().prev());
         }
@@ -301,15 +316,25 @@ public class GameController {
     }
 
     /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
+     * Execution logic for again card. Looks backward in registers until a non-again card is found, then executes it.
+     * @param currentPlayer Current currentPlayer
+     * @param currentStep Current currentStep
      */
-    public void notImplemented() {
-        // XXX just for now to indicate that the actual method is not yet implemented
-        assert false;
+    public void playPrevCardAgain(@NotNull Player currentPlayer, int currentStep){
+        int prevStep = currentStep -1;
+        if(prevStep >= 0) {
+            Command command = board.getCurrentPlayer().getProgramField(prevStep).getCard().command;
+            if (command == Command.AGAIN && prevStep >= 1) {
+                playPrevCardAgain(currentPlayer, prevStep);
+            } else if (command != Command.AGAIN && !command.isInteractive()) {
+                executeCommand(currentPlayer, command);
+            } else {
+                board.setPhase(Phase.PLAYER_INTERACTION);
+            }
+        }
     }
     /**
-     * Runs the execution process of the chosen option
+     * Runs the execution of the interactive cards chosen option
      * @param player current player
      * @param command command to be executed
      */
@@ -317,21 +342,67 @@ public class GameController {
         executeCommand(player, command);
         board.setPhase(Phase.ACTIVATION);
         setNextPlayer(player, board.getStep());
-        continuePrograms();
+        if (!board.isStepMode())
+        {
+            continuePrograms();
+        }
     }
-    private void setNextPlayer(Player player, int step) {
-        int nextPlayerNumber = board.getPlayerNumber(player) + 1;
+    /**
+     * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
+     * @param currentPlayer Current player
+     * @param currentStep Current step
+     */
+    private void setNextPlayer(Player currentPlayer, int currentStep) {
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
         if (nextPlayerNumber < board.getNumberOfPlayers()) {
             board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
         } else {
-            step++;
-            if (step < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(step);
-                board.setStep(step);
+            currentStep++;
+            activateActions();
+            if (currentStep < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(currentStep);
+                board.setStep(currentStep);
                 board.setCurrentPlayer(board.getPlayer(0));
             } else {
                 startProgrammingPhase();
             }
+        }
+    }
+
+    /**
+     * Runs all activations on spaces where a player is standing,
+     * afterwards check if a player's position is on a checkpoint,
+     * then checks if a winner has been found
+     */
+    public void activateActions() {
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            board.getPlayer(i).setActivated(false);
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
+            if (!currentPlayer.getActivated()) {
+                for (FieldAction fieldaction : space.getActions()) {
+                    fieldaction.doAction(this, space);
+                    if(fieldaction.getClass() == ConveyorBelt.class){
+                        expressConveyorBelt(fieldaction, space);
+                    }
+                        }
+                    }
+                }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            Player currentPlayer = board.getPlayer(i);
+            currentPlayer.setPrevSpace(currentPlayer.getSpace());
+            Space space = currentPlayer.getSpace();
+            for (FieldAction fieldaction: space.getActions()) {
+                if (fieldaction.getClass() == Checkpoint.class || fieldaction.getClass() == Pit.class) {
+                    fieldaction.doAction(this, space);
+                }
+            }
+        }
+        for (int i = 0; i < board.getNumberOfPlayers(); i++){
+            checkForWinner(board.getPlayer(i));
         }
     }
 
@@ -342,5 +413,177 @@ public class GameController {
     private boolean willCollideWithWall(Space spaceFrom, Space spaceTo, Heading direction)
     {
         return (spaceFrom.getWalls().contains(direction) || spaceTo.getWalls().contains(direction.next().next()));
+    }
+
+    /**
+     * Checks the current players registers starting from the current step, checking if the most recent card
+     * before any number of again cards is interactive.
+     * @return Returns true if an interactive card is found, and false if another type of card is found.
+     */
+    private boolean isPrevNonAgainCardInteractive()
+    {
+        CommandCard card = this.board.getCurrentPlayer().getProgramField(this.board.getStep()).getCard();
+        if(card != null) {
+            if (card.command == Command.AGAIN) {
+                int i = board.getStep();
+                while (i >= 0) {
+                    if (this.board.getCurrentPlayer().getProgramField(i).getCard().command != Command.AGAIN) {
+                        if (this.board.getCurrentPlayer().getProgramField(i).getCard().command.isInteractive()) {
+                            return true;
+                        }
+                        return false;
+                    }
+                    i--;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if a winner has been found by looking at players chekpointtokens
+     * and total checkpoints in game.
+     * @param player
+     */
+    private void checkForWinner(Player player) {
+        if(player.getCheckpointTokens() == board.checkpoints){
+            winnerFound = true;
+        }
+        if (winnerFound) {
+            appController.resetGame(player);
+        }
+    }
+
+    /**
+     * Checks if space is a pit, and...
+     * @param space the space to be checked.
+     * @return true if we are out of bounds or if we in fact are in a pit, false otherwise.
+     */
+    private boolean checkPit(Space space){
+        if(!space.getActions().isEmpty()){
+            if(space.getActions().get(0).getClass() == Pit.class){
+                space.getActions().get(0).doAction(this, space);
+                return true;
+            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+                clearPlayersCards(space.getPlayer());
+                spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+                space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
+                return true;
+            }
+        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+            clearPlayersCards(space.getPlayer());
+            spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+            space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the player has fallen out of the map
+     * @param prevSpace
+     * @param currentSpace
+     * @return false if player is still on map, true if not.
+     */
+    private boolean OutOfMap(Space prevSpace, Space currentSpace){
+        if(prevSpace.y == currentSpace.y && (prevSpace.x == currentSpace.x+1 || prevSpace.x == currentSpace.x-1)){
+            return false;
+        }
+        else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
+            return false;
+        } else{
+            return true;
+        }
+    }
+
+    /**
+     * Clears the players next progammingcards.
+     * @param player
+     */
+    public void clearPlayersCards(Player player) {
+        for (int i = board.getStep()+1; i < 5; i++) {
+            player.getProgramField(i).setCard(null);
+        }
+    }
+
+    /**
+     * Checks if the space the player is about to be rebooted at is already occupied
+     * if it is then that robot will be pushed away to make room for the next.
+     * @param space
+     */
+    public void spaceOccupied(Space space, Heading heading) {
+        Space nextSpace;
+        if (space != null) {
+            if (space.getPlayer() != null) {
+                if (!space.getActions().isEmpty()) {
+                    if (space.getActions().get(0).getClass() == Reboot.class) {
+                        Reboot reboot = (Reboot) space.getActions().get(0);
+                        nextSpace = board.getNeighbour(space, reboot.getHeading());
+                        heading = reboot.getHeading();
+                    } else {
+                        nextSpace = board.getNeighbour(space, heading);
+                    }
+                } else {
+                    nextSpace = board.getNeighbour(space, heading);
+                }
+                spaceOccupied(nextSpace, heading);
+                if(space.getPlayer().getStartSpace() != space) {
+                    space.getPlayer().setSpace(nextSpace);
+                }
+            }
+        }
+    }
+
+    /**
+     * Determines if the player should be rebooted at a rebootstation or startfield.
+     * @param space the space which it stood before falling over the edge or in a pit.
+     * @param player the player which fell in a pit or out of map.
+     * @return the players startspace, or a rebootstation
+     */
+    public Space rebootOrStart(Space space, Player player){
+        if(space.x < 3){
+            return player.getStartSpace();
+        }
+        else{
+            return getRebootSpace();
+        }
+    }
+
+    /**
+     * Checks if space is an expressConveyorbelt, and checks if next space is also
+     * if it is, it will move one more, if not, it will stay.
+     * @param fieldaction
+     * @param space
+     */
+    private void expressConveyorBelt(FieldAction fieldaction, Space space) {
+        ConveyorBelt conveyorBelt = (ConveyorBelt) fieldaction;
+        if (conveyorBelt.getExpress()) {
+            Space newSpace = board.getNeighbour(space, conveyorBelt.getHeading());
+            if (!newSpace.getActions().isEmpty()) {
+                if (newSpace.getActions().get(0).getClass() == ConveyorBelt.class) {
+                    ConveyorBelt secondConveyor = (ConveyorBelt) newSpace.getActions().get(0);
+                    if (secondConveyor.getExpress()) {
+                        conveyorBelt.doAction(this, newSpace);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Finds rebootstation on the board.
+     * @return rebootstation
+     */
+    private Space getRebootSpace() {
+        for (int i = 0; i < board.width; i++) {
+            for (int j = 0; j < board.height; j++) {
+                if (!board.getSpace(i, j).getActions().isEmpty()) {
+                    if (board.getSpace(i, j).getActions().get(0).getClass() == Reboot.class) {
+                        return board.getSpace(i, j);
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

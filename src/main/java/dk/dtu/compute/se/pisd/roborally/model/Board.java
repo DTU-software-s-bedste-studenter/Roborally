@@ -22,6 +22,8 @@
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
+import dk.dtu.compute.se.pisd.roborally.controller.StartSpace;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class Board extends Subject {
 
     public final int height;
 
+    public final int checkpoints;
     public final String boardName;
 
     private Integer gameId;
@@ -57,26 +60,35 @@ public class Board extends Subject {
     private int step = 0;
 
     private boolean stepMode;
+    private List<Space> startSpaces = new ArrayList<>();
 
-    private ArrayList<ArrayList<ArrayList<Heading>>> walls;
-
-    public Board(int width, int height, @NotNull String boardName) {
+    /**
+     * Constructor for the Board.
+     * @param width expressed in amount of spaces.
+     * @param height also expressed in amount of spaces.
+     * @param checkpoints
+     * @param boardName
+     */
+    public Board(int width, int height, int checkpoints, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
         this.height = height;
-        this.walls = populateWalls();
+        this.checkpoints = checkpoints;
         spaces = new Space[width][height];
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y, walls.get(x).get(y));
+                Space space = new Space(this, x, y);
                 spaces[x][y] = space;
             }
         }
         this.stepMode = false;
     }
 
-    public Board(int width, int height) {
-        this(width, height, "defaultboard");
+    /**
+     * The default constructor for the Board class for if no boardname has been selected
+     */
+    public Board(int width, int height, int checkpoints) {
+        this(width, height, checkpoints, "defaultboard");
     }
 
     public Integer getGameId() {
@@ -106,6 +118,10 @@ public class Board extends Subject {
         return players.size();
     }
 
+    /**
+     * Adds player to the gameboard and notifies the view.
+     * @param player
+     */
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
@@ -213,58 +229,29 @@ public class Board extends Subject {
         return "Phase: " + getPhase().name() +
                 ", Player = " + getCurrentPlayer().getName() +
                 ", Power Cubes = " + getCurrentPlayer().getPowerCubes() +
+                ", CheckpointTokens: " + getCurrentPlayer().getCheckpointTokens() +
                 ", Step: " + getStep();
     }
-
-    private ArrayList<ArrayList<ArrayList<Heading>>> populateWalls()
-    {
-        // hardcoded walls for now
-        ArrayList<ArrayList<ArrayList<Heading>>> walls = new ArrayList<>();
-        for (int i = 0; i < 8; i++)
-        {
-            walls.add(new ArrayList<>());
-            for (int j = 0; j < 8; j++)
-            {
-                walls.get(i).add(new ArrayList<>());
-                if (j == 0)
-                {
-                    walls.get(i).get(j).add(NORTH);
-                }
-                if (i == 0)
-                {
-                    walls.get(i).get(j).add(WEST);
-                }
-                if (i == 7)
-                {
-                    walls.get(i).get(j).add(EAST);
-                }
-                if (j == 7)
-                {
-                    walls.get(i).get(j).add(SOUTH);
-                }
-                if (i == 3 && j == 3)
-                {
-                    walls.get(i).get(j).add(NORTH);
-                    walls.get(i).get(j).add(WEST);
-                }
-                if (i == 4 && j == 3)
-                {
-                    walls.get(i).get(j).add(NORTH);
-                    walls.get(i).get(j).add(EAST);
-                }
-                if (i == 3 && j == 4)
-                {
-                    walls.get(i).get(j).add(WEST);
-                    walls.get(i).get(j).add(SOUTH);
-                }
-                if (i == 4 && j == 4)
-                {
-                    walls.get(i).get(j).add(EAST);
-                    walls.get(i).get(j).add(SOUTH);
+    public void addStartSpaces() {
+        for (int i = 0; i < this.width; i++) {
+            for (int j = 0; j < this.height; j++) {
+                for (FieldAction action: getSpace(i,j).getActions()) {
+                    if (action.getClass() == StartSpace.class){
+                        startSpaces.add(getSpace(i, j));
+                    }
                 }
             }
         }
-        return walls;
+    }
+
+    public Space getRandomStartSpace() {
+        while (true) {
+            Space space = startSpaces.get((int) (Math.random() * startSpaces.size()));
+            if (space.getPlayer() == null) {
+                return space;
+            }
+        }
     }
 
 }
+

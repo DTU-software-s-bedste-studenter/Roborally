@@ -19,9 +19,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package dk.dtu.compute.se.pisd.roborally.model;
+package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
-import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * ...
@@ -29,39 +33,12 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class CommandCardField extends Subject {
+public class FullBoardTemplate {
 
-    final public Player player;
-
-    private CommandCard card;
-
-    private boolean visible;
-
-    public CommandCardField(Player player) {
-        this.player = player;
-        this.card = null;
-        this.visible = true;
-    }
-
-    public CommandCard getCard() {
-        return card;
-    }
-
-    public void setCard(CommandCard card) {
-        if (card != this.card) {
-            this.card = card;
-            notifyChange();
-        }
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public void setVisible(boolean visible) {
-        if (visible != this.visible) {
-            this.visible = visible;
-            notifyChange();
-        }
-    }
+    public int width;
+    public int height;
+    public int checkpoints;
+    public String boardName;
+    public List<SpaceTemplate> spaces = new ArrayList<>();
+    public List<PlayerTemplate> players = new ArrayList<>();
 }
