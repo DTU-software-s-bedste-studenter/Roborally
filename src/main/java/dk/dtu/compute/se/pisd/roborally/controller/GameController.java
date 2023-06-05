@@ -264,16 +264,17 @@ public class GameController {
                 return false;
             }
             if (target != null && target.getPlayer() == null) {
+                player.setPrevSpace(player.getSpace());
                 target.setPlayer(player);
-                return true;
+                return !checkPit(target);
             }
             else {
                 if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    player.setPrevSpace(player.getSpace());
                     target.setPlayer(player);
-                    return true;
+                    return !checkPit(target);
                 }
             }
-            checkPit(target);
         }
         return false;
     }
@@ -491,7 +492,10 @@ public class GameController {
         }
         else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
             return false;
-        } else{
+        } else if(prevSpace.x == currentSpace.x && prevSpace.y == currentSpace.y) {
+            return false;
+        }
+        else{
             return true;
         }
     }
