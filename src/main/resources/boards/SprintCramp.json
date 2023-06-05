@@ -1,7 +1,7 @@
 {
   "width": 13,
   "height": 10,
-  "checkpoints": 1,
+  "checkpoints": 3,
   "spaces":[
     {
       "walls": ["NORTH"],
