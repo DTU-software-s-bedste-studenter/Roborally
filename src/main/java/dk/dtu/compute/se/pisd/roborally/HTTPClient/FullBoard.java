@@ -1,4 +1,5 @@
-package com.example.roborallyspringapi.api.model;
+package dk.dtu.compute.se.pisd.roborally.HTTPClient;
+
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class FullBoard {
     private String boardName;
     private List<Type> spaces;
     private List<Type> players;
+
     public FullBoard(){
 
     }
@@ -26,6 +28,7 @@ public class FullBoard {
         this.spaces = new ArrayList<>();
         this.players = new ArrayList<>();
     }
+
     public int getId() {
         return id;
     }
@@ -33,6 +36,7 @@ public class FullBoard {
     public void setId(int id) {
         this.id = id;
     }
+
     public int getWidth() {
         return width;
     }

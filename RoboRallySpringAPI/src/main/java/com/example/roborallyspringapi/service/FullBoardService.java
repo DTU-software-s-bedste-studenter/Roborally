@@ -3,19 +3,16 @@ package com.example.roborallyspringapi.service;
 import com.example.roborallyspringapi.api.model.FullBoard;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class FullBoardService {
+public class FullBoardService implements IFullBoardService {
 
-    private List<FullBoard> fullBoardList;
+    ArrayList<FullBoard> fullBoardList = new ArrayList<>();
 
     public FullBoardService(){
-        fullBoardList = new ArrayList<>();
 
         FullBoard fullBoard1 = new FullBoard(1,13, 10, 3, "RiskyCrossing");
         FullBoard fullBoard2 = new FullBoard(2,23, 10, 6, "ChopShopChallenge");
@@ -25,14 +22,56 @@ public class FullBoardService {
 
         fullBoardList.addAll(Arrays.asList(fullBoard1,fullBoard2,fullBoard3,fullBoard4,fullBoard5));
     }
+    @Override
+    public  List<FullBoard> findAll() {
+        return fullBoardList;
+    }
 
-    public Optional<FullBoard> getFullboard(Integer id) {
-        Optional optional = Optional.empty();
-        for(FullBoard fullBoard : fullBoardList) {
-            if (fullBoard.getId() == id) {
-                optional = optional.of(fullBoard);
+    @Override
+    public boolean addFullBoard(FullBoard f) {
+        fullBoardList.add(f);
+        return true;
+    }
+
+    @Override
+    public FullBoard getFullBoardById(int id) {
+        for(FullBoard f : fullBoardList) {
+            if(f.getId() == id) {
+                return f;
             }
         }
-            return optional;
+        return null;
     }
+
+    @Override
+    public boolean updateFullBoard(int id, FullBoard f) {
+        for(FullBoard fB : fullBoardList) {
+            if(fB.getId() == id) {
+                fB.setId(f.getId());
+                fB.setWidth(f.getWidth());
+                fB.setHeight(f.getHeight());
+                fB.setCheckpoints(f.getCheckpoints());
+                fB.setBoardName(f.getBoardName());
+                fB.setSpaces(f.getSpaces());
+                fB.setPlayers(f.getPlayers());
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
+    public boolean deleteFullBoardById(int id) {
+        ArrayList<FullBoard> newFullBoards = new ArrayList<>();
+        int oldSize = fullBoardList.size();
+        fullBoardList.forEach((fullBoard -> {
+            if(fullBoard.getId() == id)
+                newFullBoards.add(
+                        fullBoard
+                );
+        }));
+        fullBoardList = newFullBoards;
+        return oldSize < fullBoardList.size() ? true : false;
+    }
+
+
 }
