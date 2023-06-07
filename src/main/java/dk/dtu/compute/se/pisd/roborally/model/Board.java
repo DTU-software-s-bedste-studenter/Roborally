@@ -69,8 +69,7 @@ public class Board extends Subject {
      * @param checkpoints
      * @param boardName
      */
-    public Board(int gameId, int width, int height, int checkpoints, @NotNull String boardName) {
-        this.gameId = gameId;
+    public Board(int width, int height, int checkpoints, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
         this.height = height;
@@ -88,8 +87,8 @@ public class Board extends Subject {
     /**
      * The default constructor for the Board class for if no boardname has been selected
      */
-    public Board(int gameId, int width, int height, int checkpoints) {
-        this(gameId, width, height, checkpoints, "defaultboard");
+    public Board(int width, int height, int checkpoints) {
+        this(width, height, checkpoints, "defaultboard");
     }
 
     public Integer getGameId() {

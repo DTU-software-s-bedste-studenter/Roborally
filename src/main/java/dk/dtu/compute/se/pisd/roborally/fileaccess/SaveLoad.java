@@ -84,7 +84,7 @@ public class SaveLoad {
             reader = gson.newJsonReader(fileReader);
             FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
 
-            Board resultBoard = new Board(template.id, template.width, template.height, template.checkpoints, template.boardName);
+            Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
 
             for (SpaceTemplate spaceTemplate : template.spaces) {
                 Space space = resultBoard.getSpace(spaceTemplate.x, spaceTemplate.y);
@@ -132,7 +132,7 @@ public class SaveLoad {
         return null;
     }
 
-    private static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
+    public static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
     {
         FullBoardTemplate boardTemplate = new FullBoardTemplate();
         boardTemplate.id = board.getGameId();
@@ -144,7 +144,7 @@ public class SaveLoad {
         boardTemplate.players = playerTemplates;
         return boardTemplate;
     }
-    private static ArrayList<SpaceTemplate> buildSpaceTemplates(Board board)
+    public static ArrayList<SpaceTemplate> buildSpaceTemplates(Board board)
     {
         ArrayList<SpaceTemplate> spaceTemplates = new ArrayList<>();
 
@@ -164,7 +164,7 @@ public class SaveLoad {
         return spaceTemplates;
     }
 
-    private static ArrayList<PlayerTemplate> buildPlayerTemplates(Board board)
+    public static ArrayList<PlayerTemplate> buildPlayerTemplates(Board board)
     {
         ArrayList<PlayerTemplate> players = new ArrayList<>();
         for (int i = 0; i < board.getNumberOfPlayers(); i++)

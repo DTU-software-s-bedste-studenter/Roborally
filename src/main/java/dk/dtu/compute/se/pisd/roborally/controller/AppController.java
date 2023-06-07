@@ -21,22 +21,40 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.FullBoardClient;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
+
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -47,6 +65,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad.*;
 
 /**
  * ...
@@ -60,10 +80,12 @@ public class AppController implements Observer {
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
     final private List<String> BOARD_NAMES = Arrays.asList("RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
-    private  List<String> SAVE_FILES = new ArrayList<>();
+    private List<String> SAVE_FILES = new ArrayList<>();
 
     final private RoboRally roboRally;
     private GameController gameController;
+
+    private FullBoardClient fullBoardClient = new FullBoardClient();
 
     private boolean online;
 
@@ -73,7 +95,7 @@ public class AppController implements Observer {
 
     public void newGame(boolean isOnline) {
         online = isOnline;
-        if(!isOnline) {
+        if (!isOnline) {
             ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
             dialog.setTitle("Player number");
             dialog.setHeaderText("Select number of players");
@@ -114,29 +136,81 @@ public class AppController implements Observer {
                 roboRally.createBoardView(gameController);
             }
         } else {
-            ChoiceDialog<String> dialog3 = new ChoiceDialog<>("host game from...","saved game","new game");
-            dialog3.setTitle("host game from...");
-            dialog3.setHeaderText("Select number of players");
-            Optional<String> result3 = dialog3.showAndWait();
-
-            if(result3.equals("saved game")){
-                loadGame();
-            } else {
-                ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-                dialog2.setTitle("Map");
-                dialog2.setHeaderText("Select the map you want to play:");
-                Optional<String> result2 = dialog2.showAndWait();
-                String map = result2.get();
-                
-                
-                if(result2.isPresent()) {
-                    Board board = LoadBoard.loadBoard(map);
-                    gameController = new GameController(board, this);
+            FullBoardTemplate fullBoardTemplateCheck = null;
+            boolean isValid = true;
+            TextInputDialog inputDialog = new TextInputDialog("Enter the ID");
+            inputDialog.setHeaderText("Enter unique gameID");
+            Optional<String> result = inputDialog.showAndWait();
+            int gameID;
+            do {
+                if (!isValid || fullBoardTemplateCheck != null) {
+                    inputDialog = new TextInputDialog("Enter the ID");
+                    inputDialog.setHeaderText("GameID already in use, or not a number");
+                    result = inputDialog.showAndWait();
                 }
+                try {
+                    gameID = Integer.parseInt(result.get());
+                    fullBoardTemplateCheck = fullBoardClient.getFullBoardById(gameID);
+                    isValid = true;
+                } catch (NumberFormatException e) {
+                    isValid = false;
+                    e.printStackTrace();
+                }
+            } while (fullBoardTemplateCheck != null && isValid);
+            gameID = Integer.parseInt(result.get());
+            ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+            dialog2.setTitle("Map");
+            dialog2.setHeaderText("Select the map you want to play:");
+            Optional<String> result2 = dialog2.showAndWait();
+
+            if (gameController != null) {
+                // The UI should not allow this, but in case this happens anyway.
+                // give the user the option to save the game or abort this operation!
+                if (!stopGame()) {
+                    return;
+                }
+            }
+
+                String map = result2.get();
+                Board board = LoadBoard.loadBoard(map);
+                gameController = new GameController(board, this);
+
+                TextInputDialog inputDialog2 = new TextInputDialog("Name");
+                inputDialog2.setHeaderText("Enter your playername");
+                String result3 = String.valueOf(inputDialog2.showAndWait());
+
+                Player player1 = new Player(board, PLAYER_COLORS.get(0), result3);
+                board.addPlayer(player1);
+                player1.setSpace(board.getRandomStartSpace());
+                player1.setStartSpace(player1.getSpace());
+                player1.setHeading(Heading.EAST);
+
+                ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
+                ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
+                FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
+                boardTemplate.setId(gameID);
+                fullBoardClient.addFullBoard(boardTemplate);
+                int nrOfPlayers = boardTemplate.players.size();
+
+
+                while (true) {
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle("Want to start the game?");
+                    alert.setContentText("Current number of player: " + nrOfPlayers);
+                    boardTemplate = fullBoardClient.getFullBoardById(gameID);
+                    nrOfPlayers = boardTemplate.players.size();
+                    if (nrOfPlayers == 6) {
+                        break;
+                    }
+
+                    gameController.startProgrammingPhase();
+
+                    roboRally.createBoardView(gameController);
+                }
+
             }
         }
 
-    }
 
     public void saveGame(boolean stop) {
         if (this.gameController != null) {
@@ -148,25 +222,24 @@ public class AppController implements Observer {
         String filename;
         File folder = new File(System.getProperty("user.dir") + "/src/main/resources/save");
         File[] listOfFiles = folder.listFiles();
-        if(listOfFiles != null) {
+        if (listOfFiles != null) {
             for (File listOfFile : listOfFiles) {
                 SAVE_FILES.add(listOfFile.getName());
             }
         }
-        if(!SAVE_FILES.isEmpty()) {
+        if (!SAVE_FILES.isEmpty()) {
             ChoiceDialog<String> dialog = new ChoiceDialog<>(SAVE_FILES.get(0), SAVE_FILES);
             dialog.setTitle("Saved games");
             dialog.setHeaderText("Select the saved game you want to play:");
             Optional<String> result2 = dialog.showAndWait();
             filename = result2.get();
-        }else {
+        } else {
             filename = "notFound";
         }
         Path pathToSaveFile = Paths.get(System.getProperty("user.dir") + "/src/main/resources/save/" + filename);
         if (Files.exists(pathToSaveFile)) {
             startLoadedGame(SaveLoad.load(filename));
-        }
-        else {
+        } else {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Save file not found!");
             alert.setContentText("Save file not found!\n\nA new game will be started!");
@@ -205,6 +278,7 @@ public class AppController implements Observer {
     /**
      * Works the same as stop game without saving the game,
      * also prints congratulations to winner.
+     *
      * @param player
      * @return true if gamecontroller =! null
      */
@@ -252,8 +326,9 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
-    public boolean getOnline(){
+    public boolean getOnline() {
         return online;
     }
 
 }
+
