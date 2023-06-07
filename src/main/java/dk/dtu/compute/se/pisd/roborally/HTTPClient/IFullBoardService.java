@@ -1,11 +1,13 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
+
 public interface IFullBoardService {
-    FullBoard getFullBoardById(int id);
+    FullBoardTemplate getFullBoardById(int id);
 
-    boolean addFullBoard(FullBoard f);
+    boolean addFullBoard(FullBoardTemplate f);
 
-    boolean updateFullBoard(int id, FullBoard f);
+    boolean updateFullBoard(int id, FullBoardTemplate f);
 
     boolean deleteProductById(int id);
 }

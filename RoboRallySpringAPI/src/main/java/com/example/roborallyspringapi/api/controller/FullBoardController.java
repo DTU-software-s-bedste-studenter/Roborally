@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+
 public class FullBoardController {
 
     @Autowired
@@ -23,7 +24,7 @@ public class FullBoardController {
     }
 
     @PostMapping("/fullBoards")
-    public ResponseEntity<String > addProduct(@RequestBody FullBoard f) {
+    public ResponseEntity<String> addProduct(@RequestBody FullBoard f) {
         boolean added = fullBoardService.addFullBoard(f);
         if(added)
             return ResponseEntity.ok().body("added");

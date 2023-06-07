@@ -11,8 +11,8 @@ public class FullBoard {
     private int height;
     private int checkpoints;
     private String boardName;
-    private List<Type> spaces;
-    private List<Type> players;
+    private List<Object> spaces;
+    private List<Object> players;
     public FullBoard(){
 
     }
@@ -65,19 +65,19 @@ public class FullBoard {
         this.boardName = boardName;
     }
 
-    public List<Type> getSpaces() {
+    public List<Object> getSpaces() {
         return spaces;
     }
 
-    public void setSpaces(List<Type> spaces) {
+    public void setSpaces(List<Object> spaces) {
         this.spaces = spaces;
     }
 
-    public List<Type> getPlayers() {
+    public List<Object> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<Type> players) {
+    public void setPlayers(List<Object> players) {
         this.players = players;
     }
 

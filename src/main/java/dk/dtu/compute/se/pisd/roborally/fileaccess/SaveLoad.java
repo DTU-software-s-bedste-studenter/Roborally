@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.FullBoardClient;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
@@ -25,6 +26,8 @@ public class SaveLoad {
     private static final String SAVEFILEPATH = System.getProperty("user.dir") + "/src/main/resources/save/";
     private static final List<String> SAVEFILENAMES = Arrays.asList("SaveSlot 1", "SaveSlot 2", "SaveSlot 3", "SaveSlot 4", "SaveSlot 5", "SaveSlot 6");
     private static final String LAST_GAME = "LastGame";
+
+    private static FullBoardClient fullBoardClient = new FullBoardClient();
     public static void save(Board board, boolean stop)
     {
         String filename;
@@ -60,6 +63,8 @@ public class SaveLoad {
 
             gson.toJson(boardTemplate, FullBoardTemplate.class, writer);
 
+            fullBoardClient.addFullBoard(boardTemplate);
+
             writer.close();
         }
         catch (IOException e) {
@@ -81,7 +86,7 @@ public class SaveLoad {
             reader = gson.newJsonReader(fileReader);
             FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
 
-            Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
+            Board resultBoard = new Board(template.id, template.width, template.height, template.checkpoints, template.boardName);
 
             for (SpaceTemplate spaceTemplate : template.spaces) {
                 Space space = resultBoard.getSpace(spaceTemplate.x, spaceTemplate.y);
@@ -132,6 +137,7 @@ public class SaveLoad {
     private static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
     {
         FullBoardTemplate boardTemplate = new FullBoardTemplate();
+        boardTemplate.id = board.getGameId();
         boardTemplate.boardName = board.boardName;
         boardTemplate.width = board.width;
         boardTemplate.height = board.height;

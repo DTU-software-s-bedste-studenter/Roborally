@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
 import com.google.gson.Gson;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -30,7 +31,7 @@ public class FullBoardClient implements IFullBoardService {
         return result;
     }
     @Override
-    public FullBoard getFullBoardById(int id) {
+    public FullBoardTemplate getFullBoardById(int id) {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                     .GET()
@@ -42,7 +43,7 @@ public class FullBoardClient implements IFullBoardService {
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             String result = response.thenApply((r)->r.body()).get(5, TimeUnit.SECONDS);
             Gson gson = new Gson();
-            FullBoard f = gson.fromJson(result, FullBoard.class);
+            FullBoardTemplate f = gson.fromJson(result, FullBoardTemplate.class);
             return f;
         } catch (Exception e) {
             return null;
@@ -50,7 +51,7 @@ public class FullBoardClient implements IFullBoardService {
     }
 
     @Override
-    public boolean addFullBoard(FullBoard f) {
+    public boolean addFullBoard(FullBoardTemplate f) {
         try{
             String fullBoardJSON = new Gson().toJson(f);
             HttpRequest request = HttpRequest.newBuilder()
@@ -68,7 +69,7 @@ public class FullBoardClient implements IFullBoardService {
         }
     }
     @Override
-    public boolean updateFullBoard(int id, FullBoard f) {
+    public boolean updateFullBoard(int id, FullBoardTemplate f) {
         try{
             String fullBoardJSON = new Gson().toJson(f);
             HttpRequest request = HttpRequest.newBuilder()

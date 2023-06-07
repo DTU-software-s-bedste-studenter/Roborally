@@ -14,7 +14,7 @@ public class FullBoardService implements IFullBoardService {
 
     public FullBoardService(){
 
-        FullBoard fullBoard1 = new FullBoard(1,13, 10, 3, "RiskyCrossing");
+        FullBoard fullBoard1 = new FullBoard(6,13, 10, 3, "RiskyCrossing");
         FullBoard fullBoard2 = new FullBoard(2,23, 10, 6, "ChopShopChallenge");
         FullBoard fullBoard3 = new FullBoard(3,13, 10, 5, "DeathTrap");
         FullBoard fullBoard4 = new FullBoard(4,13, 10, 3, "Fractionation");

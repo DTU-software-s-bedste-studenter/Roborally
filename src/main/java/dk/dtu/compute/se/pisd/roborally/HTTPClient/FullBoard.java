@@ -1,6 +1,9 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
 
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
+import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +15,8 @@ public class FullBoard {
     private int height;
     private int checkpoints;
     private String boardName;
-    private List<Type> spaces;
-    private List<Type> players;
+    private List<SpaceTemplate> spaces;
+    private List<PlayerTemplate> players;
 
     public FullBoard(){
 
@@ -69,19 +72,19 @@ public class FullBoard {
         this.boardName = boardName;
     }
 
-    public List<Type> getSpaces() {
+    public List<SpaceTemplate> getSpaces() {
         return spaces;
     }
 
-    public void setSpaces(List<Type> spaces) {
+    public void setSpaces(List<SpaceTemplate> spaces) {
         this.spaces = spaces;
     }
 
-    public List<Type> getPlayers() {
+    public List<PlayerTemplate> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<Type> players) {
+    public void setPlayers(List<PlayerTemplate> players) {
         this.players = players;
     }
 

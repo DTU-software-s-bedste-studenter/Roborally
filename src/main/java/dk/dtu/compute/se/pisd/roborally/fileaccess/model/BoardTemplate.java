@@ -33,6 +33,7 @@ import java.util.List;
  */
 public class BoardTemplate {
 
+    public int id;
     public int width;
     public int height;
     public int checkpoints;
