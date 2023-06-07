@@ -179,6 +179,8 @@ public class AppController implements Observer {
                 inputDialog2.setHeaderText("Enter your playername");
                 String result3 = String.valueOf(inputDialog2.showAndWait());
 
+
+                // From here on down I think the code is faulty
                 Player player1 = new Player(board, PLAYER_COLORS.get(0), result3);
                 board.addPlayer(player1);
                 player1.setSpace(board.getRandomStartSpace());
