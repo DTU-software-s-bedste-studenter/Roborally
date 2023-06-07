@@ -65,50 +65,77 @@ public class AppController implements Observer {
     final private RoboRally roboRally;
     private GameController gameController;
 
+    private boolean online;
+
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame() {
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        dialog.setTitle("Player number");
-        dialog.setHeaderText("Select number of players");
-        Optional<Integer> result = dialog.showAndWait();
+    public void newGame(boolean isOnline) {
+        online = isOnline;
+        if(!isOnline) {
+            ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+            dialog.setTitle("Player number");
+            dialog.setHeaderText("Select number of players");
+            Optional<Integer> result = dialog.showAndWait();
 
-        if (!result.isPresent()) {
-            return;
-        }
+            if (!result.isPresent()) {
+                return;
+            }
 
-        ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-        dialog2.setTitle("Map");
-        dialog2.setHeaderText("Select the map you want to play:");
-        Optional<String> result2 = dialog2.showAndWait();
+            ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+            dialog2.setTitle("Map");
+            dialog2.setHeaderText("Select the map you want to play:");
+            Optional<String> result2 = dialog2.showAndWait();
 
-        if (result2.isPresent()) {
-            if (gameController != null) {
-                // The UI should not allow this, but in case this happens anyway.
-                // give the user the option to save the game or abort this operation!
-                if (!stopGame()) {
-                    return;
+            if (result2.isPresent()) {
+                if (gameController != null) {
+                    // The UI should not allow this, but in case this happens anyway.
+                    // give the user the option to save the game or abort this operation!
+                    if (!stopGame()) {
+                        return;
+                    }
+                }
+
+                String map = result2.get();
+                Board board = LoadBoard.loadBoard(map);
+                gameController = new GameController(board, this);
+                int no = result.get();
+                for (int i = 0; i < no; i++) {
+                    Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                    board.addPlayer(player);
+                    player.setSpace(board.getRandomStartSpace());
+                    player.setStartSpace(player.getSpace());
+                    player.setHeading(Heading.EAST);
+                }
+
+                gameController.startProgrammingPhase();
+
+                roboRally.createBoardView(gameController);
+            }
+        } else {
+            ChoiceDialog<String> dialog3 = new ChoiceDialog<>("host game from...","saved game","new game");
+            dialog3.setTitle("host game from...");
+            dialog3.setHeaderText("Select number of players");
+            Optional<String> result3 = dialog3.showAndWait();
+
+            if(result3.equals("saved game")){
+                loadGame();
+            } else {
+                ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+                dialog2.setTitle("Map");
+                dialog2.setHeaderText("Select the map you want to play:");
+                Optional<String> result2 = dialog2.showAndWait();
+                String map = result2.get();
+                
+                
+                if(result2.isPresent()) {
+                    Board board = LoadBoard.loadBoard(map);
+                    gameController = new GameController(board, this);
                 }
             }
-
-            String map = result2.get();
-            Board board = LoadBoard.loadBoard(map);
-            gameController = new GameController(board, this);
-            int no = result.get();
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                board.addPlayer(player);
-                player.setSpace(board.getRandomStartSpace());
-                player.setStartSpace(player.getSpace());
-                player.setHeading(Heading.EAST);
-            }
-
-            gameController.startProgrammingPhase();
-
-            roboRally.createBoardView(gameController);
         }
+
     }
 
     public void saveGame(boolean stop) {
@@ -145,7 +172,7 @@ public class AppController implements Observer {
             alert.setContentText("Save file not found!\n\nA new game will be started!");
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == (ButtonType.OK)) {
-                newGame();
+                newGame(false);
             }
         }
     }
@@ -223,6 +250,10 @@ public class AppController implements Observer {
     @Override
     public void update(Subject subject) {
         // XXX do nothing for now
+    }
+
+    public boolean getOnline(){
+        return online;
     }
 
 }

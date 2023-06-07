@@ -14,6 +14,7 @@ public class FullBoardService implements IFullBoardService {
 
     public FullBoardService(){
 
+        /*
         FullBoard fullBoard1 = new FullBoard(6,13, 10, 3, "RiskyCrossing");
         FullBoard fullBoard2 = new FullBoard(2,23, 10, 6, "ChopShopChallenge");
         FullBoard fullBoard3 = new FullBoard(3,13, 10, 5, "DeathTrap");
@@ -21,6 +22,7 @@ public class FullBoardService implements IFullBoardService {
         FullBoard fullBoard5 = new FullBoard(5,13, 10, 3, "SprintCramp");
 
         fullBoardList.addAll(Arrays.asList(fullBoard1,fullBoard2,fullBoard3,fullBoard4,fullBoard5));
+        */
     }
     @Override
     public  List<FullBoard> findAll() {

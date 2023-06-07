@@ -63,8 +63,6 @@ public class SaveLoad {
 
             gson.toJson(boardTemplate, FullBoardTemplate.class, writer);
 
-            fullBoardClient.addFullBoard(boardTemplate);
-
             writer.close();
         }
         catch (IOException e) {
