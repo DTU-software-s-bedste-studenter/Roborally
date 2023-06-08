@@ -116,6 +116,7 @@ public class SaveLoad {
                 resultBoard.addPlayer(player);
             }
             reader.close();
+            resultBoard.setWasGameLoadedThisTurn(true);
             return resultBoard;
         } catch (IOException e1) {
             if (reader != null) {

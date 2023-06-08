@@ -24,12 +24,6 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
- */
 public class GameController {
 
     private boolean winnerFound = false;
@@ -67,37 +61,42 @@ public class GameController {
 
     }
 
-    // XXX: V2
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-            Player player = board.getPlayer(i);
-            if (player != null) {
-                for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
-                    field.setCard(null);
-                    field.setVisible(true);
-                }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
-                    field.setVisible(true);
+        if (!board.getWasGameLoadedThisTurn()) {
+            for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+                Player player = board.getPlayer(i);
+                if (player != null) {
+                    for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                        CommandCardField field = player.getProgramField(j);
+                        field.setCard(null);
+                        field.setVisible(true);
+                    }
+                    for (int j = 0; j < Player.NO_CARDS; j++) {
+                        CommandCardField field = player.getCardField(j);
+                        field.setCard(generateRandomCommandCard());
+                        field.setVisible(true);
+                    }
                 }
             }
         }
+        else {
+            board.setWasGameLoadedThisTurn(false);
+        }
     }
 
-    // XXX: V2
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * commands.length);
         return new CommandCard(commands[random]);
     }
 
-    // XXX: V2
+    /**
+     * Finish programming phase and transition to activation phase.
+     */
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
@@ -106,7 +105,9 @@ public class GameController {
         board.setStep(0);
     }
 
-    // XXX: V2
+    /**
+     * Makes the specified register visible in the GUI.
+     */
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
             for (int i = 0; i < board.getNumberOfPlayers(); i++) {
@@ -117,7 +118,9 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * Turns all programming fields invisible.
+     */
     private void makeProgramFieldsInvisible() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++) {
             Player player = board.getPlayer(i);
@@ -278,14 +281,12 @@ public class GameController {
         return false;
     }
 
-    // TODO: V2
     public void turnRight(@NotNull Player player) {
         if (player != null && player.board == board) {
             player.setHeading(player.getHeading().next());
         }
     }
 
-    // TODO: V2
     public void turnLeft(@NotNull Player player) {
         if (player != null && player.board == board) {
             player.setHeading(player.getHeading().prev());
@@ -497,7 +498,7 @@ public class GameController {
     }
 
     /**
-     * Clears the players next progammingcards.
+     * Clears the players next programming cards.
      * @param player
      */
     public void clearPlayersCards(Player player) {
