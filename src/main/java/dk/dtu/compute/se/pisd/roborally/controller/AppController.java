@@ -21,9 +21,13 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.Lobby;
 import dk.dtu.compute.se.pisd.roborally.HTTPClient.LobbyClient;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
@@ -68,7 +72,8 @@ public class AppController implements Observer {
     final private RoboRally roboRally;
     private GameController gameController;
 
-    private LobbyClient fullBoardClient = new LobbyClient();
+    private ObjectMapper mapper = new ObjectMapper();
+    private LobbyClient lobbyClient = new LobbyClient();
 
     private boolean online;
 
@@ -120,28 +125,26 @@ public class AppController implements Observer {
                 roboRally.createBoardView(gameController);
             }
         } else {
-            /*FullBoardTemplate fullBoardTemplateCheck = null;
-            boolean isValid = true;
-            TextInputDialog inputDialog = new TextInputDialog("Enter the ID");
-            inputDialog.setHeaderText("Enter unique gameID");
-            Optional<String> result = inputDialog.showAndWait();
-            int gameID;
-            do {
-                if (!isValid || fullBoardTemplateCheck != null) {
-                    inputDialog = new TextInputDialog("Enter the ID");
-                    inputDialog.setHeaderText("GameID already in use, or not a number");
-                    result = inputDialog.showAndWait();
+            int id = 1;
+                while (true) {
+                    Lobby oldLobby = lobbyClient.getLobbyById(id);
+                    if (oldLobby == null) {
+                        break;
+                    }
+                    id++;
                 }
-                try {
-                    gameID = Integer.parseInt(result.get());
-                    fullBoardTemplateCheck = fullBoardClient.getLobbyById(gameID);
-                    isValid = true;
-                } catch (NumberFormatException e) {
-                    isValid = false;
-                    e.printStackTrace();
-                }
-            } while (fullBoardTemplateCheck != null && isValid);
-            gameID = Integer.parseInt(result.get());
+            Lobby lobby = new Lobby();
+            lobby.setId(id);
+            TextInputDialog inputDialog2 = new TextInputDialog("Name");
+            inputDialog2.setHeaderText("Enter your playername");
+            String result3 = String.valueOf(inputDialog2.showAndWait());
+            List<String> players = new ArrayList<>();
+            players.add(result3);
+            lobby.setPlayers(players);
+            lobbyClient.addLobby(lobby);
+
+
+
             ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
             dialog2.setTitle("Map");
             dialog2.setHeaderText("Select the map you want to play:");
@@ -159,25 +162,10 @@ public class AppController implements Observer {
                 Board board = LoadBoard.loadBoard(map);
                 gameController = new GameController(board, this);
 
-                TextInputDialog inputDialog2 = new TextInputDialog("Name");
-                inputDialog2.setHeaderText("Enter your playername");
-                String result3 = String.valueOf(inputDialog2.showAndWait());
-
-                // From here on down I think the code is faulty
-                Player player1 = new Player(board, PLAYER_COLORS.get(0), result3);
-                board.addPlayer(player1);
-                player1.setSpace(board.getRandomStartSpace());
-                player1.setStartSpace(player1.getSpace());
-                player1.setHeading(Heading.EAST);
-                board.setGameId(gameID);
-                createBoard(board);
 
                 gameController.startProgrammingPhase();
                 roboRally.createBoardView(gameController);
-
-             */
-
-
+                
             }
         }
 
