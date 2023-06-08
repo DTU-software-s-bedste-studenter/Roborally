@@ -58,7 +58,7 @@ public class SaveLoad {
 
             ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
             ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
-
+            board.setGameId(0);
             FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
 
             gson.toJson(boardTemplate, FullBoardTemplate.class, writer);
@@ -69,6 +69,8 @@ public class SaveLoad {
             e.printStackTrace();
         }
     }
+
+
 
     public static Board load(String filename)
     {
