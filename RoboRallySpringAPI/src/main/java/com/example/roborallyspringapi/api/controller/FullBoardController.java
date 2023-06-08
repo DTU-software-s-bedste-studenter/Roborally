@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FullBoardController {
 
-    @Autowired
+
     private FullBoardService fullBoardService;
 
 

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dk.dtu.compute.se.pisd.roborally.HTTPClient.FullBoardClient;
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.LobbyClient;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
@@ -13,6 +13,8 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 
 import java.io.*;
@@ -27,7 +29,7 @@ public class SaveLoad {
     private static final List<String> SAVEFILENAMES = Arrays.asList("SaveSlot 1", "SaveSlot 2", "SaveSlot 3", "SaveSlot 4", "SaveSlot 5", "SaveSlot 6");
     private static final String LAST_GAME = "LastGame";
 
-    private static FullBoardClient fullBoardClient = new FullBoardClient();
+    private static LobbyClient fullBoardClient = new LobbyClient();
     public static void save(Board board, boolean stop)
     {
         String filename;
@@ -67,6 +69,30 @@ public class SaveLoad {
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void createBoard(Board board) {
+        ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
+        ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
+        FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
+        //fullBoardClient.addFullBoard(boardTemplate);
+        int nrOfPlayers = boardTemplate.players.size();
+        int gameID = boardTemplate.getId();
+        while (true) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Want to start the game?");
+            alert.setContentText("Current number of player: " + nrOfPlayers);
+            Optional<ButtonType> result = alert.showAndWait();
+
+            //boardTemplate = fullBoardClient.getLobbyById(gameID);
+            nrOfPlayers = boardTemplate.players.size();
+            if (nrOfPlayers > 1) {
+
+            }
+            if (nrOfPlayers == 6) {
+                break;
+            }
         }
     }
 

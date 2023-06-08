@@ -21,40 +21,23 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
-import dk.dtu.compute.se.pisd.roborally.HTTPClient.FullBoardClient;
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.LobbyClient;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
-import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
-import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -85,7 +68,7 @@ public class AppController implements Observer {
     final private RoboRally roboRally;
     private GameController gameController;
 
-    private FullBoardClient fullBoardClient = new FullBoardClient();
+    private LobbyClient fullBoardClient = new LobbyClient();
 
     private boolean online;
 
@@ -95,6 +78,7 @@ public class AppController implements Observer {
 
     public void newGame(boolean isOnline) {
         online = isOnline;
+
         if (!isOnline) {
             ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
             dialog.setTitle("Player number");
@@ -136,7 +120,7 @@ public class AppController implements Observer {
                 roboRally.createBoardView(gameController);
             }
         } else {
-            FullBoardTemplate fullBoardTemplateCheck = null;
+            /*FullBoardTemplate fullBoardTemplateCheck = null;
             boolean isValid = true;
             TextInputDialog inputDialog = new TextInputDialog("Enter the ID");
             inputDialog.setHeaderText("Enter unique gameID");
@@ -150,7 +134,7 @@ public class AppController implements Observer {
                 }
                 try {
                     gameID = Integer.parseInt(result.get());
-                    fullBoardTemplateCheck = fullBoardClient.getFullBoardById(gameID);
+                    fullBoardTemplateCheck = fullBoardClient.getLobbyById(gameID);
                     isValid = true;
                 } catch (NumberFormatException e) {
                     isValid = false;
@@ -185,29 +169,14 @@ public class AppController implements Observer {
                 player1.setSpace(board.getRandomStartSpace());
                 player1.setStartSpace(player1.getSpace());
                 player1.setHeading(Heading.EAST);
+                board.setGameId(gameID);
+                createBoard(board);
 
-                ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
-                ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
-                FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
-                boardTemplate.setId(gameID);
-                fullBoardClient.addFullBoard(boardTemplate);
-                int nrOfPlayers = boardTemplate.players.size();
+                gameController.startProgrammingPhase();
+                roboRally.createBoardView(gameController);
 
+             */
 
-                while (true) {
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
-                    alert.setTitle("Want to start the game?");
-                    alert.setContentText("Current number of player: " + nrOfPlayers);
-                    boardTemplate = fullBoardClient.getFullBoardById(gameID);
-                    nrOfPlayers = boardTemplate.players.size();
-                    if (nrOfPlayers == 6) {
-                        break;
-                    }
-
-                    gameController.startProgrammingPhase();
-
-                    roboRally.createBoardView(gameController);
-                }
 
             }
         }
