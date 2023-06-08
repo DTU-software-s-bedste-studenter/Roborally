@@ -264,16 +264,19 @@ public class GameController {
                 return false;
             }
             if (target != null && target.getPlayer() == null) {
+                player.setPrevSpace(player.getSpace());
                 target.setPlayer(player);
+                checkPit(target);
                 return true;
             }
             else {
                 if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    player.setPrevSpace(player.getSpace());
                     target.setPlayer(player);
+                    checkPit(target);
                     return true;
                 }
             }
-            checkPit(target);
         }
         return false;
     }
@@ -460,21 +463,23 @@ public class GameController {
      * @return true if we are out of bounds or if we in fact are in a pit, false otherwise.
      */
     private boolean checkPit(Space space){
-        if(!space.getActions().isEmpty()){
-            if(space.getActions().get(0).getClass() == Pit.class){
-                space.getActions().get(0).doAction(this, space);
-                return true;
-            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+        if(space.getPlayer() != null) {
+            if (!space.getActions().isEmpty()) {
+                if (space.getActions().get(0).getClass() == Pit.class) {
+                    space.getActions().get(0).doAction(this, space);
+                    return true;
+                } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+                    clearPlayersCards(space.getPlayer());
+                    spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+                    space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
+                    return true;
+                }
+            } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
                 clearPlayersCards(space.getPlayer());
                 spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
                 space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
                 return true;
             }
-        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
-            clearPlayersCards(space.getPlayer());
-            spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
-            space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
-            return true;
         }
         return false;
     }
@@ -491,7 +496,10 @@ public class GameController {
         }
         else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
             return false;
-        } else{
+        } else if(prevSpace.x == currentSpace.x && prevSpace.y == currentSpace.y) {
+            return false;
+        }
+        else{
             return true;
         }
     }
