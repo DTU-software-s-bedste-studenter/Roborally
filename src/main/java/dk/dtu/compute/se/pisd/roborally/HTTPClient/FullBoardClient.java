@@ -21,7 +21,7 @@ public class FullBoardClient implements IFullBoardService {
     public static String getFullBoards() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/fullBoards"))
+                .uri(URI.create("http://34.88.181.0:8080/fullBoards"))
                 .setHeader("User-Agent", "FullBoard Client")
                 .header("Content-Type", "application/json")
                 .build();
@@ -35,7 +35,7 @@ public class FullBoardClient implements IFullBoardService {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                     .GET()
-                    .uri(URI.create("http://localhost:8080/fullBoards/" + id))
+                    .uri(URI.create("http://34.88.181.0:8080/fullBoards/" + id))
                     .setHeader("User-Agent", "FullBoard Client")
                     .header("Content-Type", "application/json")
                     .build();
@@ -56,7 +56,7 @@ public class FullBoardClient implements IFullBoardService {
             String fullBoardJSON = new Gson().toJson(f);
             HttpRequest request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(fullBoardJSON))
-                    .uri(URI.create("http://localhost:8080/fullBoards/"))
+                    .uri(URI.create("http://34.88.181.0:8080/fullBoards/"))
                     .setHeader("User-Agent", "FullBoard Client")
                     .header("Content-Type", "application/json")
                     .build();
@@ -74,7 +74,7 @@ public class FullBoardClient implements IFullBoardService {
             String fullBoardJSON = new Gson().toJson(f);
             HttpRequest request = HttpRequest.newBuilder()
                     .PUT(HttpRequest.BodyPublishers.ofString(fullBoardJSON))
-                    .uri(URI.create("http://localhost:8080/fullBoards/" + id))
+                    .uri(URI.create("http://34.88.181.0:8080/fullBoards/" + id))
                     .setHeader("User-Agent", "FullBoard Client")
                     .header("Content-Type", "application/json")
                     .build();
@@ -92,7 +92,7 @@ public class FullBoardClient implements IFullBoardService {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                     .DELETE()
-                    .uri(URI.create("http://localhost:8080/fullBoards/" + id))
+                    .uri(URI.create("http://34.88.181.0:8080/fullBoards/" + id))
                     .setHeader("User-Agent", "FullBoard Client")
                     .header("Content-Type", "application/json")
                     .build();
