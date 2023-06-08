@@ -61,6 +61,9 @@ public class Board extends Subject {
 
     private boolean stepMode;
     private List<Space> startSpaces = new ArrayList<>();
+    private boolean wasGameLoadedThisTurn;
+    public boolean getWasGameLoadedThisTurn() {return this.wasGameLoadedThisTurn;}
+    public void setWasGameLoadedThisTurn(boolean wasLoaded) {this.wasGameLoadedThisTurn = wasLoaded;}
 
     /**
      * Constructor for the Board.
@@ -82,6 +85,7 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
+        this.wasGameLoadedThisTurn = false;
     }
 
     /**
