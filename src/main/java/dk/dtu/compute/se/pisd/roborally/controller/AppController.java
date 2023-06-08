@@ -60,8 +60,6 @@ public class AppController implements Observer {
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
     final private List<String> BOARD_NAMES = Arrays.asList("RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
-    private  List<String> SAVE_FILES = new ArrayList<>();
-
     final private RoboRally roboRally;
     private GameController gameController;
 
@@ -118,21 +116,28 @@ public class AppController implements Observer {
     }
 
     public void loadGame() {
-        String filename;
+        String filename = null;
         File folder = new File(System.getProperty("user.dir") + "/src/main/resources/save");
         File[] listOfFiles = folder.listFiles();
+        List<String> saveFileNames = new ArrayList<>();
         if(listOfFiles != null) {
             for (File listOfFile : listOfFiles) {
-                SAVE_FILES.add(listOfFile.getName());
+                saveFileNames.add(listOfFile.getName());
             }
         }
-        if(!SAVE_FILES.isEmpty()) {
-            ChoiceDialog<String> dialog = new ChoiceDialog<>(SAVE_FILES.get(0), SAVE_FILES);
+        if(!saveFileNames.isEmpty()) {
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(saveFileNames.get(0), saveFileNames);
             dialog.setTitle("Saved games");
             dialog.setHeaderText("Select the saved game you want to play:");
-            Optional<String> result2 = dialog.showAndWait();
-            filename = result2.get();
-        }else {
+            Optional<String> selectedSaveGame = dialog.showAndWait();
+            if (selectedSaveGame.isPresent()) {
+                filename = selectedSaveGame.get();
+            }
+            else {
+                return;
+            }
+        }
+        else {
             filename = "notFound";
         }
         Path pathToSaveFile = Paths.get(System.getProperty("user.dir") + "/src/main/resources/save/" + filename);
