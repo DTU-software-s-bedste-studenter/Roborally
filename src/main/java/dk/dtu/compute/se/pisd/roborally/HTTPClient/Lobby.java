@@ -4,11 +4,11 @@ import java.util.List;
 
 public class Lobby {
 
-    public int id;
-    public List<String> players;
-    public boolean gameStarted;
-    public int selectedNrOfPlayers;
-    public String JSON;
+    private int id;
+    private List<String> players;
+    private boolean gameStarted;
+    private int selectedNrOfPlayers;
+    private String JSON;
 
     public int getId() {
         return id;

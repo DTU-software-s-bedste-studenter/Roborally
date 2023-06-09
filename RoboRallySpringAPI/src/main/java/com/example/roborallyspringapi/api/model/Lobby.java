@@ -20,6 +20,9 @@ public class Lobby {
     public Lobby(int id){
         this.id = id;
         this.players = new ArrayList<>();
+        this.gameStarted = gameStarted;
+        this.JSON = JSON;
+        this.selectedNrOfPlayers = selectedNrOfPlayers;
     }
 
     public int getId() {

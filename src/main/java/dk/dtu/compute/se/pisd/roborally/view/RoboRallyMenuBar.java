@@ -104,7 +104,7 @@ public class RoboRallyMenuBar extends MenuBar {
         joinIcon.setFitHeight(20);
         joinIcon.setFitWidth(20);
         joinGame = new MenuItem("Join Game", joinIcon);
-        //joinGame.setOnAction(e -> this.appController...);
+        joinGame.setOnAction(e -> this.appController.joinGame());
         controlMenu2.getItems().add(joinGame);
 
         plusIcon.setFitHeight(20);

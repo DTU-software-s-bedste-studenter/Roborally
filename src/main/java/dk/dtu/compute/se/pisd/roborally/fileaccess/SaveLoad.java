@@ -82,7 +82,7 @@ public class SaveLoad {
     }
 
 
-    public static Board load(String filename)
+    public static Board load(String filename, boolean isOnline)
     {
         // most of the objects have the board as a member variable, which needs to be set during loading of a save
 
@@ -92,10 +92,15 @@ public class SaveLoad {
 
         JsonReader reader = null;
         try {
-            FileReader fileReader = new FileReader(SAVEFILEPATH + filename);
-            reader = gson.newJsonReader(fileReader);
-            FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
-
+            FullBoardTemplate template;
+            if(!isOnline) {
+                FileReader fileReader = new FileReader(SAVEFILEPATH + filename);
+                reader = gson.newJsonReader(fileReader);
+                template = gson.fromJson(reader, FullBoardTemplate.class);
+            }
+            else{
+                template = gson.fromJson(filename, FullBoardTemplate.class);
+            }
             Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
 
             for (SpaceTemplate spaceTemplate : template.spaces) {
