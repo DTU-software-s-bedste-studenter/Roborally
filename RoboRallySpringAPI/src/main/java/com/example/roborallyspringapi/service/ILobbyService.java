@@ -1,6 +1,5 @@
 package com.example.roborallyspringapi.service;
 
-import com.example.roborallyspringapi.api.model.FullBoard;
 import com.example.roborallyspringapi.api.model.Lobby;
 
 import java.util.List;
