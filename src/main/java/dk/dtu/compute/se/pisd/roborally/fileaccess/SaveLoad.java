@@ -135,7 +135,9 @@ public class SaveLoad {
                 player.setCheckpointTokens(playerTemplate.checkpointTokens);
                 resultBoard.addPlayer(player);
             }
-            reader.close();
+            if(!isOnline){
+                reader.close();
+            }
             return resultBoard;
         } catch (IOException e1) {
             if (reader != null) {

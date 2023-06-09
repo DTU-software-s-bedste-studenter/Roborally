@@ -213,9 +213,9 @@ public class AppController implements Observer {
                 player.setHeading(Heading.EAST);
             }
                 lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
-                lobbyClient.updateLobby(lobby.getId(), lobby);
                 lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
                 lobby.setGameStarted(true);
+                lobbyClient.updateLobby(lobby.getId(), lobby);
                 gameController.startProgrammingPhase();
                 roboRally.createBoardView(gameController);
             }
@@ -264,10 +264,12 @@ public class AppController implements Observer {
             TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
             inputGameIDtoJoin.setHeaderText("Input the ID of the game you wish to join");
             Optional<String> selectedGameIDtoJoin = inputGameIDtoJoin.showAndWait();
+            //TODO numberformat except
             int realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
             lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
 
             if(lobby.isGameStarted() || lobby == null || lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
+                //mabye explain??
                 do {
                     inputGameIDtoJoin = new TextInputDialog("Join Game");
                     inputGameIDtoJoin.setHeaderText("The gameID you inputted either didn't exist, the game was already started or the game was full\n" +
@@ -313,8 +315,11 @@ public class AppController implements Observer {
                     lobby = null;
                     return;
                 }
-                String json = lobbyClient.getJSONbyID(lobby.getId());
-                startLoadedGame(SaveLoad.load(json, true));
+                String json;
+                do {
+                    json = lobbyClient.getJSONbyID(lobby.getId());
+                } while(json == null || json.equals(""));
+                    startLoadedGame(SaveLoad.load(json, true));
             }
 
     private void startLoadedGame(Board board) {
