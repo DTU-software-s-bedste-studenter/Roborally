@@ -19,7 +19,6 @@ public class Lobby {
     public Lobby(int id){
         this.id = id;
         this.players = new ArrayList<>();
-
         this.JSON = JSON;
     }
 

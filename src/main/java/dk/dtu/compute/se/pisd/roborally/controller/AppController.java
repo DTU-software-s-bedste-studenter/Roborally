@@ -40,6 +40,7 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
+import javafx.scene.layout.Region;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +75,6 @@ public class AppController implements Observer {
 
     private Lobby lobby = new Lobby();
 
-    private String title = "s";
 
     private boolean online;
 
@@ -82,7 +82,7 @@ public class AppController implements Observer {
         this.roboRally = roboRally;
     }
 
-    public void newGame(boolean isOnline) throws InterruptedException {
+    public void newGame(boolean isOnline) {
         online = isOnline;
 
         if (!isOnline) {
@@ -126,6 +126,9 @@ public class AppController implements Observer {
                 roboRally.createBoardView(gameController);
             }
         } else {
+            if(this.lobby == null) {
+                this.lobby = new Lobby();
+            }
             int id = 1;
                 while (true) {
                     Lobby oldLobby = lobbyClient.getLobbyById(id);
@@ -134,41 +137,45 @@ public class AppController implements Observer {
                     }
                     id++;
                 }
-            lobby.setId(id);
+            this.lobby.setId(id);
             ChoiceDialog<Integer> selectNrOfPlayersDialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
             selectNrOfPlayersDialog.setTitle("Player number");
             selectNrOfPlayersDialog.setHeaderText("Select number of players");
             Optional<Integer> selectedNrOfPlayers = selectNrOfPlayersDialog.showAndWait();
             lobby.setSelectedNrOfPlayers(selectedNrOfPlayers.get());
-            TextInputDialog inputDialog2 = new TextInputDialog("Name");
-            inputDialog2.setHeaderText("Enter your playername");
-            String result3 = String.valueOf(inputDialog2.showAndWait());
+
+            TextInputDialog selectNameDialog = new TextInputDialog("Name");
+            selectNameDialog.setHeaderText("Enter your playername");
+            Optional<String> selectedName = selectNameDialog.showAndWait();
             List<String> players = new ArrayList<>();
-            players.add(result3);
+            players.add(selectedName.get());
             lobby.setPlayers(players);
             lobbyClient.addLobby(lobby);
-            ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-            dialog2.setTitle("Map");
-            dialog2.setHeaderText("Select the map you want to play:");
-            Optional<String> result2 = dialog2.showAndWait();
-            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION);
+
+            ChoiceDialog<String> selectMapDialog = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+            selectMapDialog.setTitle("Map");
+            selectMapDialog.setHeaderText("Select the map you want to play:");
+            Optional<String> selectedMap = selectMapDialog.showAndWait();
+
+            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CLOSE);
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
-            currentNrOfPlayersInLobby.setContentText("test");
-            int n = 0;
+            currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
 
             lobby = lobbyClient.getLobbyById(id);
-            n = n+1;
-            currentNrOfPlayersInLobby.setTitle("Current number of players in Lobby is: " + n +". ID = " + lobby.getId());
+            currentNrOfPlayersInLobby.setTitle("Waiting for players to join lobby");
+            currentNrOfPlayersInLobby.setHeaderText("Lobby ID: " + lobby.getId());
             currentNrOfPlayersInLobby.setOnShown(e -> delay.playFromStart());
             currentNrOfPlayersInLobby.setOnCloseRequest(e -> currentNrOfPlayersInLobby.close());
+            currentNrOfPlayersInLobby.getDialogPane().setMinHeight(400);
             delay.setOnFinished(e -> {
-                currentNrOfPlayersInLobby.setTitle(this.title);
-                this.title = "f";
+                lobby = lobbyClient.getLobbyById(lobby.getId());
+                currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
                 delay.playFromStart();
             });
             currentNrOfPlayersInLobby.showAndWait();
             if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE) {
                 lobbyClient.deleteLobbyById(id);
+                lobby = null;
                 return;
             }
 
@@ -190,7 +197,7 @@ public class AppController implements Observer {
                 }
             }
 
-                String map = result2.get();
+                String map = selectedMap.get();
                 Board board = LoadBoard.loadBoard(map);
                 gameController = new GameController(board, this);
 
@@ -235,11 +242,7 @@ public class AppController implements Observer {
             alert.setContentText("Save file not found!\n\nA new game will be started!");
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == (ButtonType.OK)) {
-                try {
                     newGame(false);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }
         }
     }
@@ -322,6 +325,14 @@ public class AppController implements Observer {
 
     public boolean getOnline() {
         return online;
+    }
+
+    private String getLobbyPlayerListText() {
+        StringBuilder playersInLobby = new StringBuilder("Players in lobby (" + lobby.players.size() + "/" + lobby.selectedNrOfPlayers + "):\n\n");
+        for (String player : lobby.getPlayers()) {
+            playersInLobby.append(player).append("\n");
+        }
+        return playersInLobby.toString();
     }
 
 }

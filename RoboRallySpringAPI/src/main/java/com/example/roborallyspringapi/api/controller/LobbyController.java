@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.ClientInfoStatus;
 import java.util.List;
 @RestController
 public class LobbyController{
+
+    private Integer newestID = 1;
 
     @Autowired
     private LobbyService lobbyService;
@@ -19,6 +22,12 @@ public class LobbyController{
     {
         List<Lobby> lobbys = lobbyService.findAll();
         return ResponseEntity.ok().body(lobbys);
+    }
+
+    @GetMapping(value = "/lobbyID")
+    public ResponseEntity<Integer> getNextID()
+    {
+        return ResponseEntity.ok().body(newestID++);
     }
 
     @PostMapping("/lobbys")

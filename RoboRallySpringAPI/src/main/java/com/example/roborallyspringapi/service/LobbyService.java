@@ -11,17 +11,6 @@ public class LobbyService implements ILobbyService{
     ArrayList<Lobby> lobbyList = new ArrayList<>();
 
     public LobbyService(){
-        Lobby lobby1 = new Lobby(1);
-        Lobby lobby2 = new Lobby(2);
-        Lobby lobby3 = new Lobby(3);
-        Lobby lobby4 = new Lobby(4);
-        Lobby lobby5 = new Lobby(5);
-        lobby1.setJSON("Hey smukke smatso");
-        lobbyList.add(lobby1);
-        lobbyList.add(lobby2);
-        lobbyList.add(lobby3);
-        lobbyList.add(lobby4);
-        lobbyList.add(lobby5);
     }
     @Override
     public  List<Lobby> findAll() {

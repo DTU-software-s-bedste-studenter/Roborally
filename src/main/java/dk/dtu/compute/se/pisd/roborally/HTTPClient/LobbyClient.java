@@ -7,7 +7,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +29,25 @@ public class LobbyClient implements ILobbyService {
                 httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
         String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
         return result;
+    }
+
+    @Override
+    public Integer getLobbyID(){
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("http://34.88.181.0:8080/lobbyID"))
+                    .setHeader("User-Agent", "FullBoard Client")
+                    .header("Content-Type", "application/json")
+                    .build();
+            CompletableFuture<HttpResponse<String>> response =
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
+            Integer finalResult = Integer.parseInt(result);
+            return finalResult;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -95,7 +113,7 @@ public class LobbyClient implements ILobbyService {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .DELETE()
-                    .uri(URI.create("http://34.88.181.0:8080/fullBoards/" + id))
+                    .uri(URI.create("http://34.88.181.0:8080/lobbys/" + id))
                     .setHeader("User-Agent", "FullBoard Client")
                     .header("Content-Type", "application/json")
                     .build();

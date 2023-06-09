@@ -6,6 +6,8 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
 import java.util.List;
 
 public interface ILobbyService {
+    Integer getLobbyID();
+
     Lobby getLobbyById(int id);
 
     String getLobbys() throws Exception;
