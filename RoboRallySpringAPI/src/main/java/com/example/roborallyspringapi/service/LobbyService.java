@@ -49,15 +49,13 @@ public class LobbyService implements ILobbyService{
     }
     @Override
     public boolean deleteLobbyById(int id) {
-        ArrayList<Lobby> newLobbys = new ArrayList<>();
         int oldSize = lobbyList.size();
         lobbyList.forEach((lobby -> {
             if(lobby.getId() == id)
-                newLobbys.add(
+                lobbyList.remove(
                         lobby
                 );
         }));
-        lobbyList = newLobbys;
         return oldSize < lobbyList.size() ? true : false;
     }
 
