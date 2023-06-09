@@ -6,6 +6,7 @@ public class Lobby {
 
     public int id;
     public List<String> players;
+    public int selectedNrOfPlayers;
     public String JSON;
 
     public int getId() {
@@ -24,6 +25,13 @@ public class Lobby {
         this.players = players;
     }
 
+    public int getSelectedNrOfPlayers() {
+        return selectedNrOfPlayers;
+    }
+
+    public void setSelectedNrOfPlayers(int selectedNrOfPlayers) {
+        this.selectedNrOfPlayers = selectedNrOfPlayers;
+    }
     public String getJSON() {
         return JSON;
     }

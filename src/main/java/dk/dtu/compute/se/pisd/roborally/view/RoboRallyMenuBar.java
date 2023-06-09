@@ -98,7 +98,13 @@ public class RoboRallyMenuBar extends MenuBar {
         hostIcon.setFitHeight(20);
         hostIcon.setFitWidth(20);
         hostGame = new MenuItem("Host Game", hostIcon);
-        hostGame.setOnAction( e -> this.appController.newGame(true));
+        hostGame.setOnAction( e -> {
+            try {
+                this.appController.newGame(true);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         controlMenu2.getItems().add(hostGame);
 
         joinIcon.setFitHeight(20);
@@ -110,7 +116,13 @@ public class RoboRallyMenuBar extends MenuBar {
         plusIcon.setFitHeight(20);
         plusIcon.setFitWidth(20);
         newGame = new MenuItem("New Game", plusIcon);
-        newGame.setOnAction( e -> this.appController.newGame(false));
+        newGame.setOnAction( e -> {
+            try {
+                this.appController.newGame(false);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         controlMenu.getItems().add(newGame);
 
         stopIcon.setFitHeight(20);

@@ -21,9 +21,7 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
@@ -33,15 +31,16 @@ import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
 import dk.dtu.compute.se.pisd.roborally.fileaccess.LoadBoard;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
-import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -52,8 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad.*;
 
 /**
  * ...
@@ -75,13 +72,17 @@ public class AppController implements Observer {
     private ObjectMapper mapper = new ObjectMapper();
     private LobbyClient lobbyClient = new LobbyClient();
 
+    private Lobby lobby = new Lobby();
+
+    private String title = "s";
+
     private boolean online;
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame(boolean isOnline) {
+    public void newGame(boolean isOnline) throws InterruptedException {
         online = isOnline;
 
         if (!isOnline) {
@@ -133,8 +134,12 @@ public class AppController implements Observer {
                     }
                     id++;
                 }
-            Lobby lobby = new Lobby();
             lobby.setId(id);
+            ChoiceDialog<Integer> selectNrOfPlayersDialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+            selectNrOfPlayersDialog.setTitle("Player number");
+            selectNrOfPlayersDialog.setHeaderText("Select number of players");
+            Optional<Integer> selectedNrOfPlayers = selectNrOfPlayersDialog.showAndWait();
+            lobby.setSelectedNrOfPlayers(selectedNrOfPlayers.get());
             TextInputDialog inputDialog2 = new TextInputDialog("Name");
             inputDialog2.setHeaderText("Enter your playername");
             String result3 = String.valueOf(inputDialog2.showAndWait());
@@ -142,13 +147,40 @@ public class AppController implements Observer {
             players.add(result3);
             lobby.setPlayers(players);
             lobbyClient.addLobby(lobby);
-
-
-
             ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
             dialog2.setTitle("Map");
             dialog2.setHeaderText("Select the map you want to play:");
             Optional<String> result2 = dialog2.showAndWait();
+            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION);
+            PauseTransition delay = new PauseTransition(Duration.seconds(2));
+            currentNrOfPlayersInLobby.setContentText("test");
+            int n = 0;
+
+            lobby = lobbyClient.getLobbyById(id);
+            n = n+1;
+            currentNrOfPlayersInLobby.setTitle("Current number of players in Lobby is: " + n +". ID = " + lobby.getId());
+            currentNrOfPlayersInLobby.setOnShown(e -> delay.playFromStart());
+            currentNrOfPlayersInLobby.setOnCloseRequest(e -> currentNrOfPlayersInLobby.close());
+            delay.setOnFinished(e -> {
+                currentNrOfPlayersInLobby.setTitle(this.title);
+                this.title = "f";
+                delay.playFromStart();
+            });
+            currentNrOfPlayersInLobby.showAndWait();
+            if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE) {
+                lobbyClient.deleteLobbyById(id);
+                return;
+            }
+
+            Alert wantToStartGame = new Alert(AlertType.CONFIRMATION);
+            wantToStartGame.setTitle("Ready to start game?");
+            wantToStartGame.setHeaderText("Maximum number of players has joined lobby");
+            wantToStartGame.setContentText("Choose your option.");
+            wantToStartGame.showAndWait();
+
+            ButtonType buttonTypeOne = ButtonType.YES;
+            ButtonType buttonTypeCancel = ButtonType.CANCEL;
+            wantToStartGame.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
 
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
@@ -203,7 +235,11 @@ public class AppController implements Observer {
             alert.setContentText("Save file not found!\n\nA new game will be started!");
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == (ButtonType.OK)) {
-                newGame(false);
+                try {
+                    newGame(false);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
