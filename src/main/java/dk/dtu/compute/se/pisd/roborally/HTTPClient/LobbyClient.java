@@ -32,7 +32,7 @@ public class LobbyClient implements ILobbyService {
     }
 
     @Override
-    public Integer getLobbyID(){
+    public Integer getNewLobbyID(){
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .GET()

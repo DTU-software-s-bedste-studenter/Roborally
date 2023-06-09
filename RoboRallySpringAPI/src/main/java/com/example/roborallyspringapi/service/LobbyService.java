@@ -39,6 +39,8 @@ public class LobbyService implements ILobbyService{
         for(Lobby lb : lobbyList) {
             if(lb.getId() == id) {
                 lb.setId(f.getId());
+                lb.setSelectedNrOfPlayers(f.getSelectedNrOfPlayers());
+                lb.setGameStarted(f.isGameStarted());
                 lb.setPlayers(f.getPlayers());
                 return true;
             }

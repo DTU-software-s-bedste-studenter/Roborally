@@ -32,8 +32,6 @@ import java.util.List;
  *
  */
 public class FullBoardTemplate {
-
-    public int id;
     public int width;
     public int height;
     public int checkpoints;
@@ -41,13 +39,6 @@ public class FullBoardTemplate {
     public List<SpaceTemplate> spaces = new ArrayList<>();
     public List<PlayerTemplate> players = new ArrayList<>();
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getWidth() {
         return width;

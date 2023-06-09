@@ -9,6 +9,7 @@ public class Lobby {
 
     private List<String> players;
 
+    private boolean gameStarted;
     private int selectedNrOfPlayers;
 
     private String JSON;
@@ -19,7 +20,6 @@ public class Lobby {
     public Lobby(int id){
         this.id = id;
         this.players = new ArrayList<>();
-        this.JSON = JSON;
     }
 
     public int getId() {
@@ -45,6 +45,15 @@ public class Lobby {
     public void setSelectedNrOfPlayers(int selectedNrOfPlayers) {
         this.selectedNrOfPlayers = selectedNrOfPlayers;
     }
+
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
+
     public String getJSON(){
         return JSON;
     }

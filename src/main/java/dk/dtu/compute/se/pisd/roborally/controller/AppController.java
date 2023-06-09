@@ -40,7 +40,6 @@ import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 
-import javafx.scene.layout.Region;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +60,7 @@ import java.util.Optional;
  */
 public class AppController implements Observer {
 
-    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
+    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(1, 2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
     final private List<String> BOARD_NAMES = Arrays.asList("RiskyCrossing", "SprintCramp", "Fractionation", "DeathTrap", "ChopShopChallenge");
@@ -129,14 +128,7 @@ public class AppController implements Observer {
             if(this.lobby == null) {
                 this.lobby = new Lobby();
             }
-            int id = 1;
-                while (true) {
-                    Lobby oldLobby = lobbyClient.getLobbyById(id);
-                    if (oldLobby == null) {
-                        break;
-                    }
-                    id++;
-                }
+            int id = lobbyClient.getNewLobbyID();
             this.lobby.setId(id);
             ChoiceDialog<Integer> selectNrOfPlayersDialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
             selectNrOfPlayersDialog.setTitle("Player number");
@@ -157,7 +149,7 @@ public class AppController implements Observer {
             selectMapDialog.setHeaderText("Select the map you want to play:");
             Optional<String> selectedMap = selectMapDialog.showAndWait();
 
-            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CLOSE);
+            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
             currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
 
@@ -171,23 +163,33 @@ public class AppController implements Observer {
                 lobby = lobbyClient.getLobbyById(lobby.getId());
                 currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
                 delay.playFromStart();
+                if(lobby.players.size() == lobby.selectedNrOfPlayers){
+                    currentNrOfPlayersInLobby.close();
+                    currentNrOfPlayersInLobby.setResult(ButtonType.OK);
+                    delay.stop();
+                }
             });
             currentNrOfPlayersInLobby.showAndWait();
-            if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE) {
+            if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE || currentNrOfPlayersInLobby.getResult() == ButtonType.CANCEL) {
                 lobbyClient.deleteLobbyById(id);
                 lobby = null;
                 return;
             }
-
             Alert wantToStartGame = new Alert(AlertType.CONFIRMATION);
-            wantToStartGame.setTitle("Ready to start game?");
-            wantToStartGame.setHeaderText("Maximum number of players has joined lobby");
-            wantToStartGame.setContentText("Choose your option.");
+            wantToStartGame.setTitle("Online lobby");
+            wantToStartGame.setHeaderText("Selected number of players has joined lobby");
+            wantToStartGame.setContentText("Begin game?");
             wantToStartGame.showAndWait();
 
-            ButtonType buttonTypeOne = ButtonType.YES;
+            ButtonType buttonTypeOne = new ButtonType("Yes", ButtonBar.ButtonData.YES);
             ButtonType buttonTypeCancel = ButtonType.CANCEL;
             wantToStartGame.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
+
+            if (wantToStartGame.getResult() == ButtonType.CANCEL){
+                lobbyClient.deleteLobbyById(id);
+                lobby = null;
+                return;
+            }
 
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
@@ -200,8 +202,17 @@ public class AppController implements Observer {
                 String map = selectedMap.get();
                 Board board = LoadBoard.loadBoard(map);
                 gameController = new GameController(board, this);
+                int i = 0;
+                for(String playerName : lobby.players) {
+                Player player = new Player(board, PLAYER_COLORS.get(i++), playerName);
+                board.addPlayer(player);
+                player.setSpace(board.getRandomStartSpace());
+                player.setStartSpace(player.getSpace());
+                player.setHeading(Heading.EAST);
+            }
 
-
+                lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
+                lobbyClient.updateLobby(lobby.id, lobby);
                 gameController.startProgrammingPhase();
                 roboRally.createBoardView(gameController);
                 

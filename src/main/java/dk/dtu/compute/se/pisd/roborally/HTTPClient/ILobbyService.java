@@ -1,12 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
-import dk.dtu.compute.se.pisd.roborally.HTTPClient.Lobby;
-import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
-
-import java.util.List;
-
 public interface ILobbyService {
-    Integer getLobbyID();
+    Integer getNewLobbyID();
 
     Lobby getLobbyById(int id);
 

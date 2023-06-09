@@ -72,30 +72,14 @@ public class SaveLoad {
         }
     }
 
-    public static void createBoard(Board board) {
+    public static String buildGameStateToJSON(Board board){
+        GsonBuilder builder = new GsonBuilder().registerTypeAdapter(FieldAction.class, new Adapter<FieldAction>()).setPrettyPrinting();
+        Gson gson = builder.create();
         ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
         ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
         FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
-        //fullBoardClient.addFullBoard(boardTemplate);
-        int nrOfPlayers = boardTemplate.players.size();
-        int gameID = boardTemplate.getId();
-        while (true) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Want to start the game?");
-            alert.setContentText("Current number of player: " + nrOfPlayers);
-            Optional<ButtonType> result = alert.showAndWait();
-
-            //boardTemplate = fullBoardClient.getLobbyById(gameID);
-            nrOfPlayers = boardTemplate.players.size();
-            if (nrOfPlayers > 1) {
-
-            }
-            if (nrOfPlayers == 6) {
-                break;
-            }
-        }
+        return gson.toJson(boardTemplate, FullBoardTemplate.class);
     }
-
 
 
     public static Board load(String filename)
@@ -163,7 +147,6 @@ public class SaveLoad {
     public static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
     {
         FullBoardTemplate boardTemplate = new FullBoardTemplate();
-        boardTemplate.id = board.getGameId();
         boardTemplate.boardName = board.boardName;
         boardTemplate.width = board.width;
         boardTemplate.height = board.height;

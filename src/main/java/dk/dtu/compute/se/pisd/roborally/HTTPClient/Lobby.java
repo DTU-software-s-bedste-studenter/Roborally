@@ -6,6 +6,7 @@ public class Lobby {
 
     public int id;
     public List<String> players;
+    public boolean gameStarted;
     public int selectedNrOfPlayers;
     public String JSON;
 
@@ -23,6 +24,14 @@ public class Lobby {
 
     public void setPlayers(List<String> players) {
         this.players = players;
+    }
+
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
     }
 
     public int getSelectedNrOfPlayers() {
