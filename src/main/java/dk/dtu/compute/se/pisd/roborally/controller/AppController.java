@@ -348,6 +348,7 @@ public class AppController implements Observer {
         });
         waitForPlayersToJoin.showAndWait();
         lobby.setActive(true);
+        lobbyClient.updateLobby(lobby.getId(), lobby);
         if (waitForPlayersToJoin.getResult() == ButtonType.CLOSE || waitForPlayersToJoin.getResult() == ButtonType.CANCEL) {
             players.remove(selectedName.get());
             lobby.setPlayers(players);
@@ -390,7 +391,9 @@ public class AppController implements Observer {
         if (gameController != null) {
             if(lobby != null){
                 lobby.setPlayerOptions(lobby.getPlayers());
-                lobby.setActive(false);
+                if(lobby.isActive()) {
+                    lobby.setActive(false);
+                }
                 lobbyClient.updateLobby(lobby.getId(), lobby);
             }
             saveGame(true);
