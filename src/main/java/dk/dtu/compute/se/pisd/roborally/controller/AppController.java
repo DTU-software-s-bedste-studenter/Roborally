@@ -110,7 +110,7 @@ public class AppController implements Observer {
 
                 String map = result2.get();
                 Board board = LoadBoard.loadBoard(map);
-                gameController = new GameController(board, this);
+                gameController = new GameController(board, this, GameMode.OFFLINE);
                 int no = result.get();
                 for (int i = 0; i < no; i++) {
                     Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
@@ -203,7 +203,7 @@ public class AppController implements Observer {
                 String map = selectedMap.get();
                 Board board = LoadBoard.loadBoard(map);
                 gameController = new GameController(board, this, GameMode.OFFLINE);
-               
+                int i = 0;
                 for(String playerName : lobby.getPlayers()) {
                 Player player = new Player(board, PLAYER_COLORS.get(i++), playerName);
                 board.addPlayer(player);
