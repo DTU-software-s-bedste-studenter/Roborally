@@ -271,6 +271,7 @@ public class AppController implements Observer {
     }
 
     public void joinGame() {
+        online = true;
         int realSelectedGameIDtoJoin;
         TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
         Optional<String> selectedGameIDtoJoin;
