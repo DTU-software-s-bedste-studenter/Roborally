@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -61,6 +60,9 @@ public class Board extends Subject {
 
     private boolean stepMode;
     private List<Space> startSpaces = new ArrayList<>();
+    private boolean isFirstTurnOfLoadedGame;
+    public boolean getIsFirstTurnOfLoadedGame() {return this.isFirstTurnOfLoadedGame;}
+    public void setIsFirstTurnOfLoadedGame(boolean wasLoaded) {this.isFirstTurnOfLoadedGame = wasLoaded;}
 
     /**
      * Constructor for the Board.
@@ -82,6 +84,7 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
+        this.isFirstTurnOfLoadedGame = false;
     }
 
     /**
@@ -227,7 +230,7 @@ public class Board extends Subject {
 
         // XXX: V2 changed the status so that it shows the phase, the player and the step
         return "Phase: " + getPhase().name() +
-                ", Player = " + getCurrentPlayer().getName() +
+                ", Current player = " + getCurrentPlayer().getName() +
                 ", Power Cubes = " + getCurrentPlayer().getPowerCubes() +
                 ", CheckpointTokens: " + getCurrentPlayer().getCheckpointTokens() +
                 ", Step: " + getStep();

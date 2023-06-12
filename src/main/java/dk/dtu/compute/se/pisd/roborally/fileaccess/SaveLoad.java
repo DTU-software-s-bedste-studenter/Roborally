@@ -138,6 +138,7 @@ public class SaveLoad {
             if(!isOnline){
                 reader.close();
             }
+            resultBoard.setIsFirstTurnOfLoadedGame(true);
             return resultBoard;
         } catch (IOException e1) {
             if (reader != null) {
