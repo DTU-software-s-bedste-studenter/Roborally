@@ -150,7 +150,7 @@ public class AppController implements Observer {
 
             Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
-            currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
+            currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isActive()));
 
             lobby = lobbyClient.getLobbyById(lobby.getId());
             currentNrOfPlayersInLobby.setTitle("Waiting for players to join lobby");
@@ -160,7 +160,7 @@ public class AppController implements Observer {
             currentNrOfPlayersInLobby.getDialogPane().setMinHeight(400);
             delay.setOnFinished(e -> {
                 lobby = lobbyClient.getLobbyById(lobby.getId());
-                currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
+                currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isActive()));
                 delay.playFromStart();
                 if (lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
                     currentNrOfPlayersInLobby.close();
@@ -210,9 +210,10 @@ public class AppController implements Observer {
                 player.setHeading(Heading.EAST);
             }
             lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
+            lobby.setActive(true);
             lobby.setGameStarted(true);
-            lobby.setPlayerOptions(lobby.getPlayers());
             lobbyClient.updateLobby(lobby.getId(), lobby);
+            lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
             gameController.startProgrammingPhase();
             roboRally.createBoardView(gameController);
         }
@@ -288,7 +289,7 @@ public class AppController implements Observer {
         lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
 
         if (lobby == null || !lobby.isGameStarted() && lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()
-                || lobby.isGameStarted() && lobby.getPlayerOptions().size() == 0) {
+                || lobby.isGameStarted() && lobby.getPlayerOptions().isEmpty()) {
 
             do {
                 inputGameIDtoJoin = new TextInputDialog("Join Game");
@@ -298,7 +299,7 @@ public class AppController implements Observer {
                 realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
                 lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
             } while (lobby == null || !lobby.isGameStarted() && lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()
-                    || lobby.isGameStarted() && lobby.getPlayerOptions().size() == 0);
+                    || lobby.isGameStarted() && lobby.getPlayerOptions().isEmpty());
         }
         List<String> players = lobby.getPlayers();
         List<String> playerOptions = lobby.getPlayerOptions();
@@ -323,8 +324,7 @@ public class AppController implements Observer {
 
         Alert waitForPlayersToJoin = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
-        waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
-
+        waitForPlayersToJoin.setContentText(getLobbyPlayerListText(lobby.isActive()));
         lobby = lobbyClient.getLobbyById(lobby.getId());
         waitForPlayersToJoin.setTitle("Waiting for players to join lobby");
         waitForPlayersToJoin.setHeaderText("Lobby ID: " + lobby.getId());
@@ -333,7 +333,7 @@ public class AppController implements Observer {
         waitForPlayersToJoin.getDialogPane().setMinHeight(400);
         delay.setOnFinished(e -> {
             lobby = lobbyClient.getLobbyById(lobby.getId());
-            waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
+            waitForPlayersToJoin.setContentText(getLobbyPlayerListText(lobby.isActive()));
             delay.playFromStart();
             if (lobby.isGameStarted()) {
                 waitForPlayersToJoin.close();
@@ -353,6 +353,9 @@ public class AppController implements Observer {
         do {
             json = lobbyClient.getJSONbyID(lobby.getId());
         } while (json == null || json.equals(""));
+        while(!lobby.getPlayerOptions().isEmpty()){
+            lobby = lobbyClient.getLobbyById(lobby.getId());
+        }
         startLoadedGame(SaveLoad.load(json, true), selectedName.get());
     }
 
@@ -446,10 +449,36 @@ public class AppController implements Observer {
         return online;
     }
 
-    private String getLobbyPlayerListText() {
-        StringBuilder playersInLobby = new StringBuilder("Players in lobby (" + lobby.getPlayers().size() + "/" + lobby.getSelectedNrOfPlayers() + "):\n\n");
-        for (String player : lobby.getPlayers()) {
-            playersInLobby.append(player).append("\n");
+    private String waitingForPlayerListText(){
+        StringBuilder waitingForPlayers =
+                new StringBuilder("Waiting for players(" + lobby.getPlayerOptions().size() + "/" + lobby.getSelectedNrOfPlayers() + "):\n\n");
+        for (String player : lobby.getPlayers()){
+            if(lobby.getPlayerOptions().contains(player)) {
+                waitingForPlayers.append("waiting for " + player).append("\n");
+            } else{
+                waitingForPlayers.append(player).append(" has joined\n");
+            }
+        }
+        return waitingForPlayers.toString();
+    }
+
+    private String getLobbyPlayerListText(boolean active) {
+        StringBuilder playersInLobby;
+        if(active){
+            playersInLobby =
+                    new StringBuilder("Waiting for players(" + lobby.getPlayerOptions().size() + "/" + lobby.getSelectedNrOfPlayers() + "):\n\n");
+            for (String player : lobby.getPlayers()){
+                if(lobby.getPlayerOptions().contains(player)) {
+                    playersInLobby.append("waiting for " + player).append("\n");
+                } else{
+                    playersInLobby.append(player).append(" has joined\n");
+                }
+            }
+        } else {
+            playersInLobby = new StringBuilder("Players in lobby (" + lobby.getPlayers().size() + "/" + lobby.getSelectedNrOfPlayers() + "):\n\n");
+            for (String player : lobby.getPlayers()) {
+                playersInLobby.append(player).append("\n");
+            }
         }
         return playersInLobby.toString();
     }
