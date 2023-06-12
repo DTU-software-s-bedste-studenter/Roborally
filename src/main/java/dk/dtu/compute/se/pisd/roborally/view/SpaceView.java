@@ -117,6 +117,11 @@ public class SpaceView extends StackPane implements ViewObserver {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+            switch (player.getHeading()) {
+                case EAST -> imageView.setRotate(90);
+                case SOUTH -> imageView.setRotate(180);
+                case WEST -> imageView.setRotate(270);
+            }
             imageView.fitHeightProperty().setValue(SPACE_HEIGHT);
             imageView.fitWidthProperty().setValue(SPACE_WIDTH);
             this.getChildren().add(imageView);
@@ -160,6 +165,10 @@ public class SpaceView extends StackPane implements ViewObserver {
             this.getChildren().add(imageView);
         }
     }
+
+    /**
+     * The method responsible for drawing the default tile on the board.
+     */
     public void drawBackground()
     {
         ImageView imageView = new ImageView();
@@ -173,6 +182,9 @@ public class SpaceView extends StackPane implements ViewObserver {
         this.getChildren().add(imageView);
     }
 
+    /**
+     * Method responsible for drawing the various action fields depending on the specific field.
+     */
     public void drawFieldActions()
     {
         ImageView imageView = new ImageView();

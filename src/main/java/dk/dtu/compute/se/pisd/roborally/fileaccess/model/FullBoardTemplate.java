@@ -19,10 +19,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package dk.dtu.compute.se.pisd.roborally.model;
+package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
-import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import org.jetbrains.annotations.NotNull;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * ...
@@ -30,15 +33,12 @@ import org.jetbrains.annotations.NotNull;
  * @author Ekkart Kindler, ekki@dtu.dk
  *
  */
-public class CommandCard extends Subject {
+public class FullBoardTemplate {
 
-    final public Command command;
-
-    public CommandCard(@NotNull Command command) {
-        this.command = command;
-    }
-
-    public String getName() {
-        return command.displayName;
-    }
+    public int width;
+    public int height;
+    public int checkpoints;
+    public String boardName;
+    public List<SpaceTemplate> spaces = new ArrayList<>();
+    public List<PlayerTemplate> players = new ArrayList<>();
 }

@@ -24,21 +24,24 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * ...
- *
- * @author Ekkart Kindler, ekki@dtu.dk
- *
- */
 public class GameController {
 
     private boolean winnerFound = false;
     private AppController appController;
-
     final public Board board;
-    public GameController(@NotNull Board board, AppController appController) {
+    private final GameMode gameMode;
+    private String onlinePlayerName = null;
+    public GameController(@NotNull Board board, AppController appController, GameMode gameMode) {
         this.board = board;
         this.appController = appController;
+        this.gameMode = gameMode;
+    }
+
+    public GameController(@NotNull Board board, AppController appController, GameMode gameMode, String onlinePlayerName) {
+        this.board = board;
+        this.appController = appController;
+        this.gameMode = gameMode;
+        this.onlinePlayerName = onlinePlayerName;
     }
 
     /**
@@ -48,14 +51,6 @@ public class GameController {
      * @param space the space to which the current player should move
      */
     public void moveCurrentPlayerToSpace(@NotNull Space space)  {
-        // TODO Assignment V1: method should be implemented by the students:
-        //   - the current player should be moved to the given space
-        //     (if it is free()
-        //   - and the current player should be set to the player
-        //     following the current player
-        //   - the counter of moves in the game should be increased by one
-        //     if the player is moved
-
         if (space != null && space.board == board) {
             Player currentPlayer = board.getCurrentPlayer();
             if (currentPlayer != null && space.getPlayer() == null) {
@@ -64,49 +59,61 @@ public class GameController {
                 board.setCurrentPlayer(board.getPlayer(playerNumber));
             }
         }
-
     }
 
-    // XXX: V2
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-            Player player = board.getPlayer(i);
-            if (player != null) {
-                for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
-                    field.setCard(null);
-                    field.setVisible(true);
-                }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
-                    field.setVisible(true);
+        if (!board.getIsFirstTurnOfLoadedGame()) {
+            if (this.gameMode == GameMode.OFFLINE) {
+                for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+                    this.giveNewCardsToPlayer(board.getPlayer(i));
                 }
             }
+            else {
+                this.giveNewCardsToPlayer(board.getCurrentPlayer());
+            }
+        }
+        else {
+            board.setIsFirstTurnOfLoadedGame(false);
         }
     }
 
-    // XXX: V2
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * commands.length);
         return new CommandCard(commands[random]);
     }
 
-    // XXX: V2
+    public void giveNewCardsToPlayer(Player player) {
+        if (player != null) {
+            for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                CommandCardField field = player.getProgramField(j);
+                field.setCard(null);
+                field.setVisible(true);
+            }
+            for (int j = 0; j < Player.NO_CARDS; j++) {
+                CommandCardField field = player.getCardField(j);
+                field.setCard(generateRandomCommandCard());
+                field.setVisible(true);
+            }
+        }
+    }
+
+    /**
+     * Finish programming phase and transition to activation phase.
+     */
     public void finishProgrammingPhase() {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
-        board.setStep(0);
     }
 
-    // XXX: V2
+    /**
+     * Makes the specified register visible in the GUI.
+     */
     private void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
             for (int i = 0; i < board.getNumberOfPlayers(); i++) {
@@ -117,7 +124,9 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * Turns all programming fields invisible.
+     */
     private void makeProgramFieldsInvisible() {
         for (int i = 0; i < board.getNumberOfPlayers(); i++) {
             Player player = board.getPlayer(i);
@@ -128,26 +137,34 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * starts round with stepmode set to false
+     */
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Starts round with stepmode set to true
+     */
     public void executeStep() {
         board.setStepMode(true);
         continuePrograms();
     }
 
-    // XXX: V2
+    /**
+     * Continually executes the next steps only if step mode is activated.
+     */
     private void continuePrograms() {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
-    // XXX: V2
+    /**
+     * Only executes the next step, and nothing else.
+     */
     private void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
@@ -176,7 +193,11 @@ public class GameController {
         }
     }
 
-    // XXX: V2
+    /**
+     * executes the current command card for the current player.
+     * @param player
+     * @param command
+     */
     private void executeCommand(@NotNull Player player, Command command) {
         if (player.board == board && command != null) {
 
@@ -252,28 +273,29 @@ public class GameController {
                 return false;
             }
             if (target != null && target.getPlayer() == null) {
+                player.setPrevSpace(player.getSpace());
                 target.setPlayer(player);
+                checkPit(target);
                 return true;
             }
             else {
                 if (target != null && pushPlayer(target.getPlayer(), heading)) {
+                    player.setPrevSpace(player.getSpace());
                     target.setPlayer(player);
+                    checkPit(target);
                     return true;
                 }
             }
-            checkPit(target);
         }
         return false;
     }
 
-    // TODO: V2
     public void turnRight(@NotNull Player player) {
         if (player != null && player.board == board) {
             player.setHeading(player.getHeading().next());
         }
     }
 
-    // TODO: V2
     public void turnLeft(@NotNull Player player) {
         if (player != null && player.board == board) {
             player.setHeading(player.getHeading().prev());
@@ -321,7 +343,6 @@ public class GameController {
             }
         }
     }
-
     /**
      * Runs the execution of the interactive cards chosen option
      * @param player current player
@@ -336,7 +357,6 @@ public class GameController {
             continuePrograms();
         }
     }
-
     /**
      * Sets the next currentPlayer in the currentPlayer order to be the current currentPlayer.
      * @param currentPlayer Current player
@@ -443,23 +463,30 @@ public class GameController {
             appController.resetGame(player);
         }
     }
-    
+
+    /**
+     * Checks if space is a pit, and...
+     * @param space the space to be checked.
+     * @return true if we are out of bounds or if we in fact are in a pit, false otherwise.
+     */
     private boolean checkPit(Space space){
-        if(!space.getActions().isEmpty()){
-            if(space.getActions().get(0).getClass() == Pit.class){
-                space.getActions().get(0).doAction(this, space);
-                return true;
-            } else if(OutOfMap(space.getPlayer().getPrevSpace(), space)){
+        if(space.getPlayer() != null) {
+            if (!space.getActions().isEmpty()) {
+                if (space.getActions().get(0).getClass() == Pit.class) {
+                    space.getActions().get(0).doAction(this, space);
+                    return true;
+                } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
+                    clearPlayersCards(space.getPlayer());
+                    spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
+                    space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
+                    return true;
+                }
+            } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
                 clearPlayersCards(space.getPlayer());
                 spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
                 space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
                 return true;
             }
-        } else if (OutOfMap(space.getPlayer().getPrevSpace(), space)) {
-            clearPlayersCards(space.getPlayer());
-            spaceOccupied(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()), Heading.EAST);
-            space.getPlayer().setSpace(rebootOrStart(space.getPlayer().getPrevSpace(), space.getPlayer()));
-            return true;
         }
         return false;
     }
@@ -476,13 +503,16 @@ public class GameController {
         }
         else if(prevSpace.x == currentSpace.x && (prevSpace.y == currentSpace.y+1 || prevSpace.y == currentSpace.y-1)){
             return false;
-        } else{
+        } else if(prevSpace.x == currentSpace.x && prevSpace.y == currentSpace.y) {
+            return false;
+        }
+        else{
             return true;
         }
     }
 
     /**
-     * Clears the players next progammingcards.
+     * Clears the players next programming cards.
      * @param player
      */
     public void clearPlayersCards(Player player) {

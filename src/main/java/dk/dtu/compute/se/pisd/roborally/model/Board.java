@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -61,7 +60,17 @@ public class Board extends Subject {
 
     private boolean stepMode;
     private List<Space> startSpaces = new ArrayList<>();
+    private boolean isFirstTurnOfLoadedGame;
+    public boolean getIsFirstTurnOfLoadedGame() {return this.isFirstTurnOfLoadedGame;}
+    public void setIsFirstTurnOfLoadedGame(boolean wasLoaded) {this.isFirstTurnOfLoadedGame = wasLoaded;}
 
+    /**
+     * Constructor for the Board.
+     * @param width expressed in amount of spaces.
+     * @param height also expressed in amount of spaces.
+     * @param checkpoints
+     * @param boardName
+     */
     public Board(int width, int height, int checkpoints, @NotNull String boardName) {
         this.boardName = boardName;
         this.width = width;
@@ -75,8 +84,12 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
+        this.isFirstTurnOfLoadedGame = false;
     }
 
+    /**
+     * The default constructor for the Board class for if no boardname has been selected
+     */
     public Board(int width, int height, int checkpoints) {
         this(width, height, checkpoints, "defaultboard");
     }
@@ -108,6 +121,10 @@ public class Board extends Subject {
         return players.size();
     }
 
+    /**
+     * Adds player to the gameboard and notifies the view.
+     * @param player
+     */
     public void addPlayer(@NotNull Player player) {
         if (player.board == this && !players.contains(player)) {
             players.add(player);
@@ -213,7 +230,7 @@ public class Board extends Subject {
 
         // XXX: V2 changed the status so that it shows the phase, the player and the step
         return "Phase: " + getPhase().name() +
-                ", Player = " + getCurrentPlayer().getName() +
+                ", Current player = " + getCurrentPlayer().getName() +
                 ", Power Cubes = " + getCurrentPlayer().getPowerCubes() +
                 ", CheckpointTokens: " + getCurrentPlayer().getCheckpointTokens() +
                 ", Step: " + getStep();
@@ -230,8 +247,13 @@ public class Board extends Subject {
         }
     }
 
-    public Space getRandomStartSpace(){
-        return startSpaces.get((int) (Math.random()*startSpaces.size()));
+    public Space getRandomStartSpace() {
+        while (true) {
+            Space space = startSpaces.get((int) (Math.random() * startSpaces.size()));
+            if (space.getPlayer() == null) {
+                return space;
+            }
+        }
     }
 
 }
