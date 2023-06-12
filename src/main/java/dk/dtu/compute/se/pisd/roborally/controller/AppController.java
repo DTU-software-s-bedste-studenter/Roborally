@@ -268,69 +268,87 @@ public class AppController implements Observer {
     }
 
     public void joinGame() {
-            TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
-            inputGameIDtoJoin.setHeaderText("Input the ID of the game you wish to join");
-            Optional<String> selectedGameIDtoJoin = inputGameIDtoJoin.showAndWait();
-            //TODO numberformat except
-            int realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
-            lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
+        TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
+        inputGameIDtoJoin.setHeaderText("Input the ID of the game you wish to join");
+        Optional<String> selectedGameIDtoJoin = inputGameIDtoJoin.showAndWait();
+        //TODO numberformat except
+        int realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
+        lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
 
-            if(lobby.isGameStarted() || lobby == null || lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
-                //mabye explain??
-                do {
-                    inputGameIDtoJoin = new TextInputDialog("Join Game");
-                    inputGameIDtoJoin.setHeaderText("The gameID you inputted either didn't exist, the game was already started or the game was full\n" +
-                            "Input the ID of the game you wish to join");
-                    selectedGameIDtoJoin = inputGameIDtoJoin.showAndWait();
-                    realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
-                    lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
-                } while (lobby == null || lobby.isGameStarted() || lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers());
+        if (lobby == null || lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
+            //mabye explain??
+            do {
+                inputGameIDtoJoin = new TextInputDialog("Join Game");
+                inputGameIDtoJoin.setHeaderText("The gameID you inputted either didn't exist, the game was already started or the game was full\n" +
+                        "Input the ID of the game you wish to join");
+                selectedGameIDtoJoin = inputGameIDtoJoin.showAndWait();
+                realSelectedGameIDtoJoin = Integer.parseInt(selectedGameIDtoJoin.get());
+                lobby = lobbyClient.getLobbyById(realSelectedGameIDtoJoin);
+            } while (lobby == null || lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers());
+        }
+        List<String> players;
+        Optional<String> selectedName;
+        if (!lobby.isGameStarted()) {
+            TextInputDialog inputName = new TextInputDialog("Name");
+            inputName.setHeaderText("Enter your playername");
+            selectedName = inputName.showAndWait();
+            players = lobby.getPlayers();
+            players.add(selectedName.get());
+            lobby.setPlayers(players);
+        } else {
+            players = lobby.getPlayers();
+            ChoiceDialog<String> selectYouPlayerName = new ChoiceDialog<>(players.get(0), players);
+            selectYouPlayerName.setTitle("Player name");
+            selectYouPlayerName.setHeaderText("Select the name of your player");
+            selectedName = selectYouPlayerName.showAndWait();
+        }
+
+        lobbyClient.updateLobby(lobby.getId(), lobby);
+
+
+        Alert waitForPlayersToJoin = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
+
+        lobby = lobbyClient.getLobbyById(lobby.getId());
+        waitForPlayersToJoin.setTitle("Waiting for players to join lobby");
+        waitForPlayersToJoin.setHeaderText("Lobby ID: " + lobby.getId());
+        waitForPlayersToJoin.setOnShown(e -> delay.playFromStart());
+        waitForPlayersToJoin.setOnCloseRequest(e -> waitForPlayersToJoin.close());
+        waitForPlayersToJoin.getDialogPane().setMinHeight(400);
+        delay.setOnFinished(e -> {
+            lobby = lobbyClient.getLobbyById(lobby.getId());
+            waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
+            delay.playFromStart();
+            if (lobby.isGameStarted()) {
+                waitForPlayersToJoin.close();
+                waitForPlayersToJoin.setResult(ButtonType.OK);
+                delay.stop();
             }
-                TextInputDialog inputName = new TextInputDialog("Name");
-                inputName.setHeaderText("Enter your playername");
-                Optional<String> selectedName = inputName.showAndWait();;
-                List<String> players = lobby.getPlayers();
-                players.add(selectedName.get());
-                lobby.setPlayers(players);
-                lobbyClient.updateLobby(lobby.getId(), lobby);
-
-                Alert waitForPlayersToJoin = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
-                PauseTransition delay = new PauseTransition(Duration.seconds(2));
-                waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
-
-                lobby = lobbyClient.getLobbyById(lobby.getId());
-                waitForPlayersToJoin.setTitle("Waiting for players to join lobby");
-                waitForPlayersToJoin.setHeaderText("Lobby ID: " + lobby.getId());
-                waitForPlayersToJoin.setOnShown(e -> delay.playFromStart());
-                waitForPlayersToJoin.setOnCloseRequest(e -> waitForPlayersToJoin.close());
-                waitForPlayersToJoin.getDialogPane().setMinHeight(400);
-                delay.setOnFinished(e -> {
-                    lobby = lobbyClient.getLobbyById(lobby.getId());
-                    waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
-                    delay.playFromStart();
-                    if(lobby.isGameStarted()){
-                        waitForPlayersToJoin.close();
-                        waitForPlayersToJoin.setResult(ButtonType.OK);
-                        delay.stop();
-                    }
-                });
-                waitForPlayersToJoin.showAndWait();
-                if (waitForPlayersToJoin.getResult() == ButtonType.CLOSE || waitForPlayersToJoin.getResult() == ButtonType.CANCEL) {
-                    players.remove(selectedName);
-                    lobby.setPlayers(players);
-                    lobbyClient.updateLobby(lobby.getId(), lobby);
-                    lobby = null;
-                    return;
-                }
-                String json;
-                do {
-                    json = lobbyClient.getJSONbyID(lobby.getId());
-                } while(json == null || json.equals(""));
-                    startLoadedGame(SaveLoad.load(json, true));
-            }
+        });
+        waitForPlayersToJoin.showAndWait();
+        if ((waitForPlayersToJoin.getResult() == ButtonType.CLOSE || waitForPlayersToJoin.getResult() == ButtonType.CANCEL) && !lobby.isGameStarted()) {
+            players.remove(selectedName.get());
+            lobby.setPlayers(players);
+            lobbyClient.updateLobby(lobby.getId(), lobby);
+            lobby = null;
+            return;
+        }
+        String json;
+        do {
+            json = lobbyClient.getJSONbyID(lobby.getId());
+        } while (json == null || json.equals(""));
+        startLoadedGame(SaveLoad.load(json, true), selectedName.get());
+    }
 
     private void startLoadedGame(Board board) {
         gameController = new GameController(board, this, GameMode.OFFLINE);
+        gameController.startProgrammingPhase();
+        roboRally.createBoardView(gameController);
+    }
+
+    private void startLoadedGame(Board board, String onlinePlayerName) {
+        gameController = new GameController(board, this, GameMode.ONLINE, onlinePlayerName);
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
