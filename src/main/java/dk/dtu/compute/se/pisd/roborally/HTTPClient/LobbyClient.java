@@ -63,8 +63,7 @@ public class LobbyClient implements ILobbyService {
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
             Gson gson = new Gson();
-            Lobby l = gson.fromJson(result, Lobby.class);
-            return l;
+            return gson.fromJson(result, Lobby.class);
         } catch (Exception e) {
             return null;
         }

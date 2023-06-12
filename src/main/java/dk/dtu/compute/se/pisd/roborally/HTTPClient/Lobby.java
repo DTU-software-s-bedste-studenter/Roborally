@@ -6,7 +6,9 @@ public class Lobby {
 
     private int id;
     private List<String> players;
+    private List<String> playerOptions;
     private boolean gameStarted;
+    private boolean active;
     private int selectedNrOfPlayers;
     private String JSON;
 
@@ -24,6 +26,22 @@ public class Lobby {
 
     public void setPlayers(List<String> players) {
         this.players = players;
+    }
+
+    public List<String> getPlayerOptions() {
+        return playerOptions;
+    }
+
+    public void setPlayerOptions(List<String> playerOptions) {
+        this.playerOptions = playerOptions;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public boolean isGameStarted() {

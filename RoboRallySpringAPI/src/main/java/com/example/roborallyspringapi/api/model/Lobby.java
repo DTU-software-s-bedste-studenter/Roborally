@@ -9,6 +9,9 @@ public class Lobby {
 
     private List<String> players;
 
+    private List<String> playerOptions;
+    private boolean active;
+
     private boolean gameStarted;
     private int selectedNrOfPlayers;
 
@@ -20,6 +23,8 @@ public class Lobby {
     public Lobby(int id){
         this.id = id;
         this.players = new ArrayList<>();
+        this.playerOptions = new ArrayList<>();
+        this.active = active;
         this.gameStarted = gameStarted;
         this.JSON = JSON;
         this.selectedNrOfPlayers = selectedNrOfPlayers;
@@ -39,6 +44,21 @@ public class Lobby {
 
     public void setPlayers(List<String> players) {
         this.players = players;
+    }
+    public List<String> getPlayerOptions() {
+        return playerOptions;
+    }
+
+    public void setPlayerOptions(List<String> playerOptions) {
+        this.playerOptions = playerOptions;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public int getSelectedNrOfPlayers() {
