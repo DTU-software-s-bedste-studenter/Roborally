@@ -116,7 +116,7 @@ public class SaveLoad {
                 resultBoard.addPlayer(player);
             }
             reader.close();
-            resultBoard.setWasGameLoadedThisTurn(true);
+            resultBoard.setIsFirstTurnOfLoadedGame(true);
             return resultBoard;
         } catch (IOException e1) {
             if (reader != null) {

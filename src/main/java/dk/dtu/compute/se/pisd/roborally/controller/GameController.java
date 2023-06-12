@@ -28,11 +28,20 @@ public class GameController {
 
     private boolean winnerFound = false;
     private AppController appController;
-
     final public Board board;
-    public GameController(@NotNull Board board, AppController appController) {
+    private final GameMode gameMode;
+    private String onlinePlayerName = null;
+    public GameController(@NotNull Board board, AppController appController, GameMode gameMode) {
         this.board = board;
         this.appController = appController;
+        this.gameMode = gameMode;
+    }
+
+    public GameController(@NotNull Board board, AppController appController, GameMode gameMode, String onlinePlayerName) {
+        this.board = board;
+        this.appController = appController;
+        this.gameMode = gameMode;
+        this.onlinePlayerName = onlinePlayerName;
     }
 
     /**
@@ -42,14 +51,6 @@ public class GameController {
      * @param space the space to which the current player should move
      */
     public void moveCurrentPlayerToSpace(@NotNull Space space)  {
-        // TODO Assignment V1: method should be implemented by the students:
-        //   - the current player should be moved to the given space
-        //     (if it is free()
-        //   - and the current player should be set to the player
-        //     following the current player
-        //   - the counter of moves in the game should be increased by one
-        //     if the player is moved
-
         if (space != null && space.board == board) {
             Player currentPlayer = board.getCurrentPlayer();
             if (currentPlayer != null && space.getPlayer() == null) {
@@ -58,7 +59,6 @@ public class GameController {
                 board.setCurrentPlayer(board.getPlayer(playerNumber));
             }
         }
-
     }
 
     public void startProgrammingPhase() {
@@ -66,25 +66,18 @@ public class GameController {
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        if (!board.getWasGameLoadedThisTurn()) {
-            for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-                Player player = board.getPlayer(i);
-                if (player != null) {
-                    for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                        CommandCardField field = player.getProgramField(j);
-                        field.setCard(null);
-                        field.setVisible(true);
-                    }
-                    for (int j = 0; j < Player.NO_CARDS; j++) {
-                        CommandCardField field = player.getCardField(j);
-                        field.setCard(generateRandomCommandCard());
-                        field.setVisible(true);
-                    }
+        if (!board.getIsFirstTurnOfLoadedGame()) {
+            if (this.gameMode == GameMode.OFFLINE) {
+                for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+                    this.giveNewCardsToPlayer(board.getPlayer(i));
                 }
+            }
+            else {
+                this.giveNewCardsToPlayer(board.getCurrentPlayer());
             }
         }
         else {
-            board.setWasGameLoadedThisTurn(false);
+            board.setIsFirstTurnOfLoadedGame(false);
         }
     }
 
@@ -94,6 +87,21 @@ public class GameController {
         return new CommandCard(commands[random]);
     }
 
+    public void giveNewCardsToPlayer(Player player) {
+        if (player != null) {
+            for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                CommandCardField field = player.getProgramField(j);
+                field.setCard(null);
+                field.setVisible(true);
+            }
+            for (int j = 0; j < Player.NO_CARDS; j++) {
+                CommandCardField field = player.getCardField(j);
+                field.setCard(generateRandomCommandCard());
+                field.setVisible(true);
+            }
+        }
+    }
+
     /**
      * Finish programming phase and transition to activation phase.
      */
@@ -101,8 +109,6 @@ public class GameController {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
-        board.setStep(0);
     }
 
     /**
