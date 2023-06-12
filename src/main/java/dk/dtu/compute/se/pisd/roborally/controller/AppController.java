@@ -149,7 +149,7 @@ public class AppController implements Observer {
             Optional<String> selectedMap = selectMapDialog.showAndWait();
 
             Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
-            PauseTransition delay = new PauseTransition(Duration.seconds(5));
+            PauseTransition delay = new PauseTransition(Duration.seconds(2));
             currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText());
 
             lobby = lobbyClient.getLobbyById(lobby.getId());
@@ -269,8 +269,8 @@ public class AppController implements Observer {
         int realSelectedGameIDtoJoin;
         TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
         Optional<String> selectedGameIDtoJoin;
+        boolean newDialog = false;
         while (true) {
-            boolean newDialog = false;
             if(!newDialog) {
                 inputGameIDtoJoin.setHeaderText("Input the ID of the game you wish to join");
             }
@@ -322,7 +322,7 @@ public class AppController implements Observer {
 
 
         Alert waitForPlayersToJoin = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
-        PauseTransition delay = new PauseTransition(Duration.seconds(5));
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
         waitForPlayersToJoin.setContentText(getLobbyPlayerListText());
 
         lobby = lobbyClient.getLobbyById(lobby.getId());
@@ -342,7 +342,7 @@ public class AppController implements Observer {
             }
         });
         waitForPlayersToJoin.showAndWait();
-        if ((waitForPlayersToJoin.getResult() == ButtonType.CLOSE || waitForPlayersToJoin.getResult() == ButtonType.CANCEL) && !lobby.isGameStarted()) {
+        if (waitForPlayersToJoin.getResult() == ButtonType.CLOSE || waitForPlayersToJoin.getResult() == ButtonType.CANCEL) {
             players.remove(selectedName.get());
             lobby.setPlayers(players);
             lobbyClient.updateLobby(lobby.getId(), lobby);
