@@ -340,7 +340,7 @@ public class AppController implements Observer {
             lobby = lobbyClient.getLobbyById(lobby.getId());
             waitForPlayersToJoin.setContentText(getLobbyPlayerListText(lobby.isGameStarted()));
             delay.playFromStart();
-            if (lobby.getPlayerOptions().size() == 0 || lobby.isActive()) {
+            if (lobby.isActive() || lobby.getPlayerOptions().size() == 0 && lobby.isGameStarted()) {
                 waitForPlayersToJoin.close();
                 waitForPlayersToJoin.setResult(ButtonType.OK);
                 delay.stop();
@@ -390,6 +390,7 @@ public class AppController implements Observer {
     public boolean stopGame() {
         if (gameController != null) {
             if(lobby != null){
+                lobby = lobbyClient.getLobbyById(lobby.getId());
                 lobby.setPlayerOptions(lobby.getPlayers());
                 if(lobby.isActive()) {
                     lobby.setActive(false);
