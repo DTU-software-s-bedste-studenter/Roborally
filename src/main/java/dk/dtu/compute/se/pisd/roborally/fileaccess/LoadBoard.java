@@ -53,7 +53,7 @@ public class LoadBoard {
         InputStream inputStream = classLoader.getResourceAsStream(BOARDSFOLDER + "/" + boardname + "." + JSON_EXT);
         if (inputStream == null) {
             // TODO these constants should be defined somewhere
-            return new Board(8,8, 3);
+            return new Board(8,8,3);
         }
 
 		// In simple cases, we can create a Gson object with new Gson():

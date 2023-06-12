@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import dk.dtu.compute.se.pisd.roborally.HTTPClient.LobbyClient;
 import dk.dtu.compute.se.pisd.roborally.controller.FieldAction;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.CommandCardFieldTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
@@ -12,6 +13,8 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 
 import java.io.*;
@@ -25,6 +28,8 @@ public class SaveLoad {
     private static final String SAVEFILEPATH = System.getProperty("user.dir") + "/src/main/resources/save/";
     private static final List<String> SAVEFILENAMES = Arrays.asList("SaveSlot 1", "SaveSlot 2", "SaveSlot 3", "SaveSlot 4", "SaveSlot 5", "SaveSlot 6");
     private static final String LAST_GAME = "LastGame";
+
+    private static LobbyClient fullBoardClient = new LobbyClient();
     public static void save(Board board, boolean stop)
     {
         String filename;
@@ -55,7 +60,7 @@ public class SaveLoad {
 
             ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
             ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
-
+            board.setGameId(0);
             FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
 
             gson.toJson(boardTemplate, FullBoardTemplate.class, writer);
@@ -67,7 +72,17 @@ public class SaveLoad {
         }
     }
 
-    public static Board load(String filename)
+    public static String buildGameStateToJSON(Board board){
+        GsonBuilder builder = new GsonBuilder().registerTypeAdapter(FieldAction.class, new Adapter<FieldAction>()).setPrettyPrinting();
+        Gson gson = builder.create();
+        ArrayList<SpaceTemplate> spaceTemplates = buildSpaceTemplates(board);
+        ArrayList<PlayerTemplate> playerTemplates = buildPlayerTemplates(board);
+        FullBoardTemplate boardTemplate = buildBoardTemplate(board, spaceTemplates, playerTemplates);
+        return gson.toJson(boardTemplate, FullBoardTemplate.class);
+    }
+
+
+    public static Board load(String filename, boolean isOnline)
     {
         // most of the objects have the board as a member variable, which needs to be set during loading of a save
 
@@ -77,10 +92,15 @@ public class SaveLoad {
 
         JsonReader reader = null;
         try {
-            FileReader fileReader = new FileReader(SAVEFILEPATH + filename);
-            reader = gson.newJsonReader(fileReader);
-            FullBoardTemplate template = gson.fromJson(reader, FullBoardTemplate.class);
-
+            FullBoardTemplate template;
+            if(!isOnline) {
+                FileReader fileReader = new FileReader(SAVEFILEPATH + filename);
+                reader = gson.newJsonReader(fileReader);
+                template = gson.fromJson(reader, FullBoardTemplate.class);
+            }
+            else{
+                template = gson.fromJson(filename, FullBoardTemplate.class);
+            }
             Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
 
             for (SpaceTemplate spaceTemplate : template.spaces) {
@@ -115,7 +135,9 @@ public class SaveLoad {
                 player.setCheckpointTokens(playerTemplate.checkpointTokens);
                 resultBoard.addPlayer(player);
             }
-            reader.close();
+            if(!isOnline){
+                reader.close();
+            }
             resultBoard.setIsFirstTurnOfLoadedGame(true);
             return resultBoard;
         } catch (IOException e1) {
@@ -130,7 +152,7 @@ public class SaveLoad {
         return null;
     }
 
-    private static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
+    public static FullBoardTemplate buildBoardTemplate(Board board, ArrayList<SpaceTemplate> spaceTemplates, ArrayList<PlayerTemplate> playerTemplates)
     {
         FullBoardTemplate boardTemplate = new FullBoardTemplate();
         boardTemplate.boardName = board.boardName;
@@ -141,7 +163,7 @@ public class SaveLoad {
         boardTemplate.players = playerTemplates;
         return boardTemplate;
     }
-    private static ArrayList<SpaceTemplate> buildSpaceTemplates(Board board)
+    public static ArrayList<SpaceTemplate> buildSpaceTemplates(Board board)
     {
         ArrayList<SpaceTemplate> spaceTemplates = new ArrayList<>();
 
@@ -161,7 +183,7 @@ public class SaveLoad {
         return spaceTemplates;
     }
 
-    private static ArrayList<PlayerTemplate> buildPlayerTemplates(Board board)
+    public static ArrayList<PlayerTemplate> buildPlayerTemplates(Board board)
     {
         ArrayList<PlayerTemplate> players = new ArrayList<>();
         for (int i = 0; i < board.getNumberOfPlayers(); i++)
