@@ -8,7 +8,7 @@ public class Lobby {
     private List<String> players;
     private List<String> playerOptions;
     private boolean gameStarted;
-    private boolean isActive;
+    private boolean active;
     private int selectedNrOfPlayers;
     private String JSON;
 
@@ -37,11 +37,11 @@ public class Lobby {
     }
 
     public boolean isActive() {
-        return isActive;
+        return active;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.active = active;
     }
 
     public boolean isGameStarted() {
