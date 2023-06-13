@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Model
+class Controller
+interface ViewObserver
+class HTTPClient
+class fileaccess
+class View
+class MenuBar
+class StartGame
+interface Observer
+abstract class Subject
+
+Controller"1" - "1"StartGame
+Controller"1" -- "8"Model
+Controller"2" -- "5"View
+View "5" .|> "1" ViewObserver
+Controller -- HTTPClient
+Controller "1" -- "2"fileaccess
+Controller "1" -- "1" MenuBar
+Model "9" -- View
+Model --|> Subject
+HTTPClient"1" -- "1"fileaccess
+Model"1" -- "1"fileaccess
+ViewObserver --|> Observer
+@enduml

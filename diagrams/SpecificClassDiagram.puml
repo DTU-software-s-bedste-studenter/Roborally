@@ -1,0 +1,53 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Board
+class Player
+class Space
+class GameController
+class AppController
+interface ViewObserver
+class LobbyClient
+class SaveLoad
+class BoardView
+class SpaceView
+class MenuBar
+class StartGame
+abstract class FieldAction
+interface Observer
+abstract class Subject
+class Reboot
+class StartSpace
+class ConveyorBelt
+class Pit
+class Gears
+class Checkpoint
+class PushPanel
+class Lobby
+interface ILobbyClient
+
+
+AppController"1" - "1"StartGame
+AppController"1" -- "1" GameController
+AppController"1" -- "1" LobbyClient
+GameController "1" -- "1"Board
+GameController"1" -- "1" BoardView
+GameController -- SaveLoad
+BoardView "1" ..|> "1" ViewObserver
+SpaceView ..|> ViewObserver
+Controller "1" -- "2"fileaccess
+AppController "1" -- "1" MenuBar
+Board -- BoardView
+Model --|> Subject
+LobbyClient"1" -- "1"SaveLoad
+Board"1" -- "1"SaveLoad
+ViewObserver --|> Observer
+Reboot --|> FieldAction
+StartSpace --|> FieldAction
+ConveyorBelt --|> FieldAction
+Pit --|> FieldAction
+Gears --|> FieldAction
+Checkpoint --|> FieldAction
+PushPanel --|> FieldAction
+LobbyClient ..|> ILobbyClient
+@enduml
