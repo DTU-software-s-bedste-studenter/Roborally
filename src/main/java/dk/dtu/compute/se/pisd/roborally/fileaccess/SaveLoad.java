@@ -102,6 +102,7 @@ public class SaveLoad {
                 template = gson.fromJson(filename, FullBoardTemplate.class);
             }
             Board resultBoard = new Board(template.width, template.height, template.checkpoints, template.boardName);
+            resultBoard.setPhase(template.phase);
 
             for (SpaceTemplate spaceTemplate : template.spaces) {
                 Space space = resultBoard.getSpace(spaceTemplate.x, spaceTemplate.y);
@@ -139,6 +140,8 @@ public class SaveLoad {
                 reader.close();
             }
             resultBoard.setIsFirstTurnOfLoadedGame(true);
+
+
             return resultBoard;
         } catch (IOException e1) {
             if (reader != null) {
@@ -159,6 +162,7 @@ public class SaveLoad {
         boardTemplate.width = board.width;
         boardTemplate.height = board.height;
         boardTemplate.checkpoints = board.checkpoints;
+        boardTemplate.phase = board.getPhase();
         boardTemplate.spaces = spaceTemplates;
         boardTemplate.players = playerTemplates;
         return boardTemplate;

@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import dk.dtu.compute.se.pisd.roborally.controller.GameMode;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import javafx.scene.control.TabPane;
@@ -44,10 +45,16 @@ public class PlayersView extends TabPane implements ViewObserver {
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
-        playerViews = new PlayerView[board.getNumberOfPlayers()];
-        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-            playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
-            this.getTabs().add(playerViews[i]);
+        if (gameController.gameMode == GameMode.OFFLINE) {
+            playerViews = new PlayerView[board.getNumberOfPlayers()];
+            for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+                playerViews[i] = new PlayerView(gameController, board.getPlayer(i));
+                this.getTabs().add(playerViews[i]);
+            }
+        }
+        else {
+            playerViews = new PlayerView[] { new PlayerView(gameController, gameController.getLocalPlayer())};
+            this.getTabs().add(playerViews[0]);
         }
         board.attach(this);
         update(board);

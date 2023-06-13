@@ -98,7 +98,7 @@ public class RoboRallyMenuBar extends MenuBar {
         hostIcon.setFitHeight(20);
         hostIcon.setFitWidth(20);
         hostGame = new MenuItem("Host Game", hostIcon);
-        hostGame.setOnAction( e -> this.appController.newGame(true));
+        hostGame.setOnAction( e -> this.appController.startNewOnlineGame());
         controlMenu2.getItems().add(hostGame);
 
         joinIcon.setFitHeight(20);
@@ -110,7 +110,7 @@ public class RoboRallyMenuBar extends MenuBar {
         plusIcon.setFitHeight(20);
         plusIcon.setFitWidth(20);
         newGame = new MenuItem("New Game", plusIcon);
-        newGame.setOnAction( e -> this.appController.newGame(false));
+        newGame.setOnAction( e -> this.appController.startNewLocalGame());
         controlMenu.getItems().add(newGame);
 
         stopIcon.setFitHeight(20);
@@ -157,7 +157,7 @@ public class RoboRallyMenuBar extends MenuBar {
     }
 
     public void update() {
-        if (appController.isGameRunning() && !appController.getOnline()) {
+        if (appController.isGameRunning() && !appController.getIsOnline()) {
             controlMenu.setVisible(true);
             newGame.setVisible(false);
             stopGame.setVisible(true);
@@ -169,7 +169,7 @@ public class RoboRallyMenuBar extends MenuBar {
             hostGame.setVisible(false);
             joinGame.setVisible(false);
             controlMenu2.setVisible(false);
-        } else if(appController.isGameRunning() && appController.getOnline()) {
+        } else if(appController.isGameRunning() && appController.getIsOnline()) {
             controlMenu2.setVisible(true);
             newGame.setVisible(false);
             stopGame.setVisible(false);

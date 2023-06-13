@@ -29,8 +29,9 @@ public class GameController {
     private boolean winnerFound = false;
     private AppController appController;
     final public Board board;
-    private final GameMode gameMode;
-    private String onlinePlayerName = null;
+    public final GameMode gameMode;
+    private Player localPlayer;
+    public Player getLocalPlayer() {return this.localPlayer;}
     public GameController(@NotNull Board board, AppController appController, GameMode gameMode) {
         this.board = board;
         this.appController = appController;
@@ -41,7 +42,11 @@ public class GameController {
         this.board = board;
         this.appController = appController;
         this.gameMode = gameMode;
-        this.onlinePlayerName = onlinePlayerName;
+        for (int i = 0; i < this.board.getNumberOfPlayers(); i++) {
+            if (this.board.getPlayer(i).getName().equals(onlinePlayerName)) {
+                this.localPlayer = this.board.getPlayer(i);
+            }
+        }
     }
 
     /**
