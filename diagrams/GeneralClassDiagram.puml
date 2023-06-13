@@ -14,7 +14,7 @@ abstract class Subject
 
 Controller"1" - "1"StartGame
 Controller"1" -- "8"Model
-Controller"2" -- "5"View
+Controller"2" - "5"View
 View "5" .|> "1" ViewObserver
 Controller -- HTTPClient
 Controller "1" -- "2"fileaccess

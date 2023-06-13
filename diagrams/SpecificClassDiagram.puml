@@ -27,27 +27,43 @@ class Lobby
 interface ILobbyClient
 
 
-AppController"1" - "1"StartGame
-AppController"1" -- "1" GameController
-AppController"1" -- "1" LobbyClient
-GameController "1" -- "1"Board
-GameController"1" -- "1" BoardView
+AppController - StartGame
+AppController -- GameController
+AppController --  LobbyClient
+GameController  -- Board
+GameController --  BoardView
 GameController -- SaveLoad
-BoardView "1" ..|> "1" ViewObserver
+BoardView  ..|>  ViewObserver
 SpaceView ..|> ViewObserver
-Controller "1" -- "2"fileaccess
-AppController "1" -- "1" MenuBar
+AppController -- MenuBar
 Board -- BoardView
-Model --|> Subject
-LobbyClient"1" -- "1"SaveLoad
-Board"1" -- "1"SaveLoad
+LobbyClient -- SaveLoad
+Board -- SaveLoad
 ViewObserver --|> Observer
 Reboot --|> FieldAction
-StartSpace --|> FieldAction
+StartSpace -|> FieldAction
 ConveyorBelt --|> FieldAction
-Pit --|> FieldAction
+Pit -|> FieldAction
 Gears --|> FieldAction
-Checkpoint --|> FieldAction
-PushPanel --|> FieldAction
+FieldAction <|-- Checkpoint
+FieldAction <|-- PushPanel
 LobbyClient ..|> ILobbyClient
+Lobby -- LobbyClient
+Lobby -- AppController
+Board --|> Subject
+Player --|> Subject
+Space --|> Subject
+Board - Space
+Space - Player
+Player -- SpaceView
+Space -- SpaceView
+Space -- BoardView
+GameController -- Space
+GameController -- Player
+FieldAction -- GameController
+BoardView -- SpaceView
+MenuBar -- StartGame
+FieldAction - SpaceView
+GameController -- SpaceView
+
 @enduml
