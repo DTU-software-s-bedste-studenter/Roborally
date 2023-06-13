@@ -27,43 +27,44 @@ class Lobby
 interface ILobbyClient
 
 
-AppController - StartGame
-AppController -- GameController
-AppController --  LobbyClient
-GameController  -- Board
-GameController --  BoardView
-GameController -- SaveLoad
-BoardView  ..|>  ViewObserver
-SpaceView ..|> ViewObserver
-AppController -- MenuBar
-Board -- BoardView
-LobbyClient -- SaveLoad
-Board -- SaveLoad
-ViewObserver --|> Observer
-Reboot --|> FieldAction
-StartSpace -|> FieldAction
-ConveyorBelt --|> FieldAction
-Pit -|> FieldAction
-Gears --|> FieldAction
-FieldAction <|-- Checkpoint
-FieldAction <|-- PushPanel
-LobbyClient ..|> ILobbyClient
-Lobby -- LobbyClient
-Lobby -- AppController
-Board --|> Subject
-Player --|> Subject
-Space --|> Subject
-Board - Space
-Space - Player
-Player -- SpaceView
-Space -- SpaceView
-Space -- BoardView
-GameController -- Space
-GameController -- Player
-FieldAction -- GameController
-BoardView -- SpaceView
-MenuBar -- StartGame
-FieldAction - SpaceView
-GameController -- SpaceView
+AppController"1" - "1"StartGame
+AppController"1" *-- "1"GameController
+AppController"1" --  "1"LobbyClient
+GameController"1"  --* "1"Board
+GameController"1" *--  "1"BoardView
+BoardView"0..*"  ..|>  "1"ViewObserver
+SpaceView"0..*" ..|> "1"ViewObserver
+AppController"1" -- "1"MenuBar
+Board"1" -- "1"BoardView
+LobbyClient"1"-- "1"SaveLoad
+Board"1" -- "1"SaveLoad
+ViewObserver"0..*" --|> "1"Observer
+Reboot"1..*" --|> "1"FieldAction
+StartSpace"1..*" -|> "1"FieldAction
+ConveyorBelt"0..*" --|> "1"FieldAction
+Pit "0..*" -|> "1"FieldAction
+Gears "0..*" --|> "1"FieldAction
+FieldAction"1" <|-- "1..*" Checkpoint
+FieldAction"1" <|-- "0..*"PushPanel
+LobbyClient"0..*" ..|> "1"ILobbyClient
+Lobby"0..*" -- "1"LobbyClient
+Lobby"0..1" -- "1"AppController
+Board"0..*" --|> "1"Subject
+Player"0..*" --|> "1"Subject
+Space"0..*" --|> "1"Subject
+Board"1" *- "1..*"Space
+Space"1" - "0..1"Player
+Player"0.." -- "1"SpaceView
+Space"1" *-- "1"SpaceView
+Space"1..*" -- "1"BoardView
+GameController"1" -- "0..*"Space
+GameController"1" -- "2..6"Player
+FieldAction"1..*" -- "1"GameController
+BoardView"1" -- "1..*"SpaceView
+MenuBar"1" -- "1"StartGame
+FieldAction"0..1" - "1"SpaceView
+GameController"1" -- "0..*"SpaceView
+Player"2..6" --* "1" Board
+FieldAction "0..1" -- "1" Space
 
 @enduml
