@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
 import com.google.gson.Gson;
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -175,6 +176,42 @@ public class LobbyClient implements ILobbyService {
                     httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
             String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
             return result.equals("updated") ? true : false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean notifyPhaseChange(int lobbyID, String playerName) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .PUT(HttpRequest.BodyPublishers.ofString(playerName))
+                    .uri(URI.create("http://34.88.181.0:8080/lobbys/" + lobbyID + "/notifyPhaseChange"))
+                    .setHeader("User-Agent", "notifyPhaseChange")
+                    .header("Content-Type", "application/json")
+                    .build();
+            CompletableFuture<HttpResponse<String>> response =
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
+            return Boolean.parseBoolean(result);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean canProceedToNextPhase(int lobbyID) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("http://34.88.181.0:8080/lobbys/" + lobbyID + "/canProceedToNextPhase"))
+                    .setHeader("User-Agent", "notifyPhaseChange")
+                    .header("Content-Type", "application/json")
+                    .build();
+            CompletableFuture<HttpResponse<String>> response =
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            String result = response.thenApply((r) -> r.body()).get(5, TimeUnit.SECONDS);
+            return Boolean.parseBoolean(result);
         } catch (Exception e) {
             return false;
         }

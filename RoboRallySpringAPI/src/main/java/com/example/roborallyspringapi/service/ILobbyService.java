@@ -22,4 +22,7 @@ public interface ILobbyService {
     boolean deleteLobbyById(int id);
 
     boolean updateJSON(int id, String l);
+
+    boolean notifyPhaseChange(int lobbyID, String playerName);
+    boolean canProceedToNextPhase(int lobbyID);
 }

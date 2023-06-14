@@ -24,68 +24,20 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-public class GameController {
+public abstract class GameController {
 
-    private boolean winnerFound = false;
-    private AppController appController;
+    protected boolean winnerFound = false;
+    protected AppController appController;
     final public Board board;
-    private final GameMode gameMode;
-    private String onlinePlayerName = null;
-    public GameController(@NotNull Board board, AppController appController, GameMode gameMode) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
         this.appController = appController;
-        this.gameMode = gameMode;
     }
 
-    public GameController(@NotNull Board board, AppController appController, GameMode gameMode, String onlinePlayerName) {
-        this.board = board;
-        this.appController = appController;
-        this.gameMode = gameMode;
-        this.onlinePlayerName = onlinePlayerName;
-    }
+    public abstract void startProgrammingPhase();
 
-    /**
-     * This is just some dummy controller operation to make a simple move to see something
-     * happening on the board. This method should eventually be deleted!
-     *
-     * @param space the space to which the current player should move
-     */
-    public void moveCurrentPlayerToSpace(@NotNull Space space)  {
-        if (space != null && space.board == board) {
-            Player currentPlayer = board.getCurrentPlayer();
-            if (currentPlayer != null && space.getPlayer() == null) {
-                currentPlayer.setSpace(space);
-                int playerNumber = (board.getPlayerNumber(currentPlayer) + 1) % board.getNumberOfPlayers();
-                board.setCurrentPlayer(board.getPlayer(playerNumber));
-            }
-        }
-    }
+    abstract protected CommandCard generateRandomCommandCard();
 
-    public void startProgrammingPhase() {
-        board.setPhase(Phase.PROGRAMMING);
-        board.setCurrentPlayer(board.getPlayer(0));
-        board.setStep(0);
-
-        if (!board.getIsFirstTurnOfLoadedGame()) {
-            if (this.gameMode == GameMode.OFFLINE) {
-                for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-                    this.giveNewCardsToPlayer(board.getPlayer(i));
-                }
-            }
-            else {
-                this.giveNewCardsToPlayer(board.getCurrentPlayer());
-            }
-        }
-        else {
-            board.setIsFirstTurnOfLoadedGame(false);
-        }
-    }
-
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
-    }
 
     public void giveNewCardsToPlayer(Player player) {
         if (player != null) {
@@ -105,16 +57,12 @@ public class GameController {
     /**
      * Finish programming phase and transition to activation phase.
      */
-    public void finishProgrammingPhase() {
-        makeProgramFieldsInvisible();
-        makeProgramFieldsVisible(0);
-        board.setPhase(Phase.ACTIVATION);
-    }
+    public abstract void finishProgrammingPhase();
 
     /**
      * Makes the specified register visible in the GUI.
      */
-    private void makeProgramFieldsVisible(int register) {
+    protected void makeProgramFieldsVisible(int register) {
         if (register >= 0 && register < Player.NO_REGISTERS) {
             for (int i = 0; i < board.getNumberOfPlayers(); i++) {
                 Player player = board.getPlayer(i);
@@ -124,22 +72,6 @@ public class GameController {
         }
     }
 
-    /**
-     * Turns all programming fields invisible.
-     */
-    private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getNumberOfPlayers(); i++) {
-            Player player = board.getPlayer(i);
-            for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                CommandCardField field = player.getProgramField(j);
-                field.setVisible(false);
-            }
-        }
-    }
-
-    /**
-     * starts round with stepmode set to false
-     */
     public void executePrograms() {
         board.setStepMode(false);
         continuePrograms();
@@ -148,24 +80,23 @@ public class GameController {
     /**
      * Starts round with stepmode set to true
      */
-    public void executeStep() {
-        board.setStepMode(true);
-        continuePrograms();
-    }
+    public abstract void executeStep();
 
     /**
      * Continually executes the next steps only if step mode is activated.
      */
-    private void continuePrograms() {
+    protected void continuePrograms() {
         do {
             executeNextStep();
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
+
+
     /**
      * Only executes the next step, and nothing else.
      */
-    private void executeNextStep() {
+    protected void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int step = board.getStep();
@@ -362,22 +293,7 @@ public class GameController {
      * @param currentPlayer Current player
      * @param currentStep Current step
      */
-    private void setNextPlayer(Player currentPlayer, int currentStep) {
-        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getNumberOfPlayers()) {
-            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-        } else {
-            currentStep++;
-            activateActions();
-            if (currentStep < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(currentStep);
-                board.setStep(currentStep);
-                board.setCurrentPlayer(board.getPlayer(0));
-            } else {
-                startProgrammingPhase();
-            }
-        }
-    }
+    abstract protected void setNextPlayer(Player currentPlayer, int currentStep);
 
     /**
      * Runs all activations on spaces where a player is standing,

@@ -1,7 +1,10 @@
 package com.example.roborallyspringapi.api.model;
 
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import com.example.roborallyspringapi.api.model.Phase;
 
 public class Lobby {
 
@@ -10,12 +13,14 @@ public class Lobby {
     private List<String> players;
 
     private List<String> playerOptions;
+
     private boolean active;
 
     private boolean gameStarted;
     private int selectedNrOfPlayers;
 
     private String JSON;
+    private HashMap<String, Phase> playerPhases;
 
     public Lobby(){
 
@@ -24,6 +29,7 @@ public class Lobby {
         this.id = id;
         this.players = new ArrayList<>();
         this.playerOptions = new ArrayList<>();
+        this.playerPhases = new HashMap<>();
         this.active = active;
         this.gameStarted = gameStarted;
         this.JSON = JSON;
@@ -85,4 +91,7 @@ public class Lobby {
         this.JSON = JSON;
     }
 
+    public HashMap<String, Phase> getPlayerPhases() {
+        return playerPhases;
+    }
 }

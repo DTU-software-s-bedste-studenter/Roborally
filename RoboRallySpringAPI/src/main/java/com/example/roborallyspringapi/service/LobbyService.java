@@ -2,9 +2,11 @@ package com.example.roborallyspringapi.service;
 
 import com.example.roborallyspringapi.api.model.Lobby;
 import org.springframework.stereotype.Service;
-
+import com.example.roborallyspringapi.api.model.Phase;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Arrays;
 
 @Service
 public class LobbyService implements ILobbyService{
@@ -80,6 +82,49 @@ public class LobbyService implements ILobbyService{
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean notifyPhaseChange(int lobbyID, String playerName) {
+        Lobby lobby = null;
+        for(Lobby lb : lobbyList) {
+            if(lb.getId() == lobbyID) {
+                lobby = lb;
+            }
+        }
+        HashMap<String, Phase> phases = lobby.getPlayerPhases();
+        if (phases.size() < lobby.getSelectedNrOfPlayers()) {
+            phases.put(playerName, Phase.PROGRAMMING);
+        }
+        else {
+            switch (phases.get(playerName)) {
+                case PROGRAMMING -> phases.put(playerName, Phase.ACTIVATION);
+                case ACTIVATION -> phases.put(playerName, Phase.PROGRAMMING);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean canProceedToNextPhase(int lobbyID) {
+        Lobby lobby = null;
+        for(Lobby lb : lobbyList) {
+            if(lb.getId() == lobbyID) {
+                lobby = lb;
+            }
+        }
+        HashMap<String, Phase> phases = lobby.getPlayerPhases();
+        if (phases.size() == lobby.getSelectedNrOfPlayers()) {
+            for (Phase phase : phases.values()) {
+                if (phase != phases.get(lobby.getPlayers().get(0))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 }

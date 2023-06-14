@@ -3,7 +3,7 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.Heading;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 
-public class Reboot extends FieldAction{
+public class Reboot extends FieldAction {
 
     Heading heading;
 

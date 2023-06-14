@@ -46,10 +46,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * ...
@@ -67,133 +64,33 @@ public class AppController implements Observer {
     final private RoboRally roboRally;
     private GameController gameController;
 
-    private final LobbyClient lobbyClient = new LobbyClient();
+    public final LobbyClient lobbyClient = new LobbyClient();
 
     private Lobby lobby = new Lobby();
 
 
-    private boolean online;
+    private boolean isOnline;
 
     public AppController(@NotNull RoboRally roboRally) {
         this.roboRally = roboRally;
     }
 
-    public void newGame(boolean isOnline) {
-        online = isOnline;
+    public void startNewLocalGame() {
+        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        dialog.setTitle("Player number");
+        dialog.setHeaderText("Select number of players");
+        Optional<Integer> result = dialog.showAndWait();
 
-        if (!isOnline) {
-            ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-            dialog.setTitle("Player number");
-            dialog.setHeaderText("Select number of players");
-            Optional<Integer> result = dialog.showAndWait();
+        if (result.isEmpty()) {
+            return;
+        }
 
-            if (result.isEmpty()) {
-                return;
-            }
+        ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+        dialog2.setTitle("Map");
+        dialog2.setHeaderText("Select the map you want to play:");
+        Optional<String> result2 = dialog2.showAndWait();
 
-            ChoiceDialog<String> dialog2 = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-            dialog2.setTitle("Map");
-            dialog2.setHeaderText("Select the map you want to play:");
-            Optional<String> result2 = dialog2.showAndWait();
-
-            if (result2.isPresent()) {
-                if (gameController != null) {
-                    // The UI should not allow this, but in case this happens anyway.
-                    // give the user the option to save the game or abort this operation!
-                    if (!stopGame()) {
-                        return;
-                    }
-                }
-
-                String map = result2.get();
-                Board board = LoadBoard.loadBoard(map);
-                gameController = new GameController(board, this, GameMode.OFFLINE);
-                int no = result.get();
-                for (int i = 0; i < no; i++) {
-                    Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
-                    board.addPlayer(player);
-                    player.setSpace(board.getRandomStartSpace());
-                    player.setStartSpace(player.getSpace());
-                    player.setHeading(Heading.EAST);
-                }
-
-                gameController.startProgrammingPhase();
-
-                roboRally.createBoardView(gameController);
-            }
-        } else {
-            if (this.lobby == null) {
-                this.lobby = new Lobby();
-            }
-            int id = lobbyClient.getNewLobbyID();
-            this.lobby.setId(id);
-            ChoiceDialog<Integer> selectNrOfPlayersDialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-            selectNrOfPlayersDialog.setTitle("Player number");
-            selectNrOfPlayersDialog.setHeaderText("Select number of players");
-            Optional<Integer> selectedNrOfPlayers = selectNrOfPlayersDialog.showAndWait();
-            lobby.setSelectedNrOfPlayers(selectedNrOfPlayers.get());
-
-            TextInputDialog selectNameDialog = new TextInputDialog("Name");
-            selectNameDialog.setHeaderText("Enter your playername");
-            Optional<String> selectedName = selectNameDialog.showAndWait();
-            List<String> players = new ArrayList<>();
-            List<String> playerOptions = new ArrayList<>();
-            players.add(selectedName.get());
-            playerOptions.add(selectedName.get());
-            lobby.setPlayers(players); //made a little adjustment
-            lobby.setPlayerOptions(players);
-            lobbyClient.addLobby(lobby);
-            playerOptions.remove(selectedName.get());
-            lobby.setPlayerOptions(playerOptions);
-            lobbyClient.updateLobby(lobby.getId(), lobby);
-
-            ChoiceDialog<String> selectMapDialog = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
-            selectMapDialog.setTitle("Map");
-            selectMapDialog.setHeaderText("Select the map you want to play:");
-            Optional<String> selectedMap = selectMapDialog.showAndWait();
-
-            Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
-            PauseTransition delay = new PauseTransition(Duration.seconds(2));
-            currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isGameStarted()));
-
-            lobby = lobbyClient.getLobbyById(lobby.getId());
-            currentNrOfPlayersInLobby.setTitle("Waiting for players to join lobby");
-            currentNrOfPlayersInLobby.setHeaderText("Lobby ID: " + lobby.getId());
-            currentNrOfPlayersInLobby.setOnShown(e -> delay.playFromStart());
-            currentNrOfPlayersInLobby.setOnCloseRequest(e -> currentNrOfPlayersInLobby.close());
-            currentNrOfPlayersInLobby.getDialogPane().setMinHeight(400);
-            delay.setOnFinished(e -> {
-                lobby = lobbyClient.getLobbyById(lobby.getId());
-                currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isGameStarted()));
-                delay.playFromStart();
-                if (lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
-                    currentNrOfPlayersInLobby.close();
-                    currentNrOfPlayersInLobby.setResult(ButtonType.OK);
-                    delay.stop();
-                }
-            });
-            currentNrOfPlayersInLobby.showAndWait();
-            if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE || currentNrOfPlayersInLobby.getResult() == ButtonType.CANCEL) {
-                lobbyClient.deleteLobbyById(lobby.getId());
-                lobby = null;
-                return;
-            }
-            Alert wantToStartGame = new Alert(AlertType.CONFIRMATION);
-            wantToStartGame.setTitle("Online lobby");
-            wantToStartGame.setHeaderText("Selected number of players has joined lobby");
-            wantToStartGame.setContentText("Begin game?");
-            wantToStartGame.showAndWait();
-
-            ButtonType buttonTypeOne = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-            ButtonType buttonTypeCancel = ButtonType.CANCEL;
-            wantToStartGame.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
-
-            if (wantToStartGame.getResult() == ButtonType.CANCEL) {
-                lobbyClient.deleteLobbyById(lobby.getId());
-                lobby = null;
-                return;
-            }
-
+        if (result2.isPresent()) {
             if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
                 // give the user the option to save the game or abort this operation!
@@ -202,25 +99,132 @@ public class AppController implements Observer {
                 }
             }
 
-            String map = selectedMap.get();
+            String map = result2.get();
             Board board = LoadBoard.loadBoard(map);
-            gameController = new GameController(board, this, GameMode.OFFLINE);
-            int i = 0;
-            for (String playerName : lobby.getPlayers()) {
-                Player player = new Player(board, PLAYER_COLORS.get(i++), playerName);
+            gameController = new OfflineGameController(board, this);
+            int no = result.get();
+            for (int i = 0; i < no; i++) {
+                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
                 board.addPlayer(player);
                 player.setSpace(board.getRandomStartSpace());
                 player.setStartSpace(player.getSpace());
                 player.setHeading(Heading.EAST);
             }
-            lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
-            lobby.setActive(true);
-            lobby.setGameStarted(true);
-            lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
-            lobbyClient.updateLobby(lobby.getId(), lobby);
+
             gameController.startProgrammingPhase();
+
             roboRally.createBoardView(gameController);
         }
+    }
+
+    public void startNewOnlineGame() {
+        this.isOnline = true;
+
+        if (this.lobby == null) {
+            this.lobby = new Lobby();
+        }
+        int id = lobbyClient.getNewLobbyID();
+        this.lobby.setId(id);
+
+        ChoiceDialog<Integer> selectNrOfPlayersDialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        selectNrOfPlayersDialog.setTitle("Player number");
+        selectNrOfPlayersDialog.setHeaderText("Select number of players");
+        Optional<Integer> selectedNrOfPlayers = selectNrOfPlayersDialog.showAndWait();
+        lobby.setSelectedNrOfPlayers(selectedNrOfPlayers.get());
+
+        TextInputDialog selectNameDialog = new TextInputDialog("Name");
+        selectNameDialog.setHeaderText("Enter your playername");
+        Optional<String> selectedName = selectNameDialog.showAndWait();
+        List<String> players = new ArrayList<>();
+        List<String> playerOptions = new ArrayList<>();
+        players.add(selectedName.get());
+        playerOptions.add(selectedName.get());
+        lobby.setPlayers(players); //made a little adjustment
+        lobby.setPlayerOptions(players);
+        lobbyClient.addLobby(lobby);
+        playerOptions.remove(selectedName.get());
+        lobby.setPlayerOptions(playerOptions);
+        lobbyClient.updateLobby(lobby.getId(), lobby);
+
+        ChoiceDialog<String> selectMapDialog = new ChoiceDialog<>(BOARD_NAMES.get(0), BOARD_NAMES);
+        selectMapDialog.setTitle("Map");
+        selectMapDialog.setHeaderText("Select the map you want to play:");
+        Optional<String> selectedMap = selectMapDialog.showAndWait();
+
+        Alert currentNrOfPlayersInLobby = new Alert(AlertType.INFORMATION, "Close", ButtonType.CANCEL);
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isGameStarted()));
+
+        lobby = lobbyClient.getLobbyById(lobby.getId());
+        currentNrOfPlayersInLobby.setTitle("Waiting for players to join lobby");
+        currentNrOfPlayersInLobby.setHeaderText("Lobby ID: " + lobby.getId());
+        currentNrOfPlayersInLobby.setOnShown(e -> delay.playFromStart());
+        currentNrOfPlayersInLobby.setOnCloseRequest(e -> currentNrOfPlayersInLobby.close());
+        currentNrOfPlayersInLobby.getDialogPane().setMinHeight(400);
+        delay.setOnFinished(e -> {
+            lobby = lobbyClient.getLobbyById(lobby.getId());
+            currentNrOfPlayersInLobby.setContentText(getLobbyPlayerListText(lobby.isGameStarted()));
+            delay.playFromStart();
+            if (lobby.getPlayers().size() == lobby.getSelectedNrOfPlayers()) {
+                currentNrOfPlayersInLobby.close();
+                currentNrOfPlayersInLobby.setResult(ButtonType.OK);
+                delay.stop();
+            }
+        });
+        currentNrOfPlayersInLobby.showAndWait();
+        if (currentNrOfPlayersInLobby.getResult() == ButtonType.CLOSE || currentNrOfPlayersInLobby.getResult() == ButtonType.CANCEL) {
+            lobbyClient.deleteLobbyById(lobby.getId());
+            lobby = null;
+            this.isOnline = false;
+            return;
+        }
+        Alert wantToStartGame = new Alert(AlertType.CONFIRMATION);
+        wantToStartGame.setTitle("Online lobby");
+        wantToStartGame.setHeaderText("Selected number of players has joined lobby");
+        wantToStartGame.setContentText("Begin game?");
+        wantToStartGame.showAndWait();
+
+        ButtonType buttonTypeOne = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType buttonTypeCancel = ButtonType.CANCEL;
+        wantToStartGame.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
+
+        if (wantToStartGame.getResult() == ButtonType.CANCEL) {
+            lobbyClient.deleteLobbyById(lobby.getId());
+            lobby = null;
+            this.isOnline = false;
+            return;
+        }
+
+        if (gameController != null) {
+            // The UI should not allow this, but in case this happens anyway.
+            // give the user the option to save the game or abort this operation!
+            if (!stopGame()) {
+                this.isOnline = false;
+                return;
+            }
+        }
+
+        String map = selectedMap.get();
+        Board board = LoadBoard.loadBoard(map);
+        int i = 0;
+        for (String playerName : lobby.getPlayers()) {
+            Player player = new Player(board, PLAYER_COLORS.get(i++), playerName);
+            board.addPlayer(player);
+            player.setSpace(board.getRandomStartSpace());
+            player.setStartSpace(player.getSpace());
+            player.setHeading(Heading.EAST);
+        }
+        gameController = new OnlineGameController(board, this, selectNameDialog.getResult(), lobby.getId());
+        for (int j = 0; j < gameController.board.getNumberOfPlayers(); j++) {
+            gameController.giveNewCardsToPlayer(gameController.board.getPlayer(j));
+        }
+        lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
+        lobby.setActive(true);
+        lobby.setGameStarted(true);
+        lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
+        lobbyClient.updateLobby(lobby.getId(), lobby);
+        gameController.startProgrammingPhase();
+        roboRally.createBoardView(gameController);
     }
 
 
@@ -265,12 +269,13 @@ public class AppController implements Observer {
             alert.setContentText("Save file not found!\n\nA new game will be started!");
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == (ButtonType.OK)) {
-                    newGame(false);
+                    startNewLocalGame();
             }
         }
     }
 
-    public void joinGame() {
+    public void joinOnlineGame() {
+        isOnline = true;
         int realSelectedGameIDtoJoin;
         TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
         Optional<String> selectedGameIDtoJoin;
@@ -354,6 +359,7 @@ public class AppController implements Observer {
             lobby.setPlayers(players);
             lobbyClient.updateLobby(lobby.getId(), lobby);
             lobby = null;
+            this.isOnline = false;
             return;
         }
         String json;
@@ -363,17 +369,16 @@ public class AppController implements Observer {
         while(lobby.getPlayerOptions().size() != 0){
             lobby = lobbyClient.getLobbyById(lobby.getId());
         }
-        startLoadedGame(SaveLoad.load(json, true), selectedName.get());
-    }
-
-    private void startLoadedGame(Board board) {
-        gameController = new GameController(board, this, GameMode.OFFLINE);
+        Board board = SaveLoad.load(json, true);
+        // this should only be done for a fresh game so players generate their cards in the first turn
+        board.setIsFirstTurnOfLoadedGame(true);
+        gameController = new OnlineGameController(board, this, selectedName.get(), lobby.getId());
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
 
-    private void startLoadedGame(Board board, String onlinePlayerName) {
-        gameController = new GameController(board, this, GameMode.ONLINE, onlinePlayerName);
+    private void startLoadedGame(Board board) {
+        gameController = new OfflineGameController(board, this);
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
@@ -389,7 +394,7 @@ public class AppController implements Observer {
      */
     public boolean stopGame() {
         if (gameController != null) {
-            if(lobby != null){
+            if(lobby != null && this.isOnline){
                 lobby = lobbyClient.getLobbyById(lobby.getId());
                 lobby.setPlayerOptions(lobby.getPlayers());
                 if(lobby.isActive()) {
@@ -456,8 +461,8 @@ public class AppController implements Observer {
         // XXX do nothing for now
     }
 
-    public boolean getOnline() {
-        return online;
+    public boolean getIsOnline() {
+        return isOnline;
     }
 
     private String getLobbyPlayerListText(boolean active) {

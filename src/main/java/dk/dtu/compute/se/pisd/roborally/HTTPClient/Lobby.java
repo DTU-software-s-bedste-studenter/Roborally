@@ -1,5 +1,8 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
+
+import java.util.HashMap;
 import java.util.List;
 
 public class Lobby {
@@ -7,10 +10,15 @@ public class Lobby {
     private int id;
     private List<String> players;
     private List<String> playerOptions;
+    private HashMap<String, Phase> playerPhases;
     private boolean gameStarted;
     private boolean active;
     private int selectedNrOfPlayers;
     private String JSON;
+
+    public Lobby() {
+        this.playerPhases = new HashMap<>();
+    }
 
     public int getId() {
         return id;

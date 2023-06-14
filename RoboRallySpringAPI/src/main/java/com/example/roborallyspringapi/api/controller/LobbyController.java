@@ -70,4 +70,19 @@ public class LobbyController{
         return ResponseEntity.ok().body("updated");
     }
 
+    @PutMapping("/lobbys/{lobbyID}/notifyPhaseChange")
+    public ResponseEntity<String> notifyPhaseChange(@PathVariable int lobbyID, @RequestBody String playerName) {
+        boolean result = lobbyService.notifyPhaseChange(lobbyID, playerName);
+        if (result) {
+            return ResponseEntity.ok().body("phase changed");
+        } else {
+            return ResponseEntity.ok().body("phase not changed");
+        }
+    }
+
+    @GetMapping("/lobbys/{lobbyID}/canProceedToNextPhase")
+    public ResponseEntity<String> canProceedToNextPhase(@PathVariable int lobbyID) {
+        boolean result = lobbyService.canProceedToNextPhase(lobbyID);
+        return ResponseEntity.ok().body(String.valueOf(result));
+    }
 }
