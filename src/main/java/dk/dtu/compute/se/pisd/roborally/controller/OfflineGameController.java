@@ -43,4 +43,20 @@ public class OfflineGameController extends GameController {
         board.setStepMode(true);
         continuePrograms();
     }
+    protected void setNextPlayer(Player currentPlayer, int currentStep) {
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
+        if (nextPlayerNumber < board.getNumberOfPlayers()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            currentStep++;
+            activateActions();
+            if (currentStep < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(currentStep);
+                board.setStep(currentStep);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                startProgrammingPhase();
+            }
+        }
+    }
 }

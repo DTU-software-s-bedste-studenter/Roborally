@@ -315,22 +315,7 @@ public abstract class GameController {
      * @param currentPlayer Current player
      * @param currentStep Current step
      */
-    private void setNextPlayer(Player currentPlayer, int currentStep) {
-        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
-        if (nextPlayerNumber < board.getNumberOfPlayers()) {
-            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
-        } else {
-            currentStep++;
-            activateActions();
-            if (currentStep < Player.NO_REGISTERS) {
-                makeProgramFieldsVisible(currentStep);
-                board.setStep(currentStep);
-                board.setCurrentPlayer(board.getPlayer(0));
-            } else {
-                startProgrammingPhase();
-            }
-        }
-    }
+    abstract protected void setNextPlayer(Player currentPlayer, int currentStep);
 
     /**
      * Runs all activations on spaces where a player is standing,

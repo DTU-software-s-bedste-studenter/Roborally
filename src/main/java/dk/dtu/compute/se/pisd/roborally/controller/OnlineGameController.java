@@ -32,7 +32,6 @@ public class OnlineGameController extends GameController{
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
-
         //if (!board.getIsFirstTurnOfLoadedGame()) {
         //    this.giveNewCardsToPlayer(this.localPlayer);
         //}
@@ -125,7 +124,46 @@ public class OnlineGameController extends GameController{
             @Override
             public void run() {
                 executeNextStep();
+                if (board.getStep() == Player.NO_REGISTERS){
+                    this.cancel();
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+    }
+    protected void setNextPlayer(Player currentPlayer, int currentStep) {
+        int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
+        if (nextPlayerNumber < board.getNumberOfPlayers()) {
+            board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+        } else {
+            currentStep++;
+            activateActions();
+            if (currentStep < Player.NO_REGISTERS) {
+                makeProgramFieldsVisible(currentStep);
+                board.setStep(currentStep);
+                board.setCurrentPlayer(board.getPlayer(0));
+            } else {
+                waitForHost();
+            }
+        }
+    }
+
+    private void waitForHost(){
+        if(board.getPlayer(0).getName().equals(localPlayer.getName())) {
+            for (int i = 0; i < board.getNumberOfPlayers(); i++) {
+                giveNewCardsToPlayer(board.getPlayer(i));
+            }
+            appController.lobbyClient.updateJSON(SaveLoad.buildGameStateToJSON(board), lobbyID);
+        }
+        board.setPhase(Phase.PROGRAMMING);
+        appController.lobbyClient.notifyPhaseChange(lobbyID, this.localPlayer.getName());
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
                 if (appController.lobbyClient.canProceedToNextPhase(lobbyID)){
+                    Board updatedBoard = SaveLoad.load(appController.lobbyClient.getJSONbyID(lobbyID), true);
+                    updateBoardTotal(board, updatedBoard);
                     startProgrammingPhase();
                     this.cancel();
                 }
