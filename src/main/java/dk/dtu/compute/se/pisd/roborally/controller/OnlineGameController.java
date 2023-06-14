@@ -1,5 +1,6 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
 import dk.dtu.compute.se.pisd.roborally.model.Phase;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
@@ -38,12 +39,15 @@ public class OnlineGameController extends GameController{
 
     @Override
     public void finishProgrammingPhase() {
+        downloadAndUpdateJsonAfterProgramming();
         boolean reply = this.appController.lobbyClient.notifyPhaseChange(this.lobbyID, this.localPlayer.getName());
+
         Timer timer = new Timer();
         TimerTask waitForActivationPhase = new TimerTask() {
             @Override
             public void run() {
                 if (appController.lobbyClient.canProceedToNextPhase(lobbyID)) {
+
                     board.setPhase(Phase.ACTIVATION);
                     this.cancel();
                 }
@@ -52,13 +56,26 @@ public class OnlineGameController extends GameController{
         timer.scheduleAtFixedRate(waitForActivationPhase, 0, 3000);
     }
 
+    public void downloadAndUpdateJsonAfterProgramming() {
+        String download = this.appController.lobbyClient.getJSONbyID(this.lobbyID);
+        Board board = SaveLoad.load(download, true);
+
+        for (int j = 0; j < Player.NO_REGISTERS; j++) {
+            board.getPlayer(board.getPlayerNumber(localPlayer)).getProgramField(j).setCard(localPlayer.getProgramField(j).getCard());
+            board.getPlayer(board.getPlayerNumber(localPlayer)).getProgramField(j).setVisible(localPlayer.getProgramField(j).isVisible());
+        }
+
+        for (int k = 0; k < Player.NO_CARDS; k++) {
+            board.getPlayer(board.getPlayerNumber(localPlayer)).getCardField(k).setCard(localPlayer.getCardField(k).getCard());
+            board.getPlayer(board.getPlayerNumber(localPlayer)).getCardField(k).setVisible(localPlayer.getCardField(k).isVisible());
+        }
+
+        String updatedBoard = SaveLoad.buildGameStateToJSON(board);
+        this.appController.lobbyClient.updateJSON(updatedBoard, this.lobbyID);
+    }
+
     @Override
     public void executeStep() {
 
     }
-
-    private void getOnlineBoardAndOverwrite() {
-        this.appController.lobbyClient.getJSONbyID(this.lobbyID);
-    }
-
 }
