@@ -51,8 +51,6 @@ public class BoardView extends VBox implements ViewObserver {
 
     private Label statusLabel;
 
-    private SpaceEventHandler spaceEventHandler;
-
     public BoardView(@NotNull GameController gameController) {
         board = gameController.board;
 
@@ -66,7 +64,6 @@ public class BoardView extends VBox implements ViewObserver {
 
         spaces = new SpaceView[board.width][board.height];
 
-        spaceEventHandler = new SpaceEventHandler(gameController);
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -74,7 +71,6 @@ public class BoardView extends VBox implements ViewObserver {
                 SpaceView spaceView = new SpaceView(space);
                 spaces[x][y] = spaceView;
                 mainBoardPane.add(spaceView, x, y);
-                spaceView.setOnMouseClicked(spaceEventHandler);
             }
         }
 
@@ -88,33 +84,6 @@ public class BoardView extends VBox implements ViewObserver {
             Phase phase = board.getPhase();
             statusLabel.setText(board.getStatusMessage());
         }
-    }
-
-    // XXX this handler and its uses should eventually be deleted! This is just to help test the
-    //     behaviour of the game by being able to explicitly move the players on the board!
-    private class SpaceEventHandler implements EventHandler<MouseEvent> {
-
-        final public GameController gameController;
-
-        public SpaceEventHandler(@NotNull GameController gameController) {
-            this.gameController = gameController;
-        }
-
-        @Override
-        public void handle(MouseEvent event) {
-            Object source = event.getSource();
-            if (source instanceof SpaceView) {
-                SpaceView spaceView = (SpaceView) source;
-                Space space = spaceView.space;
-                Board board = space.board;
-
-                if (board == gameController.board) {
-                    gameController.moveCurrentPlayerToSpace(space);
-                    event.consume();
-                }
-            }
-        }
-
     }
 
 }

@@ -21,11 +21,12 @@
  */
 package dk.dtu.compute.se.pisd.roborally.fileaccess.model;
 
+
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * ...
@@ -34,11 +35,61 @@ import java.util.List;
  *
  */
 public class FullBoardTemplate {
-
     public int width;
     public int height;
     public int checkpoints;
+    public Phase phase;
+    public PlayerTemplate currentPlayer;
     public String boardName;
     public List<SpaceTemplate> spaces = new ArrayList<>();
     public List<PlayerTemplate> players = new ArrayList<>();
+
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getCheckpoints() {
+        return checkpoints;
+    }
+
+    public void setCheckpoints(int checkpoints) {
+        this.checkpoints = checkpoints;
+    }
+
+    public String getBoardName() {
+        return boardName;
+    }
+
+    public void setBoardName(String boardName) {
+        this.boardName = boardName;
+    }
+
+    public List<SpaceTemplate> getSpaces() {
+        return spaces;
+    }
+
+    public void setSpaces(List<SpaceTemplate> spaces) {
+        this.spaces = spaces;
+    }
+
+    public List<PlayerTemplate> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<PlayerTemplate> players) {
+        this.players = players;
+    }
 }

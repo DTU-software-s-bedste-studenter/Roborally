@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dk.dtu.compute.se.pisd.roborally.model.Heading.*;
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
 /**
@@ -53,7 +52,7 @@ public class Board extends Subject {
 
     private final List<Player> players = new ArrayList<>();
 
-    private Player current;
+    private Player currentPlayer;
 
     private Phase phase = INITIALISATION;
 
@@ -61,6 +60,9 @@ public class Board extends Subject {
 
     private boolean stepMode;
     private List<Space> startSpaces = new ArrayList<>();
+    private boolean isFirstTurnOfLoadedGame;
+    public boolean getIsFirstTurnOfLoadedGame() {return this.isFirstTurnOfLoadedGame;}
+    public void setIsFirstTurnOfLoadedGame(boolean wasLoaded) {this.isFirstTurnOfLoadedGame = wasLoaded;}
 
     /**
      * Constructor for the Board.
@@ -82,6 +84,7 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
+        this.isFirstTurnOfLoadedGame = false;
     }
 
     /**
@@ -138,12 +141,12 @@ public class Board extends Subject {
     }
 
     public Player getCurrentPlayer() {
-        return current;
+        return currentPlayer;
     }
 
     public void setCurrentPlayer(Player player) {
-        if (player != this.current && players.contains(player)) {
-            this.current = player;
+        if (player != this.currentPlayer && players.contains(player)) {
+            this.currentPlayer = player;
             notifyChange();
         }
     }
@@ -222,12 +225,12 @@ public class Board extends Subject {
 
     public String getStatusMessage() {
         // this is actually a view aspect, but for making assignment V1 easy for
-        // the students, this method gives a string representation of the current
+        // the students, this method gives a string representation of the currentPlayer
         // status of the game
 
         // XXX: V2 changed the status so that it shows the phase, the player and the step
         return "Phase: " + getPhase().name() +
-                ", Player = " + getCurrentPlayer().getName() +
+                ", Current player = " + getCurrentPlayer().getName() +
                 ", Power Cubes = " + getCurrentPlayer().getPowerCubes() +
                 ", CheckpointTokens: " + getCurrentPlayer().getCheckpointTokens() +
                 ", Step: " + getStep();

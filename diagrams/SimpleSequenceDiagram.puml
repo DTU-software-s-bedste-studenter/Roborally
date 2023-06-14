@@ -1,0 +1,25 @@
+@startuml
+participant GameController
+
+participant AppController
+participant Model
+participant View
+
+GameController -> AppController: startGame(Offline)
+activate AppController
+
+
+AppController -> View: select number of players
+activate View
+View -> AppController: Number of players
+deactivate View
+AppController -> View: select map
+activate View
+View -> AppController: map name
+deactivate View
+AppController -> Model: setup the gameboard with players
+
+Model -> View: notifyEveryting()
+
+
+@enduml

@@ -3,7 +3,7 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.Rotation;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 
-public class Gears extends FieldAction{
+public class Gears extends FieldAction {
 
     private Rotation rotation;
 
@@ -11,6 +11,9 @@ public class Gears extends FieldAction{
         return this.rotation;
     }
 
+    public void setRotation(Rotation rotation){
+        this.rotation = rotation;
+    }
 
     @Override
     public boolean doAction(GameController gameController, Space space) {
