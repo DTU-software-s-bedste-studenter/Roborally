@@ -72,8 +72,12 @@ public class LobbyController{
 
     @PutMapping("/lobbys/{lobbyID}/notifyPhaseChange")
     public ResponseEntity<String> notifyPhaseChange(@PathVariable int lobbyID, @RequestBody String playerName) {
-        lobbyService.notifyPhaseChange(lobbyID, playerName);
-        return ResponseEntity.ok().body("phase changed");
+        boolean result = lobbyService.notifyPhaseChange(lobbyID, playerName);
+        if (result) {
+            ResponseEntity.ok().body("phase changed");
+        } else {
+            ResponseEntity.ok().body("phase not changed");
+        }
     }
 
     @GetMapping("/lobbys/{lobbyID}/canProceedToNextPhase")
