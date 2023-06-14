@@ -74,9 +74,9 @@ public class LobbyController{
     public ResponseEntity<String> notifyPhaseChange(@PathVariable int lobbyID, @RequestBody String playerName) {
         boolean result = lobbyService.notifyPhaseChange(lobbyID, playerName);
         if (result) {
-            ResponseEntity.ok().body("phase changed");
+            return ResponseEntity.ok().body("phase changed");
         } else {
-            ResponseEntity.ok().body("phase not changed");
+            return ResponseEntity.ok().body("phase not changed");
         }
     }
 
