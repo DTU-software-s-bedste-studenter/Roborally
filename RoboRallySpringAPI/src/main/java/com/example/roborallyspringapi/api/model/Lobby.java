@@ -14,7 +14,6 @@ public class Lobby {
 
     private List<String> playerOptions;
 
-    private HashMap<String, Boolean> areAllPlayersFinished;
     private boolean active;
 
     private boolean gameStarted;
@@ -30,7 +29,7 @@ public class Lobby {
         this.id = id;
         this.players = new ArrayList<>();
         this.playerOptions = new ArrayList<>();
-        this.areAllPlayersFinished = new HashMap<>();
+        this.playerPhases = new HashMap<>();
         this.active = active;
         this.gameStarted = gameStarted;
         this.JSON = JSON;
@@ -92,4 +91,7 @@ public class Lobby {
         this.JSON = JSON;
     }
 
+    public HashMap<String, Phase> getPlayerPhases() {
+        return this.playerPhases;
+    }
 }
