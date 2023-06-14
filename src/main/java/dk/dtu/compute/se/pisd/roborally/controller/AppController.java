@@ -214,12 +214,15 @@ public class AppController implements Observer {
             player.setStartSpace(player.getSpace());
             player.setHeading(Heading.EAST);
         }
+        gameController = new OnlineGameController(board, this, selectNameDialog.getResult(), lobby.getId());
+        for (int j = 0; j < gameController.board.getNumberOfPlayers(); j++) {
+            gameController.giveNewCardsToPlayer(gameController.board.getPlayer(j));
+        }
         lobby.setJSON(SaveLoad.buildGameStateToJSON(board));
         lobby.setActive(true);
         lobby.setGameStarted(true);
         lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
         lobbyClient.updateLobby(lobby.getId(), lobby);
-        gameController = new OnlineGameController(board, this, selectNameDialog.getResult(), lobby.getId());
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
@@ -368,7 +371,7 @@ public class AppController implements Observer {
         }
         Board board = SaveLoad.load(json, true);
         // this should only be done for a fresh game so players generate their cards in the first turn
-        board.setIsFirstTurnOfLoadedGame(false);
+        board.setIsFirstTurnOfLoadedGame(true);
         gameController = new OnlineGameController(board, this, selectedName.get(), lobby.getId());
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);

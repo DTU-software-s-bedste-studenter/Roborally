@@ -28,12 +28,12 @@ public class OnlineGameController extends GameController{
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
-        if (!board.getIsFirstTurnOfLoadedGame()) {
-            this.giveNewCardsToPlayer(this.localPlayer);
-        }
-        else {
-            board.setIsFirstTurnOfLoadedGame(false);
-        }
+        //if (!board.getIsFirstTurnOfLoadedGame()) {
+        //    this.giveNewCardsToPlayer(this.localPlayer);
+        //}
+        //else {
+        //    board.setIsFirstTurnOfLoadedGame(false);
+        //}
     }
 
     @Override
