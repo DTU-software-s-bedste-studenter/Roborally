@@ -113,10 +113,12 @@ public abstract class GameController {
         } while (board.getPhase() == Phase.ACTIVATION && !board.isStepMode());
     }
 
+
+
     /**
      * Only executes the next step, and nothing else.
      */
-    private void executeNextStep() {
+    protected void executeNextStep() {
         Player currentPlayer = board.getCurrentPlayer();
         if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
             int step = board.getStep();
