@@ -120,16 +120,14 @@ public class SaveLoad {
                 player.setActivated(playerTemplate.activated);
                 player.setHeading(playerTemplate.heading);
 
-                if (!isOnline) {
-                    for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                        player.getProgramField(j).setCard(playerTemplate.program[j].card);
-                        player.getProgramField(j).setVisible(playerTemplate.program[j].visible);
-                    }
+                for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                    player.getProgramField(j).setCard(playerTemplate.program[j].card);
+                    player.getProgramField(j).setVisible(playerTemplate.program[j].visible);
+                }
 
-                    for (int k = 0; k < Player.NO_CARDS; k++) {
-                        player.getCardField(k).setCard(playerTemplate.cards[k].card);
-                        player.getCardField(k).setVisible(playerTemplate.cards[k].visible);
-                    }
+                for (int k = 0; k < Player.NO_CARDS; k++) {
+                    player.getCardField(k).setCard(playerTemplate.cards[k].card);
+                    player.getCardField(k).setVisible(playerTemplate.cards[k].visible);
                 }
 
                 player.setPowerCubes(playerTemplate.powerCubes);
