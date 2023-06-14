@@ -23,13 +23,12 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.controller.GameMode;
+import dk.dtu.compute.se.pisd.roborally.controller.OnlineGameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
@@ -189,7 +188,7 @@ public class PlayerView extends Tab implements ViewObserver {
 
                     case ACTIVATION:
                         finishButton.setDisable(true);
-                        executeButton.setDisable(gameController.gameMode == GameMode.ONLINE);
+                        executeButton.setDisable(gameController.getClass().equals(OnlineGameController.class));
                         stepButton.setDisable(false);
                         break;
 

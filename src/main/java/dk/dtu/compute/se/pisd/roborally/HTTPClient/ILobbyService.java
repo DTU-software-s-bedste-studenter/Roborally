@@ -1,5 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.HTTPClient;
 
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
+
 public interface ILobbyService {
     Integer getNewLobbyID();
 
@@ -18,4 +20,8 @@ public interface ILobbyService {
     boolean addJSONbyID(String json, int id);
 
     boolean updateJSON(String json, int id);
+
+    boolean notifyPhaseChange(int lobbyID, String playerName);
+
+    boolean canProceedToNextPhase(int lobbyID);
 }

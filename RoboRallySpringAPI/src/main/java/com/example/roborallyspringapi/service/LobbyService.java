@@ -83,4 +83,14 @@ public class LobbyService implements ILobbyService{
         return false;
     }
 
+    @Override
+    public boolean notifyPhaseChange(int lobbyID, String playerName) {
+
+    }
+
+    @Override
+    public boolean canProceedToNextPhase(int lobbyID) {
+
+    }
+
 }

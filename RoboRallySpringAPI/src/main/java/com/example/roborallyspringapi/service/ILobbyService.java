@@ -1,25 +1,27 @@
 package com.example.roborallyspringapi.service;
 
-import com.example.roborallyspringapi.api.model.Lobby;
-
-import java.util.List;
-
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
 
 public interface ILobbyService {
-
-
-    public List<Lobby> findAll();
-
-    boolean addLobby(Lobby f);
+    Integer getNewLobbyID();
 
     Lobby getLobbyById(int id);
 
+    String getLobbys() throws Exception;
 
-    String getJSONById(int id);
+    boolean addLobby(Lobby l);
 
     boolean updateLobby(int id, Lobby f);
 
     boolean deleteLobbyById(int id);
 
-    boolean updateJSON(int id, String l);
+    public String getJSONbyID(int id);
+
+    boolean addJSONbyID(String json, int id);
+
+    boolean updateJSON(String json, int id);
+
+    boolean notifyPhaseChange(int lobbyID, String playerName);
+
+    boolean canProceedToNextPhase(int lobbyID);
 }

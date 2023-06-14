@@ -67,7 +67,7 @@ public class AppController implements Observer {
     final private RoboRally roboRally;
     private GameController gameController;
 
-    private final LobbyClient lobbyClient = new LobbyClient();
+    public final LobbyClient lobbyClient = new LobbyClient();
 
     private Lobby lobby = new Lobby();
 
@@ -104,7 +104,7 @@ public class AppController implements Observer {
 
             String map = result2.get();
             Board board = LoadBoard.loadBoard(map);
-            gameController = new GameController(board, this, GameMode.OFFLINE);
+            gameController = new OfflineGameController(board, this);
             int no = result.get();
             for (int i = 0; i < no; i++) {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
@@ -208,7 +208,6 @@ public class AppController implements Observer {
 
         String map = selectedMap.get();
         Board board = LoadBoard.loadBoard(map);
-        gameController = new GameController(board, this, GameMode.ONLINE, selectNameDialog.getResult());
         int i = 0;
         for (String playerName : lobby.getPlayers()) {
             Player player = new Player(board, PLAYER_COLORS.get(i++), playerName);
@@ -222,6 +221,7 @@ public class AppController implements Observer {
         lobby.setGameStarted(true);
         lobbyClient.updateJSON(lobby.getJSON(), lobby.getId());
         lobbyClient.updateLobby(lobby.getId(), lobby);
+        gameController = new OnlineGameController(board, this, selectNameDialog.getResult(), lobby.getId());
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
@@ -273,7 +273,7 @@ public class AppController implements Observer {
         }
     }
 
-    public void joinGame() {
+    public void joinOnlineGame() {
         isOnline = true;
         int realSelectedGameIDtoJoin;
         TextInputDialog inputGameIDtoJoin = new TextInputDialog("Join Game");
@@ -368,17 +368,16 @@ public class AppController implements Observer {
         while(lobby.getPlayerOptions().size() != 0){
             lobby = lobbyClient.getLobbyById(lobby.getId());
         }
-        startLoadedGame(SaveLoad.load(json, true), selectedName.get());
-    }
-
-    private void startLoadedGame(Board board) {
-        gameController = new GameController(board, this, GameMode.OFFLINE);
+        Board board = SaveLoad.load(json, true);
+        // this should only be done for a fresh game so players generate their cards in the first turn
+        board.setIsFirstTurnOfLoadedGame(false);
+        gameController = new OnlineGameController(board, this, selectedName.get(), lobby.getId());
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
 
-    private void startLoadedGame(Board board, String onlinePlayerName) {
-        gameController = new GameController(board, this, GameMode.ONLINE, onlinePlayerName);
+    private void startLoadedGame(Board board) {
+        gameController = new OfflineGameController(board, this);
         gameController.startProgrammingPhase();
         roboRally.createBoardView(gameController);
     }
