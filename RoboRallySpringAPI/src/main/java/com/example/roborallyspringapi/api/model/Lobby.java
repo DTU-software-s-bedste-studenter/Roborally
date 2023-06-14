@@ -20,7 +20,7 @@ public class Lobby {
     private int selectedNrOfPlayers;
 
     private String JSON;
-    private ArrayList<Pair<String, Phase>> playerPhases;
+    private HashMap<String, Phase> playerPhases;
 
     public Lobby(){
 
@@ -91,7 +91,7 @@ public class Lobby {
         this.JSON = JSON;
     }
 
-    public ArrayList<Pair<String, Phase>> getPlayerPhases() {
-        return this.playerPhases;
+    public HashMap<String, Phase> getPlayerPhases() {
+        return playerPhases;
     }
 }

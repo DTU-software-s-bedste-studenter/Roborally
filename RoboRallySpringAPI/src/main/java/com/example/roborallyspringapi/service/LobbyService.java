@@ -92,9 +92,9 @@ public class LobbyService implements ILobbyService{
                 lobby = lb;
             }
         }
-        ArrayList<Pair<String, Phase>> phases = lobby.getPlayerPhases();
+        HashMap<String, Phase> phases = lobby.getPlayerPhases();
         if (phases.size() < lobby.getSelectedNrOfPlayers()) {
-            
+            phases.put(playerName, Phase.PROGRAMMING);
         }
         else {
             switch (phases.get(playerName)) {
@@ -113,7 +113,7 @@ public class LobbyService implements ILobbyService{
                 lobby = lb;
             }
         }
-        ArrayList<Pair<String, Phase>> phases = lobby.getPlayerPhases();
+        HashMap<String, Phase> phases = lobby.getPlayerPhases();
         if (phases.size() == lobby.getSelectedNrOfPlayers()) {
             for (Phase phase : phases) {
                 if (phase.getValue() != phases.get(0).getValue()) {
