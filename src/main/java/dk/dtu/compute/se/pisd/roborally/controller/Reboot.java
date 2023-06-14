@@ -5,7 +5,7 @@ import dk.dtu.compute.se.pisd.roborally.model.Space;
 
 public class Reboot extends FieldAction {
 
-    Heading heading;
+    private Heading heading;
 
     public Heading getHeading() {
         return heading;

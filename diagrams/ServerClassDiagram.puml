@@ -1,0 +1,69 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+class LobbyController{
+-newestID = 1 : int
+-lobbyService : LobbyService
++getLobby() : ResponseEntity<List<Lobby>> GET
++getNextID() : ResponseEntity<Integer> GET
++addLobby(Lobby l) : ResponseEntity<String> POST
++getLobbyByID(int id) : ResponseEntity<Lobby> GET
++updateLobby(int id, Lobby l) : ResponseEntity<String> PUT
++deleteLobby(int id) : ResponseEntity<String> DELETE
++getJSONByID(int id) : ResponseEntity<String> GET
++updateJSON(int id, String s) : ResponseEntity<String> PUT
+}
+class Lobby{
+-id : int
+-players : List<String>
+-playerOptions : List<String>
+-areAllPlayersFinished : HashMap<String, Boolean>
+-active : boolean
+-gameStarted : boolean
+-selectedNrOfPlayers : int
+-JSON : String
++getters() : all
++setters() : all
+}
+class LobbyService{
+lobbyList : ArrayList<Lobby>
++findAll() : List<Lobby>
+addLobby(Lobby f) : boolean
+getLobbyByID(int id) : Lobby
+getJSONByID(int id) : String
+updateLobby(int id, Lobby f) : boolean
+deleteLobbyById(int id) : boolean
+updateJSON(int id, String l) : boolean
+}
+interface ILobbyService{
++findAll() : List<Lobby>
+addLobby(Lobby f) : boolean
+getLobbyByID(int id) : Lobby
+getJSONByID(int id) : String
+updateLobby(int id, Lobby f) : boolean
+deleteLobbyById(int id) : boolean
+updateJSON(int id, String l) : boolean
+}
+class LobbyClient{
+{static}-httpClient : final HttpClient  = HttpClient.newBuilder...
++getLobbys() : String
++getNewLobbyID() : Integer
++getLobbyByID(int id) : Lobby
++addLobby(Lobby l) : boolean
++updateLobby(int id, Lobby f) : boolean
++deleteLobbyById(int id) : boolean
++getJSONByID(int id) : String
++addJSONByID(String json, int id) : boolean
++updateJSON(int id, String l) : boolean
+}
+
+LobbyService"0..*" --|> "1"ILobbyService
+LobbyService"1" -- "0..*"Lobby
+Lobby"0..*" -- "1"LobbyController
+Lobby -- ILobbyService
+LobbyService"1" -- "1"LobbyController
+LobbyClient"0..*" -- "0..*"LobbyController
+
+
+
+@enduml

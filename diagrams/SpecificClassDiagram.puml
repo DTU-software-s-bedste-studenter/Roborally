@@ -1,0 +1,285 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+class Board{
++width : final int
++height :final int
++checkpoints : final int
++boardName : final String
+-gameId : Integer
+-spaces : final Space[][]
+-players : final List<Player>
+-current : Player
+-phase : Phase = INITIALISATION
+-step: int = 0
+-stepMode : boolean
+-startSpaces : List<Space>
+-isFirstTurnOfLoadedGame : boolean
++addPlayer(Player player) : void
++getPlayerNumber(Player player) : int
++getNeighbour(Space space, Heading heading) : Space
++getStatusMessage() : String
++addStartSpaces() : void
++getRandomStartSpaces() : Space
+}
+class Player{
+{static}+NO_REGISTERS: final int = 5
+{static}+NO_CARDS: final int = 8
+final public Board board;
+-name : String
+-color : String
+-startSpace : Space
+-space : Space
+-prevSpace : Space
+-activated : boolean = false
+-heading : Heading = SOUTH
+-program : CommandCardField[]
+-cards : CommandCardField[]
+-powerCubes : int
+-checkpointTokens : int
+}
+class Space{
+-player : Player
+-walls : List<Heading>
+-actions : List<FieldAction>
++board : final Board
++x : final int
++y : final int
+playerChanged() : void
+}
+class GameController{
+-winnerFound : boolean = false;
+-appController : AppController
++board : final Board
+-gameMode : final GameMode
+-onlinePlayerName : String = null
++moveCurrentPlayerToSpace(Space space) : void
++startProgrammingPhase() : void
+-generateRandomCommandCard() : CommandCard
++giveNewCardsToPlayer(Player player) : void
++finishProgrammingPhase() : void
+-makeProgramFieldsVisible(int register) : void
+-makeProgramFieldsInvisible() : void
++executePrograms() : void
++executeStep() : void
+-continuePrograms() : void
+-executeNextStep() : void
+-executeCommand(Player player, Command command) : void
++movePlayer(Player player, int numberOfSpaces, boolean isReversed) : void
++pushPlayer(Player player, Heading heading) : boolean
++turnCards(Player player) : void
++playPrevCardAgain(Player currentPlayer, int currentStep) : void
++runChosenOption(Player player, Command command) : void
+-setNextPlayer(Player currentPlayer, int currentStep) : void
++activateActions() : void
+-willCollideWithWall(Space spaceFrom, Space spaceTo, Heading direction) : boolean
+-isPrevNonAgainCardInteractive() : boolean
+-checkForWinner(Player player) : void
+-checkPit(Space space) : boolean
+-OutOfMap(Space prevSpace, Space currentSpace) : boolean
++clearPlayersCards(Player player) : void
++spaceOccupied(Space space, Heading heading) : void
++rebootOrStart(Space space, Player player) : Space
+-expressConveyorBelt(FieldAction fieldaction, Space space) : void
+-getRebootSpace() : Space
+}
+class AppController{
+-PLAYER_NUMBER_OPTIONS : final List<Integer> = Arrays.asList...
+-PLAYER_COLORS : final List<String> = Arrays.asList...
+-BOARD_NAMES : final List<String> = Arrays.asList...
+-roboRally : final RoboRally
+-gameController : GameController
+-lobbyClient : final LobbyClient
+-lobby : Lobby;
+-online : boolean
++newGame(boolean isOnline) : void
++saveGame(boolean stop) : void
++loadGame() : void
++joinGame() : void
+-startLoadedGam(Board board,(String onlinePlayerName) : void
++stopGame() : boolean
++resetGame(Player player) : boolean
++exit() : void
++isGameRunning() : boolean
++update(Subject subject) : void
+-getLobbyPlayerListText(boolean active) : String
+}
+interface ViewObserver{
+updateView(Subject subject) : void
+update(Subject subject) : void
+}
+class LobbyClient{
+{static}-httpClient : final HttpClient  = HttpClient.newBuilder...
++getLobbys() : String
++getNewLobbyID() : Integer
++getLobbyByID(int id) : Lobby
++addLobby(Lobby l) : boolean
++updateLobby(int id, Lobby f) : boolean
++deleteLobbyById(int id) : boolean
++getJSONByID(int id) : String
++addJSONByID(String json, int id) : boolean
++updateJSON(int id, String l) : boolean
+}
+class SaveLoad{
+{static}-SAVEFILEPATH : final String = System.getProperty...
+{static}-SAVEFILENAMES : final List<String> = Arrays.asList...
+{static}-LAST_GAME : final String = "LastGame";
+{static}-fullBoardClient : LobbyClient
+{static}+save(Board board, boolean stop) : void
+{static}+buildGameStateToJSON(Board board) : String
+{static}+load(String filename, boolean isOnline) : Board
+{static}+buildBoardTemplate(Board, ArrayList<SpaceTemplate>, ArrayList<PlayerTemplate>) : FullBoardTemplate
+{static}+buildSpaceTemplates(Board board) : ArrayList<SpaceTemplate>
+{static}+buildPlayerTemplates(Board board) : ArrayList<PlayerTemplate>
+}
+class BoardView{
+-board : Board
+-mainBoardPane : GridPane
+-spaces : SpaceView[][]
+-playersView : PlayersView
+-statusLabel : Label
+-spaceEventHandler : SpaceEventHandler
++updateView(Subject subject) : void
+ }
+class SpaceView{
+{static}+SPACE_HEIGHT : final int = 60; // 75;
+{static}+SPACE_WIDTH : final int = 60; // 75;
++space : final Space
+-updatePlayer() : void
+-drawPlayer() : void
++updateView(Subject subject) : void
+-drawWalls() : void
++drawBackground() : void
++drawFieldActions() : void
+               }
+class RoboRallyMenuBar{
+-appController : AppController
+-controlMenu : Menu
+-controlMenu2 : Menu
+-saveGame : MenuItem
+-newGame : MenuItem
+-loadGame : MenuItem
+-stopGame : MenuItem
+-exitApp : MenuItem
+-hostGame : MenuItem
+-joinGame : MenuItem
+-stopGame2 : MenuItem
+-exitApp2 : MenuItem
++update() : void
+}
+class RoboRally{
+{static}-MIN_APP_WIDTH : final int = 600
+-stage : Stage
+-boardRoot : BorderPane
++init() : void
++start(Stage primaryStage) : void
++createBoardView(GameController gameController) : void
++stop() : void
+}
+abstract class FieldAction{
++doAction(GameController gameController, Space space) : boolean
+}
+interface Observer{
+update(Subject subject) : void
+}
+abstract class Subject{
+-observers : Set<Observer> = Collections.newSetFromMap(new WeakHashMap<>());
++attach(Observer observer) : final void
++detach(Observer observer) : final void
+#notifyChange() : final void
+}
+class Reboot{
+-heading : Heading
++doAction(GameController gameController, Space space) : boolean
+}
+class StartSpace{
++doAction(GameController gameController, Space space) : boolean
+}
+class ConveyorBelt{
+-heading : Heading
+-express : boolean
++doAction(GameController gameController, Space space) : boolean
+}
+class Pit{
++doAction(GameController gameController, Space space) : boolean
+}
+class Gears{
+-rotation : Rotation
++doAction(GameController gameController, Space space) : boolean
+}
+class Checkpoint{
+-checkpointNr : int
++doAction(GameController gameController, Space space) : boolean
+}
+class PushPanel{
+-heading : Heading
+-reg1 : int
+-reg2 : int
+-reg3 : int
++doAction(GameController gameController, Space space) : boolean
+}
+class Lobby{
+-id : int
+-players : List<String>
+-playerOptions : List<String>
+-areAllPlayersFinished : HashMap<String, Boolean>
+-active : boolean
+-gameStarted : boolean
+-selectedNrOfPlayers : int
+-JSON : String
+}
+interface ILobbyClient{
+getLobbys() : String
+getNewLobbyID() : Integer
+getLobbyByID(int id) : Lobby
+addLobby(Lobby l) : boolean
+updateLobby(int id, Lobby f) : boolean
+deleteLobbyById(int id) : boolean
+getJSONByID(int id) : String
+addJSONByID(String json, int id) : boolean
+updateJSON(int id, String l) : boolean
+}
+
+
+AppController"1" - "1"RoboRally
+AppController"1" *--- "1"GameController
+AppController"1" --  "1"LobbyClient
+GameController"1"  --* "1"Board
+GameController"1" *--  "1"BoardView
+BoardView"0..*"  ..|>  "1"ViewObserver
+SpaceView"0..*" ..|> "1"ViewObserver
+AppController"1" -- "1"RoboRallyMenuBar
+Board"1" -- "1"BoardView
+LobbyClient"1"--- "1"SaveLoad
+Board"1" -- "1"SaveLoad
+ViewObserver"0..*" --|> "1"Observer
+Reboot"1..*" --|> "1"FieldAction
+StartSpace"1..*" ---|> "1"FieldAction
+FieldAction"1" <|--- "0..*" ConveyorBelt
+Pit "0..*" -|> "1"FieldAction
+Gears "0..*" --|> "1"FieldAction
+FieldAction"1" <---- "1..*" Checkpoint
+FieldAction"1" <|-- "0..*"PushPanel
+LobbyClient"0..*" ..|> "1"ILobbyClient
+Lobby"0..*" -- "1"LobbyClient
+Lobby"0..1" -- "1"AppController
+Board"0..*" --|> "1"Subject
+Player"0..*" --|> "1"Subject
+Space"0..*" --|> "1"Subject
+Board"1" *- "1..*"Space
+Space"1" - "0..1"Player
+Player"0.." -- "1"SpaceView
+Space"1" *-- "1"SpaceView
+Space"1..*" -- "1"BoardView
+GameController"1" --"0..*"Space
+GameController"1" -- "2..6"Player
+FieldAction"1..*" -- "1"GameController
+BoardView"1" -- "1..*"SpaceView
+RoboRallyMenuBar"1" -- "1"RoboRally
+FieldAction"0..1" - "1"SpaceView
+GameController"1" -- "0..*"SpaceView
+Player"2..6" --* "1" Board
+FieldAction "0..1" -- "1" Space
+
+@enduml
