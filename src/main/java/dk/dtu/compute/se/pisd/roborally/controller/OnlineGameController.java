@@ -6,6 +6,7 @@ import dk.dtu.compute.se.pisd.roborally.model.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class OnlineGameController extends GameController{
 
@@ -37,10 +38,18 @@ public class OnlineGameController extends GameController{
 
     @Override
     public void finishProgrammingPhase() {
-        //this.appController.lobbyClient.
-        //Timer timer = new Timer();
-        //TimerTask waitForActivationPhase
-        //board.setPhase(Phase.ACTIVATION);
+        boolean reply = this.appController.lobbyClient.notifyPhaseChange(this.lobbyID, this.localPlayer.getName());
+        Timer timer = new Timer();
+        TimerTask waitForActivationPhase = new TimerTask() {
+            @Override
+            public void run() {
+                if (appController.lobbyClient.canProceedToNextPhase(lobbyID)) {
+                    board.setPhase(Phase.ACTIVATION);
+                    this.cancel();
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(waitForActivationPhase, 0, 3000);
     }
 
     @Override

@@ -86,10 +86,15 @@ public class LobbyService implements ILobbyService{
 
     @Override
     public boolean notifyPhaseChange(int lobbyID, String playerName) {
-        Lobby lobby = lobbyList.get(lobbyID - 1);
-        HashMap<String, Phase> phases = lobby.getPlayerPhases();
+        Lobby lobby = null;
+        for(Lobby lb : lobbyList) {
+            if(lb.getId() == id) {
+                lobby = lb;
+            }
+        }
+        ArrayList<Pair<String, Phase>> phases = lobby.getPlayerPhases();
         if (phases.size() < lobby.getSelectedNrOfPlayers()) {
-            phases.put(playerName, Phase.ACTIVATION);
+            
         }
         else {
             switch (phases.get(playerName)) {
@@ -102,11 +107,16 @@ public class LobbyService implements ILobbyService{
 
     @Override
     public boolean canProceedToNextPhase(int lobbyID) {
-        Lobby lobby = lobbyList.get(lobbyID - 1);
-        ArrayList<Phase> phases = (ArrayList<Phase>) lobby.getPlayerPhases().values().stream().toList();
+        Lobby lobby = null;
+        for(Lobby lb : lobbyList) {
+            if(lb.getId() == id) {
+                lobby = lb;
+            }
+        }
+        ArrayList<Pair<String, Phase>> phases = lobby.getPlayerPhases();
         if (phases.size() == lobby.getSelectedNrOfPlayers()) {
             for (Phase phase : phases) {
-                if (phase != phases.get(0)) {
+                if (phase.getValue() != phases.get(0).getValue()) {
                     return false;
                 }
             }
