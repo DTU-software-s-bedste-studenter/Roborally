@@ -88,7 +88,7 @@ public class LobbyService implements ILobbyService{
     public boolean notifyPhaseChange(int lobbyID, String playerName) {
         Lobby lobby = null;
         for(Lobby lb : lobbyList) {
-            if(lb.getId() == id) {
+            if(lb.getId() == lobbyID) {
                 lobby = lb;
             }
         }
@@ -109,14 +109,14 @@ public class LobbyService implements ILobbyService{
     public boolean canProceedToNextPhase(int lobbyID) {
         Lobby lobby = null;
         for(Lobby lb : lobbyList) {
-            if(lb.getId() == id) {
+            if(lb.getId() == lobbyID) {
                 lobby = lb;
             }
         }
         HashMap<String, Phase> phases = lobby.getPlayerPhases();
         if (phases.size() == lobby.getSelectedNrOfPlayers()) {
-            for (Phase phase : phases) {
-                if (phase.getValue() != phases.get(0).getValue()) {
+            for (Phase phase : phases.values()) {
+                if (phase != phases.get(lobby.getPlayers().get(0))) {
                     return false;
                 }
             }
