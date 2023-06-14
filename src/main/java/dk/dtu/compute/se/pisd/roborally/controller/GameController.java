@@ -33,32 +33,10 @@ public abstract class GameController {
         this.board = board;
         this.appController = appController;
     }
-    /**
-     * This is just some dummy controller operation to make a simple move to see something
-     * happening on the board. This method should eventually be deleted!
-     *
-     * @param space the space to which the current player should move
-     */
-
-    // DELETE THIS BEFORE FINAL SUBMISSION!!!
-    public void moveCurrentPlayerToSpace(@NotNull Space space)  {
-        if (space != null && space.board == board) {
-            Player currentPlayer = board.getCurrentPlayer();
-            if (currentPlayer != null && space.getPlayer() == null) {
-                currentPlayer.setSpace(space);
-                int playerNumber = (board.getPlayerNumber(currentPlayer) + 1) % board.getNumberOfPlayers();
-                board.setCurrentPlayer(board.getPlayer(playerNumber));
-            }
-        }
-    }
 
     public abstract void startProgrammingPhase();
 
-    private CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
-    }
+    abstract protected CommandCard generateRandomCommandCard();
 
 
     public void giveNewCardsToPlayer(Player player) {

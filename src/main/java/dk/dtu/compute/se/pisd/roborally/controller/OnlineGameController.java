@@ -4,10 +4,7 @@ import dk.dtu.compute.se.pisd.roborally.fileaccess.SaveLoad;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.FullBoardTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.PlayerTemplate;
 import dk.dtu.compute.se.pisd.roborally.fileaccess.model.SpaceTemplate;
-import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Timer;
@@ -27,17 +24,20 @@ public class OnlineGameController extends GameController{
         }
         this.lobbyID = lobbyID;
     }
+    protected CommandCard generateRandomCommandCard() {
+        Command[] commands = Command.values();
+        int random = (int) (Math.random() * commands.length);
+        CommandCard commandCard;
+        do{
+            commandCard = new CommandCard(commands[random]);
+        }while(commandCard.command == Command.OPTION_LEFT_RIGHT);
+        return commandCard;
+    }
 
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
-        //if (!board.getIsFirstTurnOfLoadedGame()) {
-        //    this.giveNewCardsToPlayer(this.localPlayer);
-        //}
-        //else {
-        //    board.setIsFirstTurnOfLoadedGame(false);
-        //}
     }
 
     @Override

@@ -1,9 +1,6 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
-import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCardField;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
 public class OfflineGameController extends GameController {
@@ -11,6 +8,11 @@ public class OfflineGameController extends GameController {
         super(board, appController);
     }
 
+    protected CommandCard generateRandomCommandCard() {
+        Command[] commands = Command.values();
+        int random = (int) (Math.random() * commands.length);
+        return new CommandCard(commands[random]);
+    }
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
         board.setCurrentPlayer(board.getPlayer(0));
