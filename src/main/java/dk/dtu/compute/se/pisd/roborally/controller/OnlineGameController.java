@@ -26,8 +26,12 @@ public class OnlineGameController extends GameController{
     }
     protected CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random]);
+        Command[] commands1 = new Command[commands.length-1];
+        for(int i = 0; i < commands1.length; i++){
+            commands1[i] = commands[i];
+        }
+        int random = (int) (Math.random() * commands1.length);
+        return new CommandCard(commands1[random]);
     }
 
     public void startProgrammingPhase() {
